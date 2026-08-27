@@ -1,0 +1,34 @@
+name: ResourceWorldResetter
+version: '${project.version}'
+main: com.lozaine.resourceworldresetter.ResourceWorldResetterPlugin
+api-version: '1.21'
+load: POSTWORLD
+authors: [Lozaine]
+description: ResourceWorldResetter 5 for Spigot and CraftBukkit using Multiverse-Core
+depend: [Multiverse-Core]
+commands:
+  rwr:
+    description: ResourceWorldResetter commands
+    usage: /rwr help
+permissions:
+  rwr.admin:
+    description: Allows use of the v5 administration GUI
+    default: op
+  rwr.reload:
+    description: Allows transactional reload of the v5 configuration
+    default: op
+  rwr.reset:
+    description: Allows guarded immediate resets through the reset coordinator
+    default: op
+  rwr.status:
+    description: Allows reset status inspection
+    default: op
+  rwr.history:
+    description: Allows persisted reset history inspection
+    default: op
+  rwr.tp:
+    description: Allows opening and using the player teleport GUI
+    default: true
+  rwr.teleport.world.*:
+    description: Bypasses destination-specific teleport permissions
+    default: op

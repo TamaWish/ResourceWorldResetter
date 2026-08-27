@@ -1,0 +1,38 @@
+prefix: "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> "
+
+command:
+  no-permission: "<prefix><red>You do not have permission: <permission>"
+  player-only: "<prefix><red>The <feature> can only be used by a player."
+  unknown: "<prefix><red>Unknown command. Use /rwr help."
+  help-header: "<prefix><yellow>Available commands:"
+  help-entry: "<gray><usage> <dark_gray>- <white><description>"
+  no-worlds: "<prefix><gray>No reset worlds are configured."
+  reload-success: "<prefix><green>Configuration reloaded. Active worlds: <count>."
+  reload-failed: "<prefix><red>Reload rejected; <retention>"
+  issue: "<red> - <issue>"
+  reset-start: "<prefix><yellow>Starting guarded reset for <white><world> <dark_gray>(ID: <world_id>)<yellow>."
+  reset-success: "<prefix><green>Reset complete [operation=<operation>]: <message>"
+  reset-failed: "<prefix><red>Reset failed [<failure>, safety=<safety>, operation=<operation>]: <message>"
+  history-count: "<prefix><red>History count must be an integer from 1 through 50."
+  history-empty: "<prefix><gray>Reset history is empty."
+  history-header: "<prefix><gold>Recent reset history <dark_gray>(<gray><count> entries<dark_gray>)"
+  history-entry: "<gold><world> <dark_gray>(<gray>ID: <world_id><dark_gray>) <white>— <phase>"
+  history-time: "  <gray>Completed: <white><completed> <dark_gray>| <gray>Operation: <white><operation>"
+  history-detail: "  <gray>Result: <white><result> <dark_gray>— <gray><message>"
+  status-header: "<prefix><gold><world> <dark_gray>(<gray>ID: <world_id><dark_gray>)"
+  status-state: "  <gray>State: <white><phase> <dark_gray>| <gray>Worlds key: <white><world>"
+  status-schedule: "  <gray>Next reset: <white><next>"
+  status-operation: "  <gray>Operation: <white><operation> <dark_gray>— <gray><message>"
+
+notification:
+  warning: "<prefix><yellow><world> will reset in <remaining>."
+  reset-complete: "<prefix><green><world> reset completed successfully."
+  reset-failed: "<prefix><red><world> reset failed: <failure>."
+
+gui:
+  success: "<prefix><green><message>"
+  failure: "<prefix><red><message>"
+  issue: "<red> - <issue>"
+  input-prompt: "<prefix><yellow>Type the value in chat within 30 seconds, or type cancel."
+  input-timeout: "<prefix><red>Input timed out."
+  input-cancelled: "<prefix><gray>Input cancelled."

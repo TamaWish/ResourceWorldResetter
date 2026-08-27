@@ -1,0 +1,55 @@
+# ResourceWorldResetter 5 configuration. Version 4 files are intentionally unsupported.
+config-version: 5
+timezone: Asia/Kuala_Lumpur
+default-hub-world: world
+
+reset-policy:
+  max-safe-retries: 2
+  retry-delay-seconds: 30
+  broadcast-completion: true
+
+# Add only worlds that already exist in Multiverse-Core.
+# Select worlds by the legacy name reported by Multiverse (for example "resource").
+# Multiverse remains the authority for each world's canonical name and key; RWR does not create keys.
+# Missing "managed" is always treated as false.
+worlds: {}
+
+# Example reset entry (replace the empty worlds map above with a block like this):
+# worlds:
+#   resource:
+#     multiverse-world: resource
+#     display-name: "Resource World"
+#     enabled: true
+#     managed: true
+#     schedule:
+#       type: DAILY
+#       time: "03:00"
+#       day-of-week: MONDAY
+#       day-of-month: 1
+#       interval-minutes: 1440
+#     # Whole minutes before reset. Use [] to disable warnings.
+#     warning-minutes: [30, 10, 5, 1]
+#     regeneration:
+#       seed-policy: RANDOM
+#       fixed-seed: 0
+#       keep-world-config: true
+#       keep-gamerules: true
+#       keep-world-border: true
+#     evacuation:
+#       enabled: true
+#       destination: world
+
+teleport:
+  # Discover registered Multiverse worlds without loading them.
+  auto-discover: true
+  # Default visibility for discovered worlds without an explicit override.
+  default-enabled: false
+  # Show permission-locked entries in the player GUI instead of hiding them.
+  show-locked: true
+  # Overrides control visibility and permission only. Display names come from managed-world settings.
+  # Example:
+  # worlds:
+  #   resource:
+  #     enabled: true
+  #     permission: "" # blank = public to players with rwr.tp
+  worlds: {}

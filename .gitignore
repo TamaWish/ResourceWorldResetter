@@ -1,0 +1,35 @@
+# Maven and generated build output
+target/
+**/target/
+*.log
+
+# IDE and operating-system files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Local runtime and test data
+plugins/
+world/
+world_nether/
+world_the_end/
+debug-*.log
+
+# Internal development documentation (not public release documentation)
+**/ROADMAP*.md
+**/docs/ROADMAP*.md
+**/docs/ROLLBACK*.md
+**/docs/*TEST_MATRIX*.md
+**/docs/DEVELOPMENT*.md
+**/docs/DEV_*.md
+**/docs/INTERNAL*.md
+**/docs/IMPLEMENTATION*.md
+**/docs/ARCHITECTURE_NOTES*.md
+**/docs/evidence/
+
+# Module-local drafts superseded by the global public documents
+RWR-Spigot/docs/OPERATIONS.md
+RWR-Spigot/docs/MIGRATION.md
+RWR-Spigot/docs/RELEASE_NOTES.md

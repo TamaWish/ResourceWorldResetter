@@ -1,0 +1,51 @@
+# ResourceWorldResetter Paper-Folia 5 configuration (fresh v5.0.0 release).
+# Store Worlds keys in multiverse-world (string id shared with Spigot schema).
+config-version: 5
+timezone: Asia/Kuala_Lumpur
+default-hub-world: world
+
+reset-policy:
+  max-safe-retries: 2
+  retry-delay-seconds: 30
+  broadcast-completion: true
+
+# Add only worlds that already exist in TheNextLvl Worlds.
+# Prefer the exact Worlds key (namespace:value), e.g. "worlds:resource".
+# Bare names are treated as minecraft:<name> by the Worlds adapter.
+# Missing "managed" is always treated as false.
+worlds: {}
+
+# Example reset entry:
+# worlds:
+#   resource:
+#     multiverse-world: worlds:resource
+#     display-name: "Resource World"
+#     enabled: true
+#     managed: true
+#     schedule:
+#       type: DAILY
+#       time: "03:00"
+#       day-of-week: MONDAY
+#       day-of-month: 1
+#       interval-minutes: 1440
+#     warning-minutes: [30, 10, 5, 1]
+#     regeneration:
+#       seed-policy: RANDOM
+#       fixed-seed: 0
+#       keep-world-config: true
+#       keep-gamerules: true
+#       keep-world-border: true
+#     evacuation:
+#       enabled: true
+#       destination: world
+
+teleport:
+  auto-discover: true
+  default-enabled: false
+  show-locked: true
+  # Overrides control visibility and permission only.
+  # worlds:
+  #   resource:
+  #     enabled: true
+  #     permission: ""
+  worlds: {}

@@ -1,0 +1,39 @@
+name: ResourceWorldResetter-Paper-Folia
+version: '${project.version}'
+main: com.lozaine.resourceworldresetter.ResourceWorldResetterPlugin
+api-version: '1.21'
+folia-supported: true
+load: POSTWORLD
+depend: [Worlds]
+authors: [Lozaine]
+description: ResourceWorldResetter 5 for Paper, Purpur, and Folia using TheNextLvl Worlds
+website: https://github.com/TamaWish/ResourceWorldResetter
+
+commands:
+  rwr:
+    description: ResourceWorldResetter root command
+    usage: /rwr help
+    aliases: [resourceworldresetter, rwreset]
+
+permissions:
+  rwr.admin:
+    description: Allows use of the v5 administration GUI
+    default: op
+  rwr.reload:
+    description: Allows transactional reload of the v5 configuration
+    default: op
+  rwr.reset:
+    description: Allows guarded immediate resets through the reset coordinator
+    default: op
+  rwr.status:
+    description: Allows reset status inspection
+    default: op
+  rwr.history:
+    description: Allows persisted reset history inspection
+    default: op
+  rwr.tp:
+    description: Allows opening and using the player teleport GUI
+    default: true
+  rwr.teleport.world.*:
+    description: Bypasses destination-specific teleport permissions
+    default: op

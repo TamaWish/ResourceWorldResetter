@@ -1,0 +1,42 @@
+ResourceWorldResetter — Proprietary License
+
+Copyright (c) 2025–2026 TamaWish. All rights reserved.
+
+This software (the compiled plugin JAR and bundled default configuration) is
+proprietary. It is not open source. Source code is not published and is not
+licensed for redistribution, modification, or public inspection.
+
+PERMITTED USE
+
+You may download and use the official plugin JAR on Minecraft servers you
+operate or administer, subject to the terms of the platform where you obtained
+the download (SpigotMC, Modrinth, Hangar, CurseForge/BukkitDev, or GitHub
+Releases on https://github.com/TamaWish/ResourceWorldResetter).
+
+You may edit runtime files created by the plugin in your server’s
+plugins/ResourceWorldResetter/ folder (for example config.yml and messages.yml)
+for your own server.
+
+PROHIBITED WITHOUT WRITTEN PERMISSION
+
+- Copying, publishing, or redistributing the source code
+- Reverse engineering or decompiling the plugin to create derivative works
+- Repackaging or sublicensing the plugin or its source
+- Removing or altering copyright or license notices in distributed JARs
+
+DOCUMENTATION
+
+User documentation in this repository may be copied or linked for the purpose
+of operating the plugin. Documentation does not grant any right to the
+plugin source code.
+
+DISCLAIMER
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+For licensing questions, use the support channels listed in docs/support.md.

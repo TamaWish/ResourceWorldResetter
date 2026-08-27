@@ -1,0 +1,73 @@
+[center]
+[img]https://files.catbox.moe/plp3up.png[/img]
+
+[url=https://github.com/TamaWish/ResourceWorldResetter/releases][img]https://img.shields.io/badge/Release-v5.0.0-brightgreen?style=flat-square[/img][/url]
+[url=https://www.java.com][img]https://img.shields.io/badge/Java-21%2B-orange?style=flat-square&logo=openjdk&logoColor=white[/img][/url]
+[url=https://hub.spigotmc.org/][img]https://img.shields.io/badge/Spigot%2FPaper-1.21.4%2B%20%2F%2026.x%2B-blue?style=flat-square[/img][/url]
+[url=https://github.com/TamaWish/ResourceWorldResetter/blob/main/LICENSE][img]https://img.shields.io/badge/license-BSD--3--Clause-blue?style=flat-square[/img][/url]
+
+[url=https://www.spigotmc.org/resources/resourceworldresetter.119878/][img]https://img.shields.io/spiget/downloads/119878?style=flat-square&label=Spigot%20downloads&color=yellow[/img][/url]
+[url=https://modrinth.com/project/PjsJlPJ9][img]https://img.shields.io/badge/dynamic/json?style=flat-square&color=1bd96a&label=Modrinth&query=downloads&url=https%3A%2F%2Fapi.modrinth.com%2Fv2%2Fproject%2FPjsJlPJ9&suffix=%20downloads[/img][/url]
+[url=https://github.com/TamaWish/ResourceWorldResetter][img]https://img.shields.io/github/stars/TamaWish/ResourceWorldResetter?style=flat-square&logo=github[/img][/url]
+
+[url=https://hangar.papermc.io/Lozaine][img]https://img.shields.io/badge/Hangar-ResourceWorldResetter-blue?style=flat-square[/img][/url]
+[url=https://dev.bukkit.org/projects/resourceworldresetter][img]https://img.shields.io/badge/BukkitDev-Project-blue?style=flat-square[/img][/url]
+[/center]
+
+[SIZE=6][B]ResourceWorldResetter 5.0.0[/B][/SIZE]
+
+Automate safe, scheduled resource-world regeneration with evacuation, verification, history, operator controls, and player teleport menus.
+
+[SIZE=5][B]Choose the correct build[/B][/SIZE]
+
+[B]Spigot / CraftBukkit[/B]
+[LIST]
+[*]Install [B]RWR-Spigot-5.0.0.jar[/B].
+[*]Requires [URL=https://modrinth.com/plugin/multiverse-core]Multiverse-Core 5.8.0+[/URL].
+[/LIST]
+
+[B]Paper / Purpur / Folia[/B]
+[LIST]
+[*]Install [B]RWR-Paper-Folia-5.0.0.jar[/B].
+[*]Requires [URL=https://modrinth.com/plugin/worlds-1]Worlds by TheNextLvl 4.4.0+[/URL].
+[*]This build does not use Multiverse-Core.
+[/LIST]
+
+Install exactly one RWR platform JAR. The shared core is already included.
+
+[SIZE=5][B]Features[/B][/SIZE]
+[LIST]
+[*]Daily, weekly, monthly, and interval reset schedules
+[*]Configurable warning countdowns and timezone-aware next-run calculation
+[*]Safe player evacuation before regeneration
+[*]Post-regeneration world, identity, loaded-state, and spawn verification
+[*]Crash journal and conservative interrupted-operation recovery
+[*]Admin dashboard, reset confirmation, history, status, and configuration GUIs
+[*]Player teleport GUI with permissions, pagination, player counts, and reset-phase blocking
+[*]Public cancellable pre-reset and terminal post-reset events
+[*]Folia-safe scheduling and non-blocking player evacuation
+[*]MiniMessage-based messages and friendly server logging
+[/LIST]
+
+[SIZE=5][B]Requirements[/B][/SIZE]
+[LIST]
+[*]Java 21+
+[*]Minecraft API 1.21.4+, including the 26.x server line
+[*]A supported world-management plugin matching the selected RWR build
+[/LIST]
+
+[SIZE=5][B]Main commands[/B][/SIZE]
+[CODE]/rwr help
+/rwr status
+/rwr next
+/rwr history [count]
+/rwr reset <world-id>
+/rwr reload
+/rwr gui
+/rwr tp[/CODE]
+
+Back up the plugin data folder and managed worlds before upgrading. Version 4.2.1 and earlier belong to the legacy v4 line; v5 uses a new configuration and must be migrated manually.
+
+[URL=https://github.com/TamaWish/ResourceWorldResetter/releases]Downloads[/URL] • [URL=https://github.com/TamaWish/ResourceWorldResetter/blob/main/OPERATIONS_AND_MIGRATION.md]Operations & Migration[/URL] • [URL=https://github.com/TamaWish/ResourceWorldResetter/blob/main/CHANGELOG.md]Changelog[/URL]
+
+Author: Lozaine • Copyright: TamaWish • BSD 3-Clause
