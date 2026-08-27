@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ResourceWorldResetter — Safe automated world resets</title>
+  <meta name="description" content="ResourceWorldResetter 5 automates safe resource-world regeneration for Spigot, Paper, Purpur, and Folia.">
+  <meta name="theme-color" content="#080d0b">
+  <meta property="og:title" content="ResourceWorldResetter 5">
+  <meta property="og:description" content="Safe scheduling, evacuation, regeneration, verification, history, and operator tools for Minecraft resource worlds.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tamawish.github.io/ResourceWorldResetter/">
+  <meta property="og:image" content="https://files.catbox.moe/plp3up.png">
+  <link rel="canonical" href="https://tamawish.github.io/ResourceWorldResetter/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23080d0b'/%3E%3Cpath d='M14 14h36v36H14z' fill='%2359e391'/%3E%3Cpath d='M22 22h20v8H30v12h-8z' fill='%23080d0b'/%3E%3C/svg%3E">
+  <script>document.documentElement.classList.add('js')</script>
+  <link rel="stylesheet" href="assets/styles.css?v=5.0.0">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary navigation">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">R</span><span>ResourceWorldResetter</span></a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <div class="nav-links" id="site-nav" data-nav-links>
+        <a href="index.html" aria-current="page">Overview</a>
+        <a href="wiki.html">Operator wiki</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="https://github.com/TamaWish/ResourceWorldResetter" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">Version 5.0.0 · Java 21+</div>
+          <h1>Reset worlds.<br><span>Keep control.</span></h1>
+          <p class="hero-copy">Automated resource-world regeneration with safe player evacuation, authoritative provider integration, independent verification, crash history, and operator-first tooling.</p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/TamaWish/ResourceWorldResetter/releases">Download v5.0.0</a>
+            <a class="button" href="#platforms">Choose your build</a>
+            <a class="button ghost" href="wiki.html">Read the wiki</a>
+          </div>
+        </div>
+        <div class="terminal" aria-label="Example reset status">
+          <div class="terminal-head"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="mono">rwr / operations</span></div>
+          <div class="terminal-body mono">
+            <p class="terminal-line"><span class="prompt">$</span> /rwr status</p>
+            <p class="terminal-line">world <span class="success">rainforest</span></p>
+            <p class="terminal-line">phase <span class="warning">EVACUATE</span></p>
+            <p class="terminal-line">players moving safely…</p>
+            <p class="terminal-line"><span class="prompt">→</span> provider Worlds</p>
+            <p class="terminal-line"><span class="success">✓</span> regenerate completed</p>
+            <p class="terminal-line"><span class="success">✓</span> identity verified</p>
+            <p class="terminal-line"><span class="success">✓</span> safe spawn verified</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section muted" aria-label="Project banner and badges">
+      <div class="container">
+        <img class="banner" src="https://files.catbox.moe/plp3up.png" alt="ResourceWorldResetter">
+        <div class="grid-2">
+          <div class="badge-stack" aria-label="Compatibility badges">
+            <a href="https://github.com/TamaWish/ResourceWorldResetter/releases"><img alt="Release v5.0.0" src="https://img.shields.io/badge/Release-v5.0.0-brightgreen?style=flat-square"></a>
+            <a href="https://www.java.com"><img alt="Java 21 or newer" src="https://img.shields.io/badge/Java-21%2B-orange?style=flat-square&amp;logo=openjdk&amp;logoColor=white"></a>
+            <a href="https://hub.spigotmc.org/"><img alt="Spigot and Paper compatibility" src="https://img.shields.io/badge/Spigot%2FPaper-1.21.4%2B%20%2F%2026.x%2B-blue?style=flat-square"></a>
+            <a href="https://github.com/TamaWish/ResourceWorldResetter/blob/main/LICENSE"><img alt="BSD 3-Clause license" src="https://img.shields.io/badge/license-BSD--3--Clause-blue?style=flat-square"></a>
+          </div>
+          <div class="badge-stack" aria-label="Community badges">
+            <a href="https://www.spigotmc.org/resources/resourceworldresetter.119878/"><img alt="Spigot downloads" src="https://img.shields.io/spiget/downloads/119878?style=flat-square&amp;label=Spigot%20downloads&amp;color=yellow"></a>
+            <a href="https://modrinth.com/project/PjsJlPJ9"><img alt="Modrinth downloads" src="https://img.shields.io/badge/dynamic/json?style=flat-square&amp;color=1bd96a&amp;label=Modrinth&amp;query=downloads&amp;url=https%3A%2F%2Fapi.modrinth.com%2Fv2%2Fproject%2FPjsJlPJ9&amp;suffix=%20downloads"></a>
+            <a href="https://github.com/TamaWish/ResourceWorldResetter"><img alt="GitHub stars" src="https://img.shields.io/github/stars/TamaWish/ResourceWorldResetter?style=flat-square&amp;logo=github"></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="platforms">
+      <div class="container">
+        <div class="section-heading"><div class="eyebrow">One plugin, two native builds</div><h2>Use the platform that matches your server</h2><p>Each artifact integrates with the world provider appropriate for its scheduler model. Install exactly one RWR JAR; shared core is already bundled.</p></div>
+        <div class="grid-2">
+          <article class="card platform-card">
+            <div class="card-icon">S</div><h3>Spigot / CraftBukkit</h3>
+            <p>Synchronous Bukkit integration backed by Multiverse-Core’s authoritative regeneration API.</p>
+            <div class="tag-row"><span class="tag">RWR-Spigot-5.0.0.jar</span><span class="tag">Multiverse-Core 5.8.0+</span></div>
+            <a href="wiki.html#install-spigot">Spigot installation →</a>
+          </article>
+          <article class="card platform-card paper">
+            <div class="card-icon">F</div><h3>Paper / Purpur / Folia</h3>
+            <p>Region-aware scheduling and non-blocking evacuation backed by Worlds from TheNextLvl.</p>
+            <div class="tag-row"><span class="tag">RWR-Paper-Folia-5.0.0.jar</span><span class="tag">Worlds 4.4.0+</span><span class="tag">No Multiverse</span></div>
+            <a href="wiki.html#install-paper">Paper/Folia installation →</a>
+          </article>
+        </div>
+        <p class="callout" style="margin-top:20px"><strong>Do not install both builds.</strong> Paper/Folia does not use Multiverse-Core, and <code>rwr-core</code> is an internal bundled module—not a server plugin.</p>
+      </div>
+    </section>
+
+    <section class="section muted" id="features">
+      <div class="container">
+        <div class="section-heading"><div class="eyebrow">Designed for live servers</div><h2>A controlled reset pipeline</h2><p>Every operation is observable, guarded, and verified instead of being treated as a blind delete-and-recreate task.</p></div>
+        <div class="grid-3">
+          <article class="card"><div class="card-icon">01</div><h3>Schedule precisely</h3><p>Daily, weekly, monthly, and interval schedules with timezone-aware next-run calculations and warning minutes.</p></article>
+          <article class="card"><div class="card-icon">02</div><h3>Evacuate safely</h3><p>Move players to a validated destination and refuse regeneration while anyone remains in the managed world.</p></article>
+          <article class="card"><div class="card-icon">03</div><h3>Delegate correctly</h3><p>Call Multiverse-Core or Worlds as the authoritative lifecycle provider instead of owning a risky folder pipeline.</p></article>
+          <article class="card"><div class="card-icon">04</div><h3>Verify independently</h3><p>Check registry, loaded state, world identity, and safe spawn after the provider reports completion.</p></article>
+          <article class="card"><div class="card-icon">05</div><h3>Recover conservatively</h3><p>Persist active markers and history. Interrupted ambiguous operations are recorded, never silently replayed.</p></article>
+          <article class="card"><div class="card-icon">06</div><h3>Operate visually</h3><p>Admin and teleport GUIs, status, history, confirmations, permissions, player counts, and reset-phase protection.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="install">
+      <div class="container grid-2">
+        <div>
+          <div class="section-heading"><div class="eyebrow">Quick start</div><h2>Go from download to supervised reset</h2><p>Back up first, choose the correct artifact, and validate the provider relationship before enabling unattended schedules.</p></div>
+          <div class="steps">
+            <div class="step"><div><h3>Install the provider</h3><p>Use Multiverse-Core on Spigot, or Worlds on Paper/Purpur/Folia.</p></div></div>
+            <div class="step"><div><h3>Install one RWR build</h3><p>Place the matching platform JAR in <code>plugins/</code> and fully restart.</p></div></div>
+            <div class="step"><div><h3>Configure and inspect</h3><p>Use <code>/rwr gui</code>, then verify <code>/rwr status</code>, <code>/rwr next</code>, and history.</p></div></div>
+            <div class="step"><div><h3>Run one supervised reset</h3><p>Confirm evacuation, regeneration, verification, messages, and logs before automation.</p></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h3>Clone the source</h3><p>The browser uses the normal repository URL. Git clients use the canonical <code>.git</code> endpoint.</p>
+            <div class="code-block"><button class="copy-button" data-copy="#clone-command">Copy</button><pre id="clone-command">git clone https://github.com/TamaWish/ResourceWorldResetter.git</pre></div>
+            <h3>Main operator commands</h3>
+            <div class="code-block"><button class="copy-button" data-copy="#commands">Copy</button><pre id="commands">/rwr help
+/rwr status
+/rwr next
+/rwr history 10
+/rwr reset &lt;world-id&gt;
+/rwr reload
+/rwr gui
+/rwr tp</pre></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section muted">
+      <div class="container">
+        <div class="section-heading"><div class="eyebrow">Get ResourceWorldResetter</div><h2>Downloads and support</h2></div>
+        <div class="grid-4">
+          <a class="card" href="https://github.com/TamaWish/ResourceWorldResetter/releases"><h3>GitHub Releases</h3><p>Artifacts, release history, and source.</p></a>
+          <a class="card" href="https://www.spigotmc.org/resources/resourceworldresetter.119878/"><h3>SpigotMC</h3><p>Plugin listing and community discussion.</p></a>
+          <a class="card" href="https://modrinth.com/project/PjsJlPJ9"><h3>Modrinth</h3><p>Version downloads and dependencies.</p></a>
+          <a class="card" href="https://hangar.papermc.io/Lozaine"><h3>Hangar</h3><p>Paper ecosystem distribution.</p></a>
+        </div>
+        <div class="actions"><a class="button" href="https://github.com/TamaWish/ResourceWorldResetter/issues">Report an issue</a><a class="button ghost" href="wiki.html#reporting">What to include</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-grid"><div><strong>ResourceWorldResetter 5.0.0</strong><br><span>Author Lozaine · Copyright TamaWish · BSD 3-Clause</span></div><div class="footer-links"><a href="wiki.html">Wiki</a><a href="changelog.html">Changelog</a><a href="../OPERATIONS_AND_MIGRATION.md">Migration</a><a href="https://dev.bukkit.org/projects/resourceworldresetter">BukkitDev</a></div></div></footer>
+  <script src="assets/site.js?v=5.0.0"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Changelog — ResourceWorldResetter</title>
+  <meta name="description" content="ResourceWorldResetter v5 release details and clearly labeled legacy v4 and v3 history.">
+  <meta name="theme-color" content="#080d0b">
+  <meta property="og:title" content="ResourceWorldResetter Changelog"><meta property="og:type" content="article"><meta property="og:url" content="https://tamawish.github.io/ResourceWorldResetter/changelog.html">
+  <link rel="canonical" href="https://tamawish.github.io/ResourceWorldResetter/changelog.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23080d0b'/%3E%3Cpath d='M14 14h36v36H14z' fill='%2359e391'/%3E%3Cpath d='M22 22h20v8H30v12h-8z' fill='%23080d0b'/%3E%3C/svg%3E">
+  <script>document.documentElement.classList.add('js')</script>
+  <link rel="stylesheet" href="assets/styles.css?v=5.0.0">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><nav class="nav container" aria-label="Primary navigation"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">R</span><span>ResourceWorldResetter</span></a><button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">Menu</button><div class="nav-links" id="site-nav" data-nav-links><a href="index.html">Overview</a><a href="wiki.html">Operator wiki</a><a href="changelog.html" aria-current="page">Changelog</a><a href="https://github.com/TamaWish/ResourceWorldResetter" target="_blank" rel="noopener">GitHub</a></div></nav></header>
+  <main id="main">
+    <header class="page-hero"><div class="container"><div class="eyebrow">Release history</div><h1>Current architecture.<br><span>Honest history.</span></h1><p>Version 5 is the current split-platform line. Versions 4.2.1 and earlier are retained here as historical legacy releases, not as current configuration guidance.</p><div class="filters" aria-label="Filter releases"><button class="filter active" type="button" data-release-filter="all">All releases</button><button class="filter" type="button" data-release-filter="current">Current v5</button><button class="filter" type="button" data-release-filter="legacy">Legacy</button></div></div></header>
+    <section class="section"><div class="container timeline">
+      <article class="release-card" data-release="current"><div class="release-meta"><span class="release-label">Current · v5.0.0</span><time datetime="2026">2026</time></div><h2>Split-platform architecture</h2><p>ResourceWorldResetter 5 replaces the universal legacy artifact with platform-native builds sharing one tested coordination core.</p><div class="grid-2"><div><h3>Added</h3><ul><li>Dedicated Spigot/Multiverse-Core and Paper-Folia/Worlds artifacts</li><li>Stable world IDs and provider-aware display names</li><li>Timezone schedules and whole-minute warnings</li><li>Persistent history and active-operation journaling</li><li>Admin and player teleport GUIs</li><li>Public pre-reset and post-reset events</li></ul></div><div><h3>Fixed and hardened</h3><ul><li>Paper and Folia scheduler-thread teleport deadlocks</li><li>Non-blocking Folia entity-region evacuation</li><li>Provider wording in Paper/Folia status and history</li><li>Spigot command, countdown, and server-log visibility</li><li>Asynchronous reset and GUI continuation paths</li><li>Independent post-regeneration verification</li></ul></div></div><p class="callout"><strong>Migration required:</strong> v4 configuration is not loaded automatically. Start from a fresh <code>config-version: 5</code> file.</p><div class="actions"><a class="button primary" href="https://github.com/TamaWish/ResourceWorldResetter/releases">Releases</a><a class="button" href="../CHANGELOG.md">Full Markdown changelog</a><a class="button ghost" href="wiki.html#migration">Migration guide</a></div></article>
+
+      <article class="release-card legacy" data-release="legacy"><div class="release-meta"><span class="release-label">Legacy · v4.2.1</span><span>Final v4 maintenance release</span></div><h2>26.2 support and configuration persistence</h2><ul><li>Combined the 26.2 compatibility update with configuration persistence corrections.</li><li>Fixed GUI and command changes being lost after restart or <code>/rwr reload</code>.</li><li>Kept the legacy v4 command and configuration formats.</li></ul><p><strong>Status:</strong> recommended over v4.2.0 for servers that must remain on v4, but new installations should use v5.</p></article>
+
+      <article class="release-card legacy" data-release="legacy"><div class="release-meta"><span class="release-label">Legacy · v4.2.0</span><span>Compatibility update</span></div><h2>Paper and Spigot 26.2 compatibility</h2><ul><li>Added intended compatibility with the 26.2 server line.</li><li>Included internal cleanup without changing the v4 API, commands, or configuration.</li></ul></article>
+
+      <article class="release-card legacy" data-release="legacy"><div class="release-meta"><span class="release-label">Legacy · v4.1.1</span><span>Paper storage correction</span></div><h2>Paper 26.1 world-folder fix</h2><ul><li>Corrected dimension-backed world-folder resolution.</li><li>Aligned disk preflight, deletion, and history snapshot paths.</li><li>Added safeguards for multi-dimension save roots.</li></ul></article>
+
+      <article class="release-card legacy" data-release="legacy"><div class="release-meta"><span class="release-label">Legacy · v4.1.0</span><span>Operator tooling</span></div><h2>Safety gates and operational visibility</h2><ul><li>Added TPS, player-count, and disk-space preflight gates.</li><li>Added dry-run resets, reset history, expanded status, and warning broadcasts.</li><li>Expanded the admin GUI and interrupted-reset behavior.</li></ul></article>
+
+      <article class="release-card legacy" data-release="legacy"><div class="release-meta"><span class="release-label">Legacy · v4.0.1</span><span>Compatibility patch</span></div><h2>API target alignment</h2><ul><li>Added configurable API targets and compatibility matrix tasks.</li><li>Aligned plugin metadata for broader server support.</li></ul></article>
+
+      <article class="release-card legacy" data-release="legacy"><div class="release-meta"><span class="release-label">Legacy · v4.0.0</span><span>Major release</span></div><h2>Unified command tree and persisted phases</h2><ul><li>Unified commands under <code>/rwr</code> and removed legacy aliases.</li><li>Introduced a phase-aware persisted reset state.</li><li>Added built-in help and v3-to-v4 migration behavior.</li></ul></article>
+
+      <article class="release-card legacy" data-release="legacy"><div class="release-meta"><span class="release-label">Legacy · v3.0.0</span><span>Historical</span></div><h2>GUI and scheduling expansion</h2><ul><li>Expanded world selection and schedule configuration interfaces.</li><li>Added weekly and monthly schedules and bStats integration.</li><li>Improved legacy chunk unloading and teleport behavior.</li></ul></article>
+    </div></section>
+  </main>
+  <footer class="site-footer"><div class="container footer-grid"><div><strong>ResourceWorldResetter release history</strong><br><span>v4.2.1 and earlier are legacy.</span></div><div class="footer-links"><a href="index.html">Overview</a><a href="wiki.html">Wiki</a><a href="../CHANGELOG.md">Markdown changelog</a><a href="https://github.com/TamaWish/ResourceWorldResetter/releases">Releases</a></div></div></footer>
+  <script src="assets/site.js?v=5.0.0"></script>
+</body>
+</html>
