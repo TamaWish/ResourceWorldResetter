@@ -5,6 +5,7 @@ import org.bukkit.plugin.PluginManager;
 
 public final class DependencyValidator {
     public static final PluginVersion MINIMUM_WORLDS_VERSION = new PluginVersion(4, 4, 0);
+    public static final String DOWNLOAD_URL = "https://modrinth.com/plugin/worlds-1";
 
     private final PluginManager pluginManager;
 
@@ -16,8 +17,7 @@ public final class DependencyValidator {
         Plugin worlds = pluginManager.getPlugin("Worlds");
         if (worlds == null || !worlds.isEnabled()) {
             return ValidationResult.failure(
-                    "Worlds (TheNextLvl) is required and must be enabled first. "
-                            + "Download: https://modrinth.com/plugin/worlds");
+                    "Worlds (TheNextLvl) is required and must be enabled first.");
         }
         return validateVersion(pluginVersion(worlds));
     }

@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public record PluginVersion(int major, int minor, int patch) implements Comparable<PluginVersion> {
-    private static final Pattern LEADING_VERSION = Pattern.compile("^(\\d+)\\.(\\d+)(?:\\.(\\d+))?.*$");
+    private static final Pattern LEADING_VERSION = Pattern.compile("^v?(\\d+)\\.(\\d+)(?:\\.(\\d+))?.*$", Pattern.CASE_INSENSITIVE);
 
     public static PluginVersion parse(String value) {
         Objects.requireNonNull(value, "value");

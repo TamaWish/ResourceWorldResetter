@@ -77,7 +77,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
                             ResetPhase.INTERRUPTED,
                             entry.operationId(),
                             entry.message()));
-            logger.warning("Reset " + entry.operationId() + " for " + entry.worldId()
+            logger.warning("[RWR] [WARN] Reset " + entry.operationId() + " for " + entry.worldId()
                     + " was interrupted; no automatic regeneration was attempted.");
         }
         return recovered;
@@ -688,7 +688,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
                 provider() + " regeneration completed and independent verification passed.");
         persistTerminal(marker, outcome);
         setStatus(world, marker.operationId(), ResetPhase.COMPLETE, outcome.message());
-        logger.info("[RWR] " + world.displayName() + " reset completed successfully.");
+        logger.info("[RWR] [INFO] " + world.displayName() + " reset completed successfully.");
         return outcome;
     }
 
@@ -708,7 +708,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
                 message);
         persistTerminal(marker, outcome);
         setStatus(world, marker.operationId(), ResetPhase.FAILED, failure + ": " + message);
-        logger.warning("[RWR] " + world.displayName() + " reset failed [" + failure + ", " + safety
+        logger.warning("[RWR] [WARN] " + world.displayName() + " reset failed [" + failure + ", " + safety
                 + "]: " + message);
         return outcome;
     }
@@ -728,7 +728,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
                 safety,
                 message);
         setStatus(world, operationId, ResetPhase.FAILED, failure + ": " + message);
-        logger.warning("[RWR] " + world.displayName() + " reset failed [" + failure + "]: " + message);
+        logger.warning("[RWR] [WARN] " + world.displayName() + " reset failed [" + failure + "]: " + message);
         return outcome;
     }
 

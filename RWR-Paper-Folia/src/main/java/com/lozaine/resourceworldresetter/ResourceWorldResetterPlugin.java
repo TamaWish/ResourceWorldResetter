@@ -14,8 +14,10 @@ public final class ResourceWorldResetterPlugin extends JavaPlugin {
                 getServer().getPluginManager().disablePlugin(this);
             }
         } catch (LinkageError error) {
-            getLogger().severe("The installed Worlds API is binary-incompatible with ResourceWorldResetter-Paper-Folia 5: "
+            getLogger().severe("[RWR] [ERROR] Worlds is binary-incompatible with RWR-Paper-Folia 5: "
                     + error.getMessage());
+            getLogger().severe("[RWR] [ACTION] Install Worlds 4.4.0+ for Paper/Purpur/Folia: "
+                    + "https://modrinth.com/plugin/worlds-1");
             getServer().getPluginManager().disablePlugin(this);
         }
     }
@@ -25,6 +27,6 @@ public final class ResourceWorldResetterPlugin extends JavaPlugin {
         if (bootstrap != null) {
             bootstrap.disable();
         }
-        getLogger().info("ResourceWorldResetter-Paper-Folia disabled.");
+        getLogger().info("[RWR] [INFO] ResourceWorldResetter-Paper-Folia disabled.");
     }
 }

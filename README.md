@@ -94,8 +94,11 @@ See each module README for features, credits, and license text.
 - [Operations & Migration](docs/public/OPERATIONS_AND_MIGRATION.md)
 - [Changelog](CHANGELOG.md)
 - [SpigotMC BBCode description](docs/public/SPIGOT_DESCRIPTION.bbcode)
+- [SpigotMC BBCode changelog](docs/public/SPIGOT_CHANGELOG.bbcode)
 - [Modrinth Markdown description](docs/public/MODRINTH_DESCRIPTION.md)
-- [BukkitDev Markdown description](docs/public/BUKKITDEV_DESCRIPTION.md)
+- [BukkitDev HTML description](docs/public/BUKKITDEV_DESCRIPTION.html)
+- [BukkitDev HTML changelog](docs/public/BUKKITDEV_CHANGELOG.html)
+- [BukkitDev Markdown changelog](docs/public/BUKKITDEV_CHANGELOG.md)
 - [Hangar Markdown description](docs/public/HANGAR_DESCRIPTION.md)
 
 Internal roadmaps, rollback notes, implementation notes, and test matrices are intentionally excluded by `.gitignore`.

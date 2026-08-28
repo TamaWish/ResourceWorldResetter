@@ -5,7 +5,7 @@ api-version: '1.21'
 load: POSTWORLD
 authors: [Lozaine]
 description: ResourceWorldResetter 5 for Spigot and CraftBukkit using Multiverse-Core
-depend: [Multiverse-Core]
+softdepend: [Multiverse-Core]
 commands:
   rwr:
     description: ResourceWorldResetter commands

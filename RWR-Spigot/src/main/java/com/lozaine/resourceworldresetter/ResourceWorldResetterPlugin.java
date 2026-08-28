@@ -14,8 +14,10 @@ public final class ResourceWorldResetterPlugin extends JavaPlugin {
                 getServer().getPluginManager().disablePlugin(this);
             }
         } catch (LinkageError error) {
-            getLogger().severe("The installed Multiverse-Core API is binary-incompatible with RWR 5: "
+            getLogger().severe("[RWR] [ERROR] Multiverse-Core is binary-incompatible with RWR-Spigot 5: "
                     + error.getMessage());
+            getLogger().severe("[RWR] [ACTION] Install Multiverse-Core 5.8.0 through 5.x: "
+                    + "https://modrinth.com/plugin/multiverse-core");
             getServer().getPluginManager().disablePlugin(this);
         }
     }

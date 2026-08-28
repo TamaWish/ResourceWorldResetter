@@ -4,7 +4,7 @@ main: com.lozaine.resourceworldresetter.ResourceWorldResetterPlugin
 api-version: '1.21'
 folia-supported: true
 load: POSTWORLD
-depend: [Worlds]
+softdepend: [Worlds]
 authors: [Lozaine]
 description: ResourceWorldResetter 5 for Paper, Purpur, and Folia using TheNextLvl Worlds
 website: https://github.com/TamaWish/ResourceWorldResetter

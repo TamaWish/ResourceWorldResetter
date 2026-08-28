@@ -6,6 +6,7 @@ import org.mvplugins.multiverse.core.MultiverseCoreApi;
 
 public final class DependencyValidator {
     public static final PluginVersion MINIMUM_MULTIVERSE_VERSION = new PluginVersion(5, 8, 0);
+    public static final String DOWNLOAD_URL = "https://modrinth.com/plugin/multiverse-core";
     private static final int UNSUPPORTED_MULTIVERSE_MAJOR = 6;
 
     private final PluginManager pluginManager;

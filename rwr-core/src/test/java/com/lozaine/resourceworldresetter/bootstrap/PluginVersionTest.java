@@ -9,6 +9,7 @@ class PluginVersionTest {
     @Test
     void parsesReleaseAndQualifiedVersions() {
         assertThat(PluginVersion.parse("5.8.0")).isEqualTo(new PluginVersion(5, 8, 0));
+        assertThat(PluginVersion.parse("v5.8.0")).isEqualTo(new PluginVersion(5, 8, 0));
         assertThat(PluginVersion.parse("5.8.1-SNAPSHOT")).isEqualTo(new PluginVersion(5, 8, 1));
         assertThat(PluginVersion.parse("5.8")).isEqualTo(new PluginVersion(5, 8, 0));
     }

@@ -30,6 +30,8 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.util.Objects;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.HandlerList;
 import org.mvplugins.multiverse.core.MultiverseCoreApi;
 import org.bstats.bukkit.Metrics;
@@ -54,7 +56,7 @@ public final class PluginBootstrap {
         DependencyValidator.ValidationResult dependency =
                 new DependencyValidator(plugin.getServer().getPluginManager()).validate();
         if (!dependency.compatible()) {
-            plugin.getLogger().severe(dependency.message());
+            logDependencyFailure(dependency.message());
             return false;
         }
 
@@ -141,10 +143,44 @@ public final class PluginBootstrap {
 
         metrics = new Metrics(plugin, BSTATS_PLUGIN_ID);
 
-        plugin.getLogger().info("RWR 5 scheduler and guarded reset coordinator enabled with Multiverse-Core "
+        plugin.getLogger().info("[RWR] [INFO] RWR 5 scheduler and guarded reset coordinator enabled with Multiverse-Core "
                 + dependency.installedVersion() + ". Loaded " + configService.current().worlds().size()
                 + " configured world(s); scheduled " + scheduleManager.scheduledWorldCount() + " managed world(s).");
+        startUpdateCheck(configFile);
         return true;
+    }
+
+    private void logDependencyFailure(String message) {
+        plugin.getLogger().severe("[RWR] [ERROR] Startup blocked: " + message);
+        plugin.getLogger().severe("[RWR] [ACTION] Install Multiverse-Core 5.8.0 through 5.x: "
+                + DependencyValidator.DOWNLOAD_URL);
+        plugin.getLogger().severe("[RWR] [INFO] RWR-Spigot is disabled safely.");
+    }
+
+    private void startUpdateCheck(Path configFile) {
+        if (!YamlConfiguration.loadConfiguration(configFile.toFile()).getBoolean("update-checker.enabled", true)) {
+            plugin.getLogger().info("[RWR] [INFO] GitHub update check is disabled by configuration.");
+            return;
+        }
+        PluginVersion installed;
+        try {
+            installed = PluginVersion.parse(plugin.getDescription().getVersion());
+        } catch (IllegalArgumentException exception) {
+            plugin.getLogger().warning("[RWR] [WARN] GitHub update check skipped: " + exception.getMessage());
+            return;
+        }
+        new GithubReleaseChecker().check(installed).thenAccept(result -> {
+            if (result.status() == GithubReleaseChecker.Status.FAILURE) {
+                plugin.getLogger().warning("[RWR] [WARN] " + result.message());
+            } else if (result.status() == GithubReleaseChecker.Status.UPDATE_AVAILABLE) {
+                plugin.getLogger().info("[RWR] [INFO] Update available: " + result.installed() + " -> "
+                        + result.latest() + ". Download: " + GithubReleaseChecker.MODRINTH_URL);
+                plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getServer().getOnlinePlayers().stream()
+                        .filter(player -> player.hasPermission("rwr.admin"))
+                        .forEach(player -> player.sendMessage(ChatColor.GOLD + "[RWR] Update available: "
+                                + result.latest() + "  " + ChatColor.AQUA + GithubReleaseChecker.MODRINTH_URL)));
+            }
+        });
     }
 
     public void disable() {
