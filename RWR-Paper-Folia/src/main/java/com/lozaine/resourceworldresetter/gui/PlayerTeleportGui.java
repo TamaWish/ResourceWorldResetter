@@ -24,13 +24,16 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 
 /** Player-facing 45-destination selector with policy revalidation on click. */
 public final class PlayerTeleportGui implements Listener {
     private final TeleportService teleports;
     private final MessageService messages;
+    private final Plugin plugin;
 
-    public PlayerTeleportGui(TeleportService teleports, MessageService messages) {
+    public PlayerTeleportGui(Plugin plugin, TeleportService teleports, MessageService messages) {
+        this.plugin = plugin;
         this.teleports = teleports;
         this.messages = messages;
     }
@@ -58,11 +61,12 @@ public final class PlayerTeleportGui implements Listener {
         switch (action.type()) {
             case DESTINATION -> {
                 player.closeInventory();
-                teleports.teleport(player, action.worldName()).thenAccept(attempt -> messages.send(
-                        player,
-                        attempt.successful() ? "gui.success" : "gui.failure",
-                        "message",
-                        attempt.message()));
+                teleports.teleport(player, action.worldName()).thenAccept(attempt ->
+                        player.getScheduler().run(plugin, ignored -> messages.send(
+                                player,
+                                attempt.successful() ? "gui.success" : "gui.failure",
+                                "message",
+                                attempt.message()), null));
             }
             case PAGE -> open(player, action.page());
             case CLOSE -> player.closeInventory();

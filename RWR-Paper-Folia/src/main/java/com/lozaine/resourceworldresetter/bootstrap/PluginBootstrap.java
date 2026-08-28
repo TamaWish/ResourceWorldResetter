@@ -124,7 +124,7 @@ public final class PluginBootstrap {
                 new FoliaOneShotTaskScheduler(plugin),
                 new PaperWarningNotifier(plugin.getServer(), messages),
                 Clock.systemUTC(),
-                new PaperResetNotifier(plugin.getServer(), messages));
+                new PaperResetNotifier(plugin, plugin.getServer(), messages));
         configListener = configService.addChangeListener(scheduleManager::replaceSchedules);
         scheduleManager.replaceSchedules(configService.current());
 
@@ -139,11 +139,11 @@ public final class PluginBootstrap {
                 gateway,
                 coordinator,
                 name -> WorldDisplayNames.resolve(configService.current(), name));
-        playerTeleportGui = new PlayerTeleportGui(teleportService, messages);
+        playerTeleportGui = new PlayerTeleportGui(plugin, teleportService, messages);
         plugin.getServer().getPluginManager().registerEvents(playerTeleportGui, plugin);
 
         RwrCommand executor =
-                new RwrCommand(configService, coordinator, scheduleManager, adminGui, playerTeleportGui, messages);
+                new RwrCommand(plugin, configService, coordinator, scheduleManager, adminGui, playerTeleportGui, messages);
         PluginCommand command = Objects.requireNonNull(plugin.getCommand("rwr"), "rwr command");
         command.setExecutor(executor);
         command.setTabCompleter(executor);

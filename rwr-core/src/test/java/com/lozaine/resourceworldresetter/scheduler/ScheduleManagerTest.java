@@ -14,6 +14,7 @@ import com.lozaine.resourceworldresetter.config.WorldOperationalState;
 import com.lozaine.resourceworldresetter.multiverse.SeedPolicy;
 import com.lozaine.resourceworldresetter.reset.FailureSafety;
 import com.lozaine.resourceworldresetter.reset.ResetExecutor;
+import com.lozaine.resourceworldresetter.reset.ResetFailureType;
 import com.lozaine.resourceworldresetter.reset.ResetOutcome;
 import com.lozaine.resourceworldresetter.reset.ResetPhase;
 import java.time.Clock;
@@ -171,6 +172,75 @@ class ScheduleManagerTest {
         assertThat(oldTasks).allMatch(task -> task.cancelled);
         assertThat(resets).hasValue(1);
         assertThat(tasks.activeCount()).isEqualTo(2);
+    }
+
+    @Test
+    void ambiguousScheduledFailureHaltsFurtherAutomation() {
+        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+        FakeTasks tasks = new FakeTasks(clock);
+        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+                true,
+                ZoneId.of("UTC"),
+                new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 1),
+                List.of()));
+        ResetExecutor executor = worldId -> ResetOutcome.rejected(
+                worldId,
+                "resource",
+                ResetFailureType.MULTIVERSE_API_EXCEPTION,
+                FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
+                "upstream result is unknown");
+        ScheduleManager manager = new ScheduleManager(
+                settings::get,
+                executor,
+                new NextRunCalculator(),
+                tasks,
+                (world, minutes, resetAt) -> {},
+                clock);
+        manager.replaceSchedules(settings.get());
+
+        tasks.runNext();
+
+        assertThat(tasks.activeCount()).isZero();
+        assertThat(manager.nextRun("resource_id")).isEmpty();
+    }
+
+    @Test
+    void safeScheduledFailureUsesConfiguredRetryLimitAndDelay() {
+        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+        FakeTasks tasks = new FakeTasks(clock);
+        AtomicInteger resets = new AtomicInteger();
+        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+                true,
+                ZoneId.of("UTC"),
+                new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 1),
+                List.of()));
+        ResetExecutor executor = worldId -> {
+            resets.incrementAndGet();
+            return ResetOutcome.rejected(
+                    worldId,
+                    "resource",
+                    ResetFailureType.GLOBAL_RESET_BUSY,
+                    FailureSafety.SAFE_TO_RETRY,
+                    "try later");
+        };
+        ScheduleManager manager = new ScheduleManager(
+                settings::get,
+                executor,
+                new NextRunCalculator(),
+                tasks,
+                (world, minutes, resetAt) -> {},
+                clock);
+        manager.replaceSchedules(settings.get());
+
+        tasks.runNext();
+        assertThat(manager.nextRun("resource_id")).contains(
+                ZonedDateTime.ofInstant(clock.instant().plusSeconds(30), ZoneId.of("UTC")));
+        tasks.runNext();
+        tasks.runNext();
+
+        assertThat(resets).hasValue(3);
+        assertThat(manager.nextRun("resource_id")).contains(
+                ZonedDateTime.ofInstant(clock.instant().plusSeconds(60), ZoneId.of("UTC")));
     }
 
     private static ScheduleManager manager(

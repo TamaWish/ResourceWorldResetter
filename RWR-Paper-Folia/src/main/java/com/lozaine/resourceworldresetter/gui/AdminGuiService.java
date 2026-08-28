@@ -450,7 +450,10 @@ public final class AdminGuiService implements Listener {
         plugin.getServer()
                 .getGlobalRegionScheduler()
                 .run(plugin, ignored -> schedules.resetNowAsync(id)
-                        .thenAccept(outcome -> message(player, outcome.successful(), outcome.message())));
+                        .thenAccept(outcome -> player.getScheduler().run(
+                                plugin,
+                                task -> message(player, outcome.successful(), outcome.message()),
+                                null)));
     }
 
     private void reload(Player player) {

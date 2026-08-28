@@ -87,6 +87,10 @@ final class YamlNode {
         data.put(key, value);
     }
 
+    void setLiteral(String key, Object value) {
+        data.put(key, value);
+    }
+
     void createSection(String key) {
         if (!data.containsKey(key) || !(data.get(key) instanceof Map)) {
             data.put(key, new LinkedHashMap<String, Object>());

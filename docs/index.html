@@ -121,7 +121,7 @@
           <div class="steps">
             <div class="step"><div><h3>Install the provider</h3><p>Use Multiverse-Core on Spigot, or Worlds on Paper/Purpur/Folia.</p></div></div>
             <div class="step"><div><h3>Install one RWR build</h3><p>Place the matching platform JAR in <code>plugins/</code> and fully restart.</p></div></div>
-            <div class="step"><div><h3>Configure and inspect</h3><p>Use <code>/rwr gui</code>, then verify <code>/rwr status</code>, <code>/rwr next</code>, and history.</p></div></div>
+            <div class="step"><div><h3>Configure and inspect</h3><p>Use <code>/rwr gui</code>, then verify the phase and next schedule with <code>/rwr status</code>, plus history.</p></div></div>
             <div class="step"><div><h3>Run one supervised reset</h3><p>Confirm evacuation, regeneration, verification, messages, and logs before automation.</p></div></div>
           </div>
         </div>
@@ -132,12 +132,27 @@
             <h3>Main operator commands</h3>
             <div class="code-block"><button class="copy-button" data-copy="#commands">Copy</button><pre id="commands">/rwr help
 /rwr status
-/rwr next
 /rwr history 10
 /rwr reset &lt;world-id&gt;
 /rwr reload
 /rwr gui
 /rwr tp</pre></div>
+            <h3>Permissions</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Node</th><th>Default</th></tr></thead>
+                <tbody>
+                  <tr><td><code>rwr.admin</code></td><td>op</td></tr>
+                  <tr><td><code>rwr.reload</code></td><td>op</td></tr>
+                  <tr><td><code>rwr.reset</code></td><td>op</td></tr>
+                  <tr><td><code>rwr.status</code></td><td>op</td></tr>
+                  <tr><td><code>rwr.history</code></td><td>op</td></tr>
+                  <tr><td><code>rwr.tp</code></td><td>true</td></tr>
+                  <tr><td><code>rwr.teleport.world.*</code></td><td>op</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p><a href="wiki.html#permissions">Permission details →</a></p>
           </div>
         </div>
       </div>

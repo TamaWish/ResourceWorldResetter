@@ -42,7 +42,7 @@ public final class GuiInputService implements Listener, AutoCloseable {
                             return List.of();
                         }
                         String value = state.getText().trim();
-                        plugin.getServer().getGlobalRegionScheduler().run(plugin, ignored -> callback.accept(value));
+                        runForPlayer(player, () -> callback.accept(value));
                         return List.of(AnvilGUI.ResponseAction.close());
                     })
                     .open(player);
@@ -54,12 +54,12 @@ public final class GuiInputService implements Listener, AutoCloseable {
     private void openChat(Player player, Consumer<String> callback) {
         player.closeInventory();
         messages.send(player, "gui.input-prompt");
-        ScheduledTask timeout = plugin.getServer().getGlobalRegionScheduler().runDelayed(plugin, ignored -> {
+        ScheduledTask timeout = player.getScheduler().runDelayed(plugin, ignored -> {
             PendingChat removed = pending.remove(player.getUniqueId());
             if (removed != null) {
                 messages.send(player, "gui.input-timeout");
             }
-        }, TIMEOUT_TICKS);
+        }, () -> pending.remove(player.getUniqueId()), TIMEOUT_TICKS);
         pending.put(player.getUniqueId(), new PendingChat(callback, timeout));
     }
 
@@ -73,13 +73,17 @@ public final class GuiInputService implements Listener, AutoCloseable {
         event.setCancelled(true);
         value.timeout().cancel();
         String message = event.getMessage().trim();
-        plugin.getServer().getGlobalRegionScheduler().run(plugin, ignored -> {
+        runForPlayer(event.getPlayer(), () -> {
             if (message.equalsIgnoreCase("cancel")) {
                 messages.send(event.getPlayer(), "gui.input-cancelled");
             } else {
                 value.callback().accept(message);
             }
         });
+    }
+
+    private void runForPlayer(Player player, Runnable task) {
+        player.getScheduler().run(plugin, ignored -> task.run(), null);
     }
 
     private void cancel(UUID playerId) {

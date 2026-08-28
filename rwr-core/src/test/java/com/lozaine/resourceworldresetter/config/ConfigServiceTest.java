@@ -39,6 +39,8 @@ class ConfigServiceTest {
         MutableCatalog catalog = new MutableCatalog();
         ConfigService service = new ConfigService(new ConfigRepository(configFile, catalog));
         assertThat(service.reload().accepted()).isTrue();
+        AtomicInteger changes = new AtomicInteger();
+        service.addChangeListener(settings -> changes.incrementAndGet());
         String persisted = Files.readString(configFile);
 
         catalog.names.remove("resource");
@@ -46,11 +48,13 @@ class ConfigServiceTest {
         assertThat(service.current().world("resource_world").orElseThrow().state())
                 .isEqualTo(WorldOperationalState.ORPHANED);
         assertThat(Files.readString(configFile)).isEqualTo(persisted);
+        assertThat(changes).hasValue(1);
 
         catalog.names.add("resource");
         assertThat(service.reconcileWorldStates(catalog).changedWorlds()).isEqualTo(1);
         assertThat(service.current().world("resource_world").orElseThrow().state())
                 .isEqualTo(WorldOperationalState.MANAGED);
+        assertThat(changes).hasValue(2);
     }
 
     @Test

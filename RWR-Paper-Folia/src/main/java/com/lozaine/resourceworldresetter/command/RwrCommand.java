@@ -21,6 +21,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 public final class RwrCommand implements CommandExecutor, TabCompleter {
@@ -40,14 +41,17 @@ public final class RwrCommand implements CommandExecutor, TabCompleter {
     private final AdminGuiService adminGui;
     private final PlayerTeleportGui teleportGui;
     private final MessageService messages;
+    private final Plugin plugin;
 
     public RwrCommand(
+            Plugin plugin,
             ConfigService configs,
             ResetCoordinator resets,
             ScheduleManager schedules,
             AdminGuiService adminGui,
             PlayerTeleportGui teleportGui,
             MessageService messages) {
+        this.plugin = plugin;
         this.configs = configs;
         this.resets = resets;
         this.schedules = schedules;
@@ -139,7 +143,13 @@ public final class RwrCommand implements CommandExecutor, TabCompleter {
 
     private void reset(CommandSender sender, String worldId) {
         messages.send(sender, "command.reset-start", "world", displayName(worldId), "world_id", worldId);
-        schedules.resetNowAsync(worldId).thenAccept(outcome -> sendResetOutcome(sender, outcome));
+        schedules.resetNowAsync(worldId).thenAccept(outcome -> {
+            if (sender instanceof Player player) {
+                player.getScheduler().run(plugin, ignored -> sendResetOutcome(sender, outcome), null);
+            } else {
+                sendResetOutcome(sender, outcome);
+            }
+        });
     }
 
     private void sendResetOutcome(CommandSender sender, ResetOutcome outcome) {

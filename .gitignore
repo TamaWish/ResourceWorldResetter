@@ -18,6 +18,7 @@ world_the_end/
 debug-*.log
 
 # Internal development documentation (not public release documentation)
+/OPERATIONS_AND_MIGRATION.md
 **/ROADMAP*.md
 **/docs/ROADMAP*.md
 **/docs/ROLLBACK*.md

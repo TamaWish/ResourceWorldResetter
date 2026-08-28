@@ -33,9 +33,31 @@ Public release history for ResourceWorldResetter. Versions 4.2.1 and earlier are
 - Paper reset deadlock caused by waiting for asynchronous teleports on the primary/global scheduler.
 - Folia global-region watchdog stalls caused by blocking on entity-region teleport futures.
 - Folia evacuation is now fully asynchronous; regeneration begins only after teleport completion and a remaining-player check.
+- Paper/Folia player GUI, teleport, command-completion, and administrator notification callbacks now run on the owning entity scheduler.
+- Paper/Folia Worlds regeneration now applies same, fixed, and random seed policies and honors level-configuration, gamerule, and world-border preservation settings.
+- Safe automatic failures now use the configured retry delay and maximum retry count; ambiguous and interrupted outcomes remain unscheduled for operator review.
+- Schedule listeners now refresh after lifecycle reconciliation changes.
+- Teleport overrides whose world names contain dots now round-trip through YAML without being split into nested paths.
+- Paper/Folia startup now rejects missing, unparseable, or older-than-4.4.0 Worlds installations.
 - Paper/Folia history and status output no longer labels the Worlds provider as Multiverse.
 - Spigot command output, reset countdown broadcasts, and server-log messages now use native Bukkit delivery and remain visible.
 - Paper/Folia reset and teleport GUI paths no longer synchronously wait on platform futures.
+
+### Commands
+
+- `/rwr status [id]` is the single command for current phase and next-schedule information.
+
+### Release validation
+
+- `mvn clean verify` passed across the complete reactor with **83 tests**: 59 core, 18 Spigot, and 6 Paper/Folia.
+- Live-tested the release artifact on Folia 26.1.2 build 8, Java 25, and Worlds 4.4.0.
+- Live-tested the same artifact on Paper 26.2 build 119, Java 25, and Worlds 4.4.0.
+- Verified clean startup, status/history, admin GUI, teleport GUI, and entity-scheduled completion messages.
+- Completed a supervised Worlds regeneration of `worlds_two`; independent verification passed, the same seed and a test world border were preserved, and the daily schedule was restored.
+- Completed a supervised Paper regeneration of `worlds_rainforest` with a player initially inside; evacuation, the same seed, the default world border, independent verification, and schedule restoration all passed.
+- No RWR exception, Folia thread-access violation, watchdog stall, or reset warning appeared during the test.
+- No RWR error, warning, exception, or thread-access failure appeared during the Paper test.
+- Purpur shares the validated Paper API path and is expected to be compatible, but was not separately exercised.
 
 ### Migration warning
 
@@ -61,8 +83,8 @@ v4 configuration is not loaded automatically by v5. Back up the server, install 
 1. Back up `plugins/ResourceWorldResetter/` and managed resource worlds.
 2. Replace the existing legacy JAR with v4.2.1.
 3. Restart the server.
-4. Run `/rwr reset dry-run` before the next scheduled reset.
-5. Verify `/rwr status` and `/rwr next`.
+4. Run one supervised `/rwr reset <id>` before enabling unattended resets.
+5. Verify the phase and next schedule with `/rwr status`.
 
 Users remaining on v4.2.0 should upgrade to v4.2.1. New installations and supported migrations should use v5.
 

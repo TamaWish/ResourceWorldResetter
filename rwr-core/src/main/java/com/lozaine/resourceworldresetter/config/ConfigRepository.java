@@ -364,11 +364,17 @@ public final class ConfigRepository {
         if (teleport != null) {
             teleport.createSection("worlds");
         }
-        settings.teleport().worlds().forEach((name, destination) -> {
-            String path = "teleport.worlds." + name;
-            yaml.set(path + ".enabled", destination.enabled());
-            yaml.set(path + ".permission", destination.permission());
-        });
+        if (teleport != null) {
+            YamlNode teleportWorlds = teleport.section("worlds");
+            if (teleportWorlds != null) {
+                settings.teleport().worlds().forEach((name, destination) -> {
+                    teleportWorlds.setLiteral(name, new LinkedHashMap<String, Object>());
+                    YamlNode destinationNode = teleportWorlds.section(name);
+                    destinationNode.setLiteral("enabled", destination.enabled());
+                    destinationNode.setLiteral("permission", destination.permission());
+                });
+            }
+        }
         return yaml.raw();
     }
 

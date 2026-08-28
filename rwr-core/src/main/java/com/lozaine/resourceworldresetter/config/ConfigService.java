@@ -86,6 +86,7 @@ public final class ConfigService {
                     reconciled,
                     settings.teleport());
             if (active.compareAndSet(settings, updated)) {
+                notifyListeners(updated);
                 return new ReconciliationResult(changed);
             }
         }

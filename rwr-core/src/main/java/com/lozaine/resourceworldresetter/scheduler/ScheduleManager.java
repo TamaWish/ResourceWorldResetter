@@ -2,6 +2,7 @@ package com.lozaine.resourceworldresetter.scheduler;
 
 import com.lozaine.resourceworldresetter.config.ManagedWorldSettings;
 import com.lozaine.resourceworldresetter.config.PluginSettings;
+import com.lozaine.resourceworldresetter.reset.FailureSafety;
 import com.lozaine.resourceworldresetter.reset.ResetExecutor;
 import com.lozaine.resourceworldresetter.reset.ResetOutcome;
 import com.lozaine.resourceworldresetter.reset.ResetPhase;
@@ -127,7 +128,23 @@ public final class ScheduleManager implements AutoCloseable {
                 () -> fireReset(world.id(), token));
         schedules.put(
                 normalize(world.id()),
-                new WorldSchedule(token, nextRun, resetTask, warningTasks));
+                new WorldSchedule(token, nextRun, resetTask, warningTasks, true, 0));
+    }
+
+    private void scheduleSafeRetry(
+            PluginSettings current,
+            ManagedWorldSettings world,
+            int retryAttempt) {
+        long token = tokens.incrementAndGet();
+        ZonedDateTime retryAt = now(current.timezone())
+                .plusSeconds(current.resetPolicy().retryDelaySeconds());
+        Duration delay = Duration.between(clock.instant(), retryAt.toInstant());
+        ScheduledTaskHandle resetTask = tasks.schedule(
+                nonNegative(delay),
+                () -> fireReset(world.id(), token));
+        schedules.put(
+                normalize(world.id()),
+                new WorldSchedule(token, retryAt, resetTask, List.of(), true, retryAttempt));
     }
 
     private void fireWarning(
@@ -173,7 +190,7 @@ public final class ScheduleManager implements AutoCloseable {
             previous.cancel();
         }
         long token = tokens.incrementAndGet();
-        schedules.put(key, WorldSchedule.running(token));
+        schedules.put(key, WorldSchedule.running(token, false, 0));
         return token;
     }
 
@@ -203,7 +220,18 @@ public final class ScheduleManager implements AutoCloseable {
             schedules.remove(normalize(worldId));
             PluginSettings current = settings.get();
             ManagedWorldSettings currentWorld = current.world(worldId).orElse(null);
-            if (currentWorld != null && currentWorld.canReset()) {
+            if (currentWorld == null || !currentWorld.canReset()) {
+                return;
+            }
+            if (outcome.safety() == FailureSafety.AMBIGUOUS_REVIEW_REQUIRED
+                    || outcome.phase() == ResetPhase.INTERRUPTED) {
+                return;
+            }
+            if (currentSchedule.automatic
+                    && outcome.safety() == FailureSafety.SAFE_TO_RETRY
+                    && currentSchedule.safeRetryAttempts < current.resetPolicy().maxSafeRetries()) {
+                scheduleSafeRetry(current, currentWorld, currentSchedule.safeRetryAttempts + 1);
+            } else {
                 scheduleNext(current, currentWorld, now(current.timezone()));
             }
         }
@@ -233,6 +261,8 @@ public final class ScheduleManager implements AutoCloseable {
     private static final class WorldSchedule {
         private final long token;
         private final List<ScheduledTaskHandle> warningTasks;
+        private final boolean automatic;
+        private final int safeRetryAttempts;
         private ZonedDateTime nextRun;
         private ScheduledTaskHandle resetTask;
 
@@ -240,15 +270,19 @@ public final class ScheduleManager implements AutoCloseable {
                 long token,
                 ZonedDateTime nextRun,
                 ScheduledTaskHandle resetTask,
-                List<ScheduledTaskHandle> warningTasks) {
+                List<ScheduledTaskHandle> warningTasks,
+                boolean automatic,
+                int safeRetryAttempts) {
             this.token = token;
             this.nextRun = nextRun;
             this.resetTask = resetTask;
             this.warningTasks = new ArrayList<>(warningTasks);
+            this.automatic = automatic;
+            this.safeRetryAttempts = safeRetryAttempts;
         }
 
-        private static WorldSchedule running(long token) {
-            return new WorldSchedule(token, null, null, List.of());
+        private static WorldSchedule running(long token, boolean automatic, int safeRetryAttempts) {
+            return new WorldSchedule(token, null, null, List.of(), automatic, safeRetryAttempts);
         }
 
         private void cancelWarnings() {

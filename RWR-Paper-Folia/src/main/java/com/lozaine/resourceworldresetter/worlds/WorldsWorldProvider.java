@@ -26,6 +26,7 @@ import net.thenextlvl.worlds.WorldsAccess;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.plugin.Plugin;
 
 /**
@@ -172,11 +173,7 @@ public final class WorldsWorldProvider implements WorldProvider {
                 "Worlds regeneration must be invoked through regenerateAsync.");
     }
 
-    /**
-     * Starts {@link WorldsAccess#regenerate(World)} and completes on the global scheduler.
-     * Seed / keep-* options are accepted for schema compatibility; Worlds does not expose
-     * equivalent knobs in this adapter.
-     */
+    /** Starts Worlds regeneration and completes on the global scheduler. */
     @Override
     public CompletionStage<RegenerationOutcome> regenerateAsync(RegenerationRequest request) {
         Optional<World> loaded = keys.getWorld(request.worldName());
@@ -200,20 +197,32 @@ public final class WorldsWorldProvider implements WorldProvider {
         }
 
         String identity = keys.resolveKey(world).asString();
+        WorldsRegenerationPlan plan = WorldsRegenerationPlan.from(request, world.getSeed());
+        PreservedWorldState preserved = PreservedWorldState.capture(world, request);
         CompletableFuture<RegenerationOutcome> result = new CompletableFuture<>();
         try {
-            access.regenerate(world)
+            access.regenerate(world, builder -> {
+                        if (plan.seed() != null) {
+                            builder.seed(plan.seed());
+                        }
+                        builder.ignoreLevelData(plan.ignoreLevelData());
+                    })
                     .orTimeout(REGENERATE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .whenComplete((regenerated, error) -> plugin.getServer()
                             .getGlobalRegionScheduler()
-                            .run(plugin, ignored -> result.complete(regenerationOutcome(identity, regenerated, error))));
+                            .run(plugin, ignored -> result.complete(
+                                    regenerationOutcome(identity, regenerated, error, preserved))));
         } catch (RuntimeException exception) {
-            result.complete(regenerationOutcome(identity, null, exception));
+            result.complete(regenerationOutcome(identity, null, exception, preserved));
         }
         return result;
     }
 
-    private RegenerationOutcome regenerationOutcome(String identity, World regenerated, Throwable error) {
+    private RegenerationOutcome regenerationOutcome(
+            String identity,
+            World regenerated,
+            Throwable error,
+            PreservedWorldState preserved) {
         if (error != null) {
             Throwable cause = error.getCause() == null ? error : error.getCause();
             if (cause instanceof java.util.concurrent.TimeoutException) {
@@ -233,8 +242,69 @@ public final class WorldsWorldProvider implements WorldProvider {
                     "NULL_WORLD",
                     "Worlds regenerate returned null for " + identity);
         }
+        try {
+            preserved.restore(regenerated);
+        } catch (RuntimeException exception) {
+            return new RegenerationOutcome.Failed(
+                    RegenerationFailureReason.API_EXCEPTION,
+                    "STATE_RESTORE_FAILED",
+                    exception.getClass().getSimpleName() + ": " + nullToEmpty(exception.getMessage()));
+        }
         logger.info("Regenerated world via Worlds API: " + identity);
         return new RegenerationOutcome.Success(snapshot(regenerated));
+    }
+
+    private record PreservedWorldState(Map<String, String> gameRules, BorderState border) {
+        private static PreservedWorldState capture(World world, RegenerationRequest request) {
+            Map<String, String> gameRules = new LinkedHashMap<>();
+            if (request.keepGameRules()) {
+                for (String rule : world.getGameRules()) {
+                    String value = world.getGameRuleValue(rule);
+                    if (value != null) {
+                        gameRules.put(rule, value);
+                    }
+                }
+            }
+            BorderState border = request.keepWorldBorder() ? BorderState.capture(world.getWorldBorder()) : null;
+            return new PreservedWorldState(Map.copyOf(gameRules), border);
+        }
+
+        private void restore(World world) {
+            gameRules.forEach(world::setGameRuleValue);
+            if (border != null) {
+                border.restore(world.getWorldBorder());
+            }
+        }
+    }
+
+    private record BorderState(
+            double centerX,
+            double centerZ,
+            double size,
+            double damageAmount,
+            double damageBuffer,
+            int warningDistance,
+            int warningTime) {
+        private static BorderState capture(WorldBorder border) {
+            Location center = border.getCenter();
+            return new BorderState(
+                    center.getX(),
+                    center.getZ(),
+                    border.getSize(),
+                    border.getDamageAmount(),
+                    border.getDamageBuffer(),
+                    border.getWarningDistance(),
+                    border.getWarningTime());
+        }
+
+        private void restore(WorldBorder border) {
+            border.setCenter(centerX, centerZ);
+            border.setSize(size);
+            border.setDamageAmount(damageAmount);
+            border.setDamageBuffer(damageBuffer);
+            border.setWarningDistance(warningDistance);
+            border.setWarningTime(warningTime);
+        }
     }
 
     private WorldSnapshot snapshot(World world) {

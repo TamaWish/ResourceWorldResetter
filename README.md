@@ -57,13 +57,37 @@ Install **exactly one** platform jar. You never need to download `rwr-core` for 
 
 Both platforms ship as a **fresh v5.0.0** release.
 
+## Commands and permissions
+
+| Command | Permission | Description |
+|---------|------------|-------------|
+| `/rwr help` | (none / relevant nodes) | Permission-aware help |
+| `/rwr status [id]` | `rwr.status` | Live reset / schedule status |
+| `/rwr gui` | `rwr.admin` | Admin configuration GUI |
+| `/rwr tp` | `rwr.tp` | Player teleport menu |
+| `/rwr reset <id>` | `rwr.reset` | Guarded immediate reset |
+| `/rwr history [n]` | `rwr.history` | Recent reset history |
+| `/rwr reload` | `rwr.reload` | Transactional config reload |
+
+| Permission | Default | Description |
+|------------|---------|-------------|
+| `rwr.admin` | op | Full admin GUI and admin actions |
+| `rwr.reload` | op | Reload configuration |
+| `rwr.reset` | op | Force a guarded reset |
+| `rwr.status` | op | View status |
+| `rwr.history` | op | View reset history |
+| `rwr.tp` | true | Open the teleport GUI |
+| `rwr.teleport.world.*` | op | Bypass per-destination teleport permissions |
+
+Leave a destination `permission` blank to make it public to anyone with `rwr.tp`. Set it to any Bukkit node (for example a LuckPerms group) to restrict that destination.
+
 ## Build
 
 ```bash
 mvn -pl RWR-Spigot,RWR-Paper-Folia -am clean package
 ```
 
-See each module README for features, permissions, credits, and license text.
+See each module README for features, credits, and license text.
 
 ## Public documentation
 

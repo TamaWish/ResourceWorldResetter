@@ -220,6 +220,38 @@ class ConfigRepositoryTest {
     }
 
     @Test
+    void dottedTeleportWorldNameSurvivesSaveAndReload() throws Exception {
+        WorldCatalogView dottedCatalog = new WorldCatalogView() {
+            @Override
+            public Set<String> registeredWorldNames() {
+                return Set.of("world", "resource", "resource.world");
+            }
+
+            @Override
+            public String defaultWorldName() {
+                return "world";
+            }
+        };
+        Path configFile = write(validConfig("resource", true, true).replace(
+                "  worlds: {}\n",
+                """
+                  worlds:
+                    resource.world:
+                      enabled: true
+                      permission: rwr.teleport.resource
+                """));
+        ConfigRepository repository = new ConfigRepository(configFile, dottedCatalog);
+        PluginSettings settings = repository.load().settings();
+
+        repository.save(settings);
+
+        ConfigLoadResult reloaded = repository.load();
+        assertThat(reloaded.valid()).isTrue();
+        assertThat(reloaded.settings().teleport().worlds()).containsKey("resource.world");
+        assertThat(reloaded.settings()).isEqualTo(settings);
+    }
+
+    @Test
     void migratesLegacySecondWarningsAndRemovesTeleportDisplayNameOnSave() throws Exception {
         String config = validConfig("resource", true, true).replace(
                 "  worlds: {}\n",
