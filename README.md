@@ -1,6 +1,6 @@
 <div align="center">
 
-![ResourceWorldResetter](https://files.catbox.moe/plp3up.png)
+![ResourceWorldResetter](https://files.catbox.moe/lhrg2i.png)
 
 [![Release v5.0.0](https://img.shields.io/badge/Release-v5.0.0-brightgreen?style=flat-square)](https://github.com/TamaWish/ResourceWorldResetter/releases)
 [![Java](https://img.shields.io/badge/Java-21%2B-orange?style=flat-square&logo=openjdk&logoColor=white)](https://www.java.com)
