@@ -61,7 +61,7 @@ Public release history for ResourceWorldResetter. Versions 4.2.1 and earlier are
 
 ### Migration warning
 
-v4 configuration is not loaded automatically by v5. Back up the server, install exactly one matching platform artifact, and migrate values into a fresh `config-version: 5` configuration. See [Operations & Migration](OPERATIONS_AND_MIGRATION.md).
+v4 configuration is not loaded automatically by v5. Back up the server, install exactly one matching platform artifact, and migrate values into a fresh `config-version: 5` configuration. See [Operations & Migration](docs/public/OPERATIONS_AND_MIGRATION.md).
 
 ## 4.2.1 — Legacy: Paper/Spigot 26.2 support and configuration persistence
 

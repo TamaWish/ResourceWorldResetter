@@ -91,7 +91,7 @@ See each module README for features, credits, and license text.
 
 ## Public documentation
 
-- [Operations & Migration](OPERATIONS_AND_MIGRATION.md)
+- [Operations & Migration](docs/public/OPERATIONS_AND_MIGRATION.md)
 - [Changelog](CHANGELOG.md)
 - [SpigotMC BBCode description](docs/public/SPIGOT_DESCRIPTION.bbcode)
 - [Modrinth Markdown description](docs/public/MODRINTH_DESCRIPTION.md)

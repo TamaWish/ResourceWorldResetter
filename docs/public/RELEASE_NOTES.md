@@ -84,7 +84,7 @@ v4.2.1 and earlier are **legacy**. v5 uses `config-version: 5` and does not auto
 4. Start once to generate a fresh v5 configuration, then recreate worlds, display names, warning minutes, teleports, and schedules.
 5. Run one supervised `/rwr reset <id>` and confirm `/rwr status` before enabling unattended resets.
 
-Full steps: [Operations & Migration](https://github.com/TamaWish/ResourceWorldResetter/blob/main/OPERATIONS_AND_MIGRATION.md)
+Full steps: [Operations & Migration](https://github.com/TamaWish/ResourceWorldResetter/blob/main/docs/public/OPERATIONS_AND_MIGRATION.md)
 
 ## Release validation
 
@@ -97,7 +97,7 @@ Full steps: [Operations & Migration](https://github.com/TamaWish/ResourceWorldRe
 
 ## Links
 
-- [Operations & Migration](https://github.com/TamaWish/ResourceWorldResetter/blob/main/OPERATIONS_AND_MIGRATION.md)
+- [Operations & Migration](https://github.com/TamaWish/ResourceWorldResetter/blob/main/docs/public/OPERATIONS_AND_MIGRATION.md)
 - [Changelog](https://github.com/TamaWish/ResourceWorldResetter/blob/main/CHANGELOG.md)
 - [Modrinth](https://modrinth.com/plugin/resourceworldresetter)
 - [SpigotMC](https://www.spigotmc.org/resources/resourceworldresetter.119878/)

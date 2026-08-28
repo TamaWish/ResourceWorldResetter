@@ -84,6 +84,6 @@ Leave a destination `permission` blank to make it public to anyone with `rwr.tp`
 
 Back up the plugin data folder and managed worlds before upgrading. **v4.2.1 and earlier are legacy v4 releases.** v5 uses a new configuration (`config-version: 5`) and requires a manual migration.
 
-[Downloads](https://github.com/TamaWish/ResourceWorldResetter/releases) · [Operations & Migration](https://github.com/TamaWish/ResourceWorldResetter/blob/main/OPERATIONS_AND_MIGRATION.md) · [Changelog](https://github.com/TamaWish/ResourceWorldResetter/blob/main/CHANGELOG.md)
+[Downloads](https://github.com/TamaWish/ResourceWorldResetter/releases) · [Operations & Migration](https://github.com/TamaWish/ResourceWorldResetter/blob/main/docs/public/OPERATIONS_AND_MIGRATION.md) · [Changelog](https://github.com/TamaWish/ResourceWorldResetter/blob/main/CHANGELOG.md)
 
 Author: **Lozaine** · Copyright: **TamaWish** · BSD 3-Clause
