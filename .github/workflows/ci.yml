@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
           cache: maven
       - name: Install unpublished API contract
         run: mvn --batch-mode --no-transfer-progress -f .api-contract/pom.xml clean install

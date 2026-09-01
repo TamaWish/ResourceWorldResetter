@@ -3,7 +3,7 @@
 ![ResourceWorldResetter](https://files.catbox.moe/lhrg2i.png)
 
 ![GitHub Release](https://img.shields.io/github/v/release/TamaWish/ResourceWorldResetter?include_prereleases&sort=date&display_name=tag&style=plastic&logo=github&logoColor=white&label=Release&color=violet&link=https%3A%2F%2Fgithub.com%2FTamaWish%2FResourceWorldResetter%2Freleases)
-[![Java](https://img.shields.io/badge/Java-21%2B-orange?style=plastic-square&logo=openjdk&logoColor=white)](https://www.java.com)
+[![Java](https://img.shields.io/badge/Java-25%2B-orange?style=plastic-square&logo=openjdk&logoColor=white)](https://www.java.com)
 ![GitHub License](https://img.shields.io/github/license/TamaWish/ResourceWorldResetter?style=plastic&logo=github&logoColor=white&label=License&color=red&link=https%3A%2F%2Fgithub.com%2FTamaWish%2FResourceWorldResetter%2Ftree%2Fmain%3Ftab%3DBSD-3-Clause-1-ov-file)
 ![Discord](https://img.shields.io/discord/1501244767680467096?style=plastic&logo=discord&logoColor=blue&label=Discord&color=blue&link=https%3A%2F%2Fdiscord.gg%2FkbKZzxDETU)
 <br>
@@ -69,7 +69,7 @@ Output: `RWR-Paper-Folia/target/RWR-Paper-Folia-5.1.0.jar`
 
 | Requirement | Supported |
 |-------------|-----------|
-| Java | **21+** |
+| Java | **25+** (required by Worlds 4.4.0+) |
 | Minecraft API baseline | **1.21.4** (`api-version: 1.21`, `folia-supported: true`) |
 | Tested / supported range | **1.21.4 → 26.2** (author-tested) |
 | Server software | Paper, Purpur, Folia |

@@ -19,6 +19,8 @@ ResourceWorldResetter 5.1.0 adds public add-on integration and matching schedule
 
 Install exactly one runtime jar. The shared core and public API are already included; server owners do not install separate core or API jars.
 
+The Spigot/CraftBukkit artifact requires Java 21 or newer. The Paper/Purpur/Folia artifact requires Java 25 or newer because Worlds 4.4.0+ is built for Java 25.
+
 ## Changes
 
 - Added the read-only integration service for compatible add-ons.

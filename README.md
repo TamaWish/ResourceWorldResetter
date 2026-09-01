@@ -3,7 +3,7 @@
 ![ResourceWorldResetter](https://files.catbox.moe/lhrg2i.png)
 
 ![GitHub Release](https://img.shields.io/github/v/release/TamaWish/ResourceWorldResetter?include_prereleases&sort=date&display_name=tag&style=plastic&logo=github&logoColor=white&label=Release&color=violet&link=https%3A%2F%2Fgithub.com%2FTamaWish%2FResourceWorldResetter%2Freleases)
-[![Java](https://img.shields.io/badge/Java-21%2B-orange?style=plastic-square&logo=openjdk&logoColor=white)](https://www.java.com)
+[![Java](https://img.shields.io/badge/Java-21%2B%20%7C%20Paper--Folia%2025%2B-orange?style=plastic-square&logo=openjdk&logoColor=white)](https://www.java.com)
 ![GitHub License](https://img.shields.io/github/license/TamaWish/ResourceWorldResetter?style=plastic&logo=github&logoColor=white&label=License&color=red&link=https%3A%2F%2Fgithub.com%2FTamaWish%2FResourceWorldResetter%2Ftree%2Fmain%3Ftab%3DBSD-3-Clause-1-ov-file)
 ![Discord](https://img.shields.io/discord/1501244767680467096?style=plastic&logo=discord&logoColor=blue&label=Discord&color=blue&link=https%3A%2F%2Fdiscord.gg%2FkbKZzxDETU)
 <br>
@@ -51,7 +51,8 @@ Install **exactly one** platform jar. You never need to download `rwr-core` for 
 
 ## Compatibility
 
-- Java **21+**
+- Spigot/CraftBukkit: Java **21+**
+- Paper/Purpur/Folia with Worlds 4.4.0+: Java **25+**
 - API baseline **1.21.4**, tested through **26.2**
 - Spigot/CraftBukkit → [Multiverse-Core](https://modrinth.com/plugin/multiverse-core) 5.x
 - Paper/Purpur/Folia → [Worlds](https://modrinth.com/plugin/worlds-1) ≥ 4.4.0 (`folia-supported`)
