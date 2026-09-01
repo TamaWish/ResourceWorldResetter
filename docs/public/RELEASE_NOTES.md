@@ -1,4 +1,39 @@
-# ResourceWorldResetter 5.0.0
+# ResourceWorldResetter v5 release notes
+
+Operator-facing notes for the **v5** line. Every **5.x.x** release is recorded here, newest first. When v6 begins, start `RELEASE_NOTES_v6.md`.
+
+Legacy v4 history: [CHANGELOG_v4.md](../../CHANGELOG_v4.md)
+
+---
+
+# 5.1.0 — September 2, 2026
+
+ResourceWorldResetter 5.1.0 adds public add-on integration and matching scheduled warning events while hardening reset and shutdown behavior.
+
+## Choose the correct jar
+
+| Platform | Jar | Required world plugin |
+|---|---|---|
+| Spigot / CraftBukkit | `RWR-Spigot-5.1.0.jar` | Multiverse-Core 5.8.0+ |
+| Paper / Purpur / Folia | `RWR-Paper-Folia-5.1.0.jar` | Worlds by TheNextLvl 4.4.0+ |
+
+Install exactly one runtime jar. The shared core and public API are already included; server owners do not install separate core or API jars.
+
+## Changes
+
+- Added the read-only integration service for compatible add-ons.
+- Added one integration warning event alongside every eligible configured player warning.
+- Ensured exceptional reset completion releases locks, records terminal state, notifies listeners, and settles schedules.
+- Isolated third-party lifecycle and warning listener failures from reset cleanup and player warnings.
+- Hardened scheduler recovery, Folia callback rejection, bounded configuration/state loading, and shutdown behavior.
+
+Version 5.1.0 does not add commands, locale files, fallback rules, or complete localization. Those remain planned for 5.2.0.
+
+Final Spigot, Paper, and Folia smoke testing completed successfully.
+
+---
+
+# 5.0.0
 
 Automated resource-world regeneration for **Spigot**, **CraftBukkit**, **Paper**, **Purpur**, and **Folia**.
 
@@ -30,6 +65,8 @@ Paper, Purpur, and Folia do **not** use Multiverse-Core. Multiverse-Core does no
 - Player teleport GUI: pagination, permissions, player counts, locked visibility, and reset-phase protection
 - Cancellable pre-reset and terminal post-reset API events
 - MiniMessage `messages.yml` and relocated bStats metrics
+
+RWR uses bStats for anonymous usage metrics. No world names or player identities are included. To opt out, set `enabled: false` in `plugins/bStats/config.yml`; metrics are controlled from the bStats folder rather than the RWR plugin folder.
 
 ## Fixes and hardening
 
@@ -102,7 +139,7 @@ Full steps: [Operations & Migration](https://github.com/TamaWish/ResourceWorldRe
 - [Modrinth](https://modrinth.com/plugin/resourceworldresetter)
 - [SpigotMC](https://www.spigotmc.org/resources/resourceworldresetter.119878/)
 - [Hangar](https://hangar.papermc.io/Lozaine)
-- [BukkitDev](https://dev.bukkit.org/projects/resourceworldresetter)
+- [CurseForge](https://www.curseforge.com/minecraft/bukkit-plugins/resourceworldresetter)
 - [Discord](https://discord.gg/kbKZzxDETU)
 
 Author: **Lozaine** · Copyright: **TamaWish** · BSD 3-Clause

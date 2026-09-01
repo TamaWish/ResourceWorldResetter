@@ -1,6 +1,6 @@
 name: ResourceWorldResetter-Paper-Folia
 version: '${project.version}'
-main: com.lozaine.resourceworldresetter.ResourceWorldResetterPlugin
+main: io.github.tamawish.rwr.ResourceWorldResetterPlugin
 api-version: '1.21'
 folia-supported: true
 load: POSTWORLD

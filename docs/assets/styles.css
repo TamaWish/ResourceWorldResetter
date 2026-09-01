@@ -111,7 +111,7 @@ h3 { font-size: 1.2rem; }
 .grid-2, .grid-3, .grid-4 { display: grid; gap: 18px; }
 .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 .grid-2 > *, .grid-3 > *, .grid-4 > *, .hero-grid > * { min-width: 0; }
 .card { position: relative; padding: 26px; border: 1px solid var(--line-soft); border-radius: var(--radius); background: linear-gradient(145deg, rgba(24, 39, 32, .9), rgba(13, 22, 17, .9)); box-shadow: 0 12px 35px rgba(0,0,0,.15); }
 .card:hover { border-color: var(--line); }

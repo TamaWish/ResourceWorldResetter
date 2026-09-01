@@ -2,28 +2,28 @@
 
 ![ResourceWorldResetter](https://files.catbox.moe/lhrg2i.png)
 
-[![Release v5.0.0](https://img.shields.io/badge/Release-v5.0.0-brightgreen?style=flat-square)](https://github.com/TamaWish/ResourceWorldResetter/releases)
-[![Java](https://img.shields.io/badge/Java-21%2B-orange?style=flat-square&logo=openjdk&logoColor=white)](https://www.java.com)
-[![Spigot/Paper](https://img.shields.io/badge/Spigot%2FPaper-1.21.4%2B%20%2F%2026.x%2B-blue?style=flat-square)](https://hub.spigotmc.org/)
-[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue?style=flat-square)](https://github.com/TamaWish/ResourceWorldResetter/blob/main/LICENSE)
+![GitHub Release](https://img.shields.io/github/v/release/TamaWish/ResourceWorldResetter?include_prereleases&sort=date&display_name=tag&style=plastic&logo=github&logoColor=white&label=Release&color=violet&link=https%3A%2F%2Fgithub.com%2FTamaWish%2FResourceWorldResetter%2Freleases)
+[![Java](https://img.shields.io/badge/Java-21%2B-orange?style=plastic-square&logo=openjdk&logoColor=white)](https://www.java.com)
+![GitHub License](https://img.shields.io/github/license/TamaWish/ResourceWorldResetter?style=plastic&logo=github&logoColor=white&label=License&color=red&link=https%3A%2F%2Fgithub.com%2FTamaWish%2FResourceWorldResetter%2Ftree%2Fmain%3Ftab%3DBSD-3-Clause-1-ov-file)
+![Discord](https://img.shields.io/discord/1501244767680467096?style=plastic&logo=discord&logoColor=blue&label=Discord&color=blue&link=https%3A%2F%2Fdiscord.gg%2FkbKZzxDETU)
 <br>
-[![Spigot downloads](https://img.shields.io/spiget/downloads/119878?style=flat-square&label=Spigot%20downloads&color=yellow)](https://www.spigotmc.org/resources/resourceworldresetter.119878/)
-[![Modrinth downloads](https://img.shields.io/badge/dynamic/json?style=flat-square&color=1bd96a&label=Modrinth&query=downloads&url=https%3A%2F%2Fapi.modrinth.com%2Fv2%2Fproject%2FPjsJlPJ9&suffix=%20downloads)](https://modrinth.com/project/PjsJlPJ9)
-[![GitHub stars](https://img.shields.io/github/stars/TamaWish/ResourceWorldResetter?style=flat-square&logo=github)](https://github.com/TamaWish/ResourceWorldResetter)
+![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/PjsJlPJ9?style=plastic&logo=modrinth&logoColor=green&label=Supported%20Version&color=orange)
 <br>
-[![Hangar](https://img.shields.io/badge/Hangar-ResourceWorldResetter-blue?style=flat-square)](https://hangar.papermc.io/Lozaine)
-[![BukkitDev](https://img.shields.io/badge/BukkitDev-Project-blue?style=flat-square)](https://dev.bukkit.org/projects/resourceworldresetter)
+![Spiget Downloads](https://img.shields.io/spiget/downloads/119878?style=plastic&logo=spigotmc&logoColor=yellow&label=SpigotMC&labelColor=grey&color=yellow&link=https%3A%2F%2Fwww.spigotmc.org%2Fresources%2Fresourceworldresetter-1-21-4-26-x.119878%2F)
+![Modrinth Downloads](https://img.shields.io/modrinth/dt/PjsJlPJ9?style=plastic&logo=modrinth&logoColor=green&label=Modrinth&link=https%3A%2F%2Fmodrinth.com%2Fplugin%2Fresourceworldresetter)
+![Hangar Downloads](https://img.shields.io/hangar/dt/ResourceWorldResetter?style=plastic&label=Hangar&color=grey&link=https%3A%2F%2Fhangar.papermc.io%2FLozaine%2FResourceWorldResetter)
+![CurseForge Downloads](https://img.shields.io/curseforge/dt/1110835?style=plastic&logo=curseforge&logoColor=orange&label=CurseForge&color=orange&link=https%3A%2F%2Fwww.curseforge.com%2Fminecraft%2Fbukkit-plugins%2Fresourceworldresetter)
 
 </div>
 
-# ResourceWorldResetter 5.0.0 — Paper / Purpur / Folia
+# ResourceWorldResetter 5.1.0 — Paper / Purpur / Folia
 
 Automated resource-world resets for **Paper**, **Purpur**, and **Folia**.
 
 Marketing / plugin author name: **Lozaine**<br>
 Legal copyright: **TamaWish**
 
-Shaded release JAR: `RWR-Paper-Folia-5.0.0.jar`<br>
+Shaded release JAR: `RWR-Paper-Folia-5.1.0.jar`<br>
 Plugin / data folder: `plugins/ResourceWorldResetter-Paper-Folia/`
 
 ## Download
@@ -34,8 +34,7 @@ Plugin / data folder: `plugins/ResourceWorldResetter-Paper-Folia/`
 | SpigotMC | [https://www.spigotmc.org/resources/resourceworldresetter.119878/](https://www.spigotmc.org/resources/resourceworldresetter.119878/) |
 | Modrinth | [https://modrinth.com/project/PjsJlPJ9](https://modrinth.com/project/PjsJlPJ9) |
 | Hangar | [https://hangar.papermc.io/Lozaine](https://hangar.papermc.io/Lozaine) |
-| BukkitDev | [https://dev.bukkit.org/projects/resourceworldresetter](https://dev.bukkit.org/projects/resourceworldresetter) |
-| CurseForge (legacy) | [https://legacy.curseforge.com/minecraft/bukkit-plugins/resourceworldresetter](https://legacy.curseforge.com/minecraft/bukkit-plugins/resourceworldresetter) |
+| CurseForge | [https://www.curseforge.com/minecraft/bukkit-plugins/resourceworldresetter](https://www.curseforge.com/minecraft/bukkit-plugins/resourceworldresetter) |
 
 ## Required dependency
 
@@ -50,7 +49,7 @@ Spigot/CraftBukkit servers should use [RWR-Spigot](../RWR-Spigot/) with [Multive
 ## Installation
 
 1. Install **[Worlds](https://modrinth.com/plugin/worlds-1)** ≥ 4.4.0.
-2. Download **only** `RWR-Paper-Folia-5.0.0.jar` into `plugins/`.
+2. Download **only** `RWR-Paper-Folia-5.1.0.jar` into `plugins/`.
 3. **Do not** download or install a separate `rwr-core` JAR. Core is compiled into this plugin jar.
 4. Restart or load the plugin, then edit `config.yml` / `messages.yml` (or use `/rwr gui`).
 
@@ -62,7 +61,7 @@ Use **one** RWR platform jar per server. Do not install Spigot and Paper-Folia j
 mvn -pl RWR-Paper-Folia -am clean package
 ```
 
-Output: `RWR-Paper-Folia/target/RWR-Paper-Folia-5.0.0.jar`
+Output: `RWR-Paper-Folia/target/RWR-Paper-Folia-5.1.0.jar`
 
 ---
 
@@ -76,7 +75,7 @@ Output: `RWR-Paper-Folia/target/RWR-Paper-Folia-5.0.0.jar`
 | Server software | Paper, Purpur, Folia |
 | World plugin (hard depend) | **[Worlds](https://modrinth.com/plugin/worlds-1)** (TheNextLvl) ≥ 4.4.0 |
 
-This is a **fresh v5.0.0** first public release for Paper/Purpur/Folia. Create a new `config-version: 5` config.
+Version 5.1 retains `config-version: 5`; pre-v5 configurations still require manual migration.
 
 ### v5.0.0 release validation
 
@@ -123,8 +122,10 @@ Purpur uses the same Paper API and scheduler path validated above and is expecte
 - Auto-remove managed config entries when a world is deleted through Worlds
 - Anvil text input with chat fallback
 - MiniMessage `messages.yml` (gradient `[RWR]` styling)
-- Public API events: `ResourceWorldPreResetEvent` (cancellable), `ResourceWorldPostResetEvent`
-- **bStats** metrics (plugin id **33605**). Opt out via the normal bStats config; charts do not include world names or player identities
+- Public API events: scheduled warning, cancellable pre-reset, and terminal post-reset
+- Version 5.1.0 is limited to API integration and warning events; localization and related commands
+  are reserved for 5.2.0.
+- **bStats** metrics (plugin id **33605**). No world names or player identities are included. To disable metrics, set `enabled: false` in `plugins/bStats/config.yml`; this setting is managed by bStats, not the RWR plugin folder
 
 ---
 

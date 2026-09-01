@@ -1,6 +1,6 @@
 name: ResourceWorldResetter
 version: '${project.version}'
-main: com.lozaine.resourceworldresetter.ResourceWorldResetterPlugin
+main: io.github.tamawish.rwr.ResourceWorldResetterPlugin
 api-version: '1.21'
 load: POSTWORLD
 authors: [Lozaine]

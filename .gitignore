@@ -12,12 +12,16 @@ Thumbs.db
 
 # Local runtime and test data
 plugins/
-world/
-world_nether/
-world_the_end/
+/world/
+/world_nether/
+/world_the_end/
 debug-*.log
 
-# Internal development documentation (not public release documentation)
+# Marketplace paste files (description + changelog per channel). Not wiki docs.
+/docs/marketplace/
+
+# Dev-only release prep and internal notes
+/docs/dev/
 /OPERATIONS_AND_MIGRATION.md
 **/ROADMAP*.md
 **/docs/ROADMAP*.md

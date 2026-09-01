@@ -1,6 +1,19 @@
 # Changelog
 
-Public release history for ResourceWorldResetter. Versions 4.2.1 and earlier are the **legacy v4 line**. Version 5 begins the split-platform architecture and requires a manual configuration migration.
+Public **v5** release history for ResourceWorldResetter. All **5.x.x** versions stay in this file. When v6 begins, start `CHANGELOG_v6.md`.
+
+Legacy v4 history: [CHANGELOG_v4.md](CHANGELOG_v4.md)
+
+## 5.1.0 — Public API integration (2026-09-02)
+
+- Added the stable read-only integration contract and bundled API 5.1.2 warning-event addition.
+- Added immutable managed-world and reset-status snapshots through Bukkit's `ServicesManager`.
+- Unified scheduled-warning, pre-reset, and post-reset events across both platform JARs.
+- Added one public warning event alongside each configured player warning that passes scheduler safety checks.
+- Added provider-neutral failure mappings across both platform JARs.
+- Kept the API embedded unrelocated so server owners do not install a separate API JAR.
+- Scoped 5.1.0 to API integration and warning events. Commands, locale files, fallback rules, and
+  complete localization are planned for 5.2.0.
 
 ## 5.0.0 — Split-platform release
 
@@ -62,52 +75,3 @@ Public release history for ResourceWorldResetter. Versions 4.2.1 and earlier are
 ### Migration warning
 
 v4 configuration is not loaded automatically by v5. Back up the server, install exactly one matching platform artifact, and migrate values into a fresh `config-version: 5` configuration. See [Operations & Migration](docs/public/OPERATIONS_AND_MIGRATION.md).
-
-## 4.2.1 — Legacy: Paper/Spigot 26.2 support and configuration persistence
-
-**Status:** final legacy v4 maintenance release. It is not the predecessor configuration format of v5 and receives no v5 platform split or Folia architecture.
-
-### Added / improved
-
-- Paper/Spigot 26.2 compatibility.
-- Internal cleanup without user-facing command changes.
-
-### Fixed
-
-- GUI and command configuration changes now persist across restart.
-- Configuration changes are no longer lost after `/rwr reload`.
-- Configuration reads and writes use the active Bukkit/Paper configuration instance.
-
-### Legacy upgrade notes
-
-1. Back up `plugins/ResourceWorldResetter/` and managed resource worlds.
-2. Replace the existing legacy JAR with v4.2.1.
-3. Restart the server.
-4. Run one supervised `/rwr reset <id>` before enabling unattended resets.
-5. Verify the phase and next schedule with `/rwr status`.
-
-Users remaining on v4.2.0 should upgrade to v4.2.1. New installations and supported migrations should use v5.
-
-## 4.2.0 — Legacy: Paper/Spigot 26.2 compatibility
-
-- Added intended compatibility with the 26.2 server line.
-- Included internal code-quality cleanup.
-- Retained the v4 API, command, and configuration formats.
-
-## 4.1.1 — Legacy: Paper 26.1 world-folder fix
-
-- Corrected Paper dimension-backed world-folder resolution.
-- Aligned disk preflight, reset deletion, and history snapshot paths.
-- Added safety checks for multi-dimension save roots.
-
-## 4.1.0 — Legacy: safety gates and operator tooling
-
-- Added configurable TPS, player-count, and disk-space preflight gates.
-- Added dry-run resets, reset history, improved status output, and multi-interval warnings.
-- Expanded admin GUI, logging, and interrupted-reset recovery behavior.
-
-## 4.0.0 — Legacy: unified command tree
-
-- Introduced the unified `/rwr` command tree.
-- Added phase-aware persisted reset state.
-- Removed legacy command aliases.

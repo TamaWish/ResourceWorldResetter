@@ -6,8 +6,8 @@ This is the global public runbook for both ResourceWorldResetter 5 platform arti
 
 | Server | RWR artifact | Required world plugin | Data folder |
 |---|---|---|---|
-| Spigot / CraftBukkit | `RWR-Spigot-5.0.0.jar` | Multiverse-Core 5.8.0+ | `plugins/ResourceWorldResetter/` |
-| Paper / Purpur / Folia | `RWR-Paper-Folia-5.0.0.jar` | Worlds by TheNextLvl 4.4.0+ | `plugins/ResourceWorldResetter-Paper-Folia/` |
+| Spigot / CraftBukkit | `RWR-Spigot-5.1.0.jar` | Multiverse-Core 5.8.0+ | `plugins/ResourceWorldResetter/` |
+| Paper / Purpur / Folia | `RWR-Paper-Folia-5.1.0.jar` | Worlds by TheNextLvl 4.4.0+ | `plugins/ResourceWorldResetter-Paper-Folia/` |
 
 Install exactly one RWR artifact. Do not install `rwr-core` separately. Paper/Folia does not use Multiverse-Core.
 

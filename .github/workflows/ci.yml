@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out runtime
+        uses: actions/checkout@v5
+      - name: Check out API contract
+        uses: actions/checkout@v5
+        with:
+          repository: TamaWish/RWR-API
+          ref: main
+          token: ${{ secrets.RWR_API_READ_TOKEN }}
+          path: .api-contract
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Install unpublished API contract
+        run: mvn --batch-mode --no-transfer-progress -f .api-contract/pom.xml clean install
+      - name: Verify runtime reactor
+        run: mvn --batch-mode --no-transfer-progress clean verify
+      - name: Inspect shaded API classes
+        shell: bash
+        run: |
+          for jar in RWR-Spigot/target/RWR-Spigot-5.1.0.jar RWR-Paper-Folia/target/RWR-Paper-Folia-5.1.0.jar; do
+            test "$(jar tf "$jar" | grep -c '^io/github/tamawish/rwr/api/RwrApi.class$')" -eq 1
+            test "$(jar tf "$jar" | grep -c '^io/github/tamawish/rwr/api/event/ResourceWorldResetWarningEvent.class$')" -eq 1
+            test "$(jar tf "$jar" | grep -c '^io/github/tamawish/rwr/api/event/ResourceWorldPreResetEvent.class$')" -eq 1
+            test "$(jar tf "$jar" | grep -c '^io/github/tamawish/rwr/api/event/ResourceWorldPostResetEvent.class$')" -eq 1
+            duplicates="$(jar tf "$jar" | grep '^io/github/tamawish/rwr/api/.*\.class$' | sort | uniq -d)"
+            test -z "$duplicates"
+            if jdeps -verbose:class "$jar" | grep 'io.github.tamawish.rwr.api' | grep -Eq 'org\.mvplugins|net\.thenextlvl'; then
+              echo "Provider type leaked into public API signatures in $jar"
+              exit 1
+            fi
+          done
+      - name: Upload platform artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rwr-5.1.0-${{ github.sha }}
+          path: |
+            RWR-Spigot/target/RWR-Spigot-5.1.0.jar
+            RWR-Paper-Folia/target/RWR-Paper-Folia-5.1.0.jar

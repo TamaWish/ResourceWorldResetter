@@ -1,24 +1,65 @@
-# ResourceWorldResetter 5 configuration. Version 4 files are intentionally unsupported.
+# =============================================================================
+# ResourceWorldResetter v5.1.0 - Spigot / CraftBukkit
+# Author: Lozaine@TamaWish
+# =============================================================================
+# Requires Java 21+ and Multiverse-Core 5.8.0+.
+# Version 4 configurations are not loaded automatically. Back up your server and
+# configure v5 from this fresh template.
+# =============================================================================
+
 config-version: 5
+
+# -----------------------------------------------------------------------------
+# Server Defaults
+# -----------------------------------------------------------------------------
+# IANA timezone used by daily, weekly, and monthly schedules.
+# Examples: Asia/Kuala_Lumpur, Europe/London, America/New_York
 timezone: Asia/Kuala_Lumpur
+
+# Safe destination used when a managed world has no evacuation override.
 default-hub-world: world
 
-# Checks GitHub Releases asynchronously at startup. Set false to disable network checks.
+# -----------------------------------------------------------------------------
+# Update Checker
+# -----------------------------------------------------------------------------
+# Checks GitHub Releases asynchronously at startup. Disable to prevent this check.
 update-checker:
   enabled: true
 
+# -----------------------------------------------------------------------------
+# Reset Policy
+# -----------------------------------------------------------------------------
+# Safe failures may retry automatically. Ambiguous failures always require review.
 reset-policy:
+  # Number of automatic retries after a safe failure. Use 0 to disable retries.
   max-safe-retries: 2
+  # Delay before each safe retry.
   retry-delay-seconds: 30
+  # Broadcast successful completion to online players.
   broadcast-completion: true
 
-# Add only worlds that already exist in Multiverse-Core.
-# Select worlds by the legacy name reported by Multiverse (for example "resource").
-# Multiverse remains the authority for each world's canonical name and key; RWR does not create keys.
-# Missing "managed" is always treated as false.
+# -----------------------------------------------------------------------------
+# Managed Resource Worlds
+# -----------------------------------------------------------------------------
+# Add only worlds that already exist in Multiverse-Core. Use the exact legacy
+# Multiverse name shown by /mv list, such as "resource".
+#
+# Safety: managed must be explicitly true before RWR can regenerate a world.
+# Missing managed is always treated as false.
 worlds: {}
 
-# Example reset entry (replace the empty worlds map above with a block like this):
+# Example: replace worlds: {} above with a block like this.
+#
+# Schedule types:
+# - DAILY: uses time.
+# - WEEKLY: uses time and day-of-week.
+# - MONTHLY: uses time and day-of-month.
+# - INTERVAL: uses interval-minutes.
+#
+# Seed policies:
+# - SAME: preserves the current seed.
+# - FIXED: uses fixed-seed.
+# - RANDOM: generates a new seed for every reset.
 # worlds:
 #   resource:
 #     multiverse-world: resource
@@ -31,7 +72,8 @@ worlds: {}
 #       day-of-week: MONDAY
 #       day-of-month: 1
 #       interval-minutes: 1440
-#     # Whole minutes before reset. Use [] to disable warnings.
+#     # Whole minutes before reset. Every eligible value produces one warning.
+#     # Use [] to disable warnings.
 #     warning-minutes: [30, 10, 5, 1]
 #     regeneration:
 #       seed-policy: RANDOM
@@ -43,6 +85,9 @@ worlds: {}
 #       enabled: true
 #       destination: world
 
+# -----------------------------------------------------------------------------
+# Player Teleport Menu
+# -----------------------------------------------------------------------------
 teleport:
   # Discover registered Multiverse worlds without loading them.
   auto-discover: true
@@ -50,7 +95,8 @@ teleport:
   default-enabled: false
   # Show permission-locked entries in the player GUI instead of hiding them.
   show-locked: true
-  # Overrides control visibility and permission only. Display names come from managed-world settings.
+  # Overrides control visibility and permission only. Display names come from
+  # the managed-world settings above.
   # Example:
   # worlds:
   #   resource:
