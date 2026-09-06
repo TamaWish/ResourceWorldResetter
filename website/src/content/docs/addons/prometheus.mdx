@@ -1,0 +1,56 @@
+---
+title: RWR Prometheus
+description: Export ResourceWorldResetter metrics for Prometheus and Grafana.
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+RWR Prometheus turns reset lifecycle events into a small metrics endpoint. Use the plugin by itself with an existing Prometheus installation, or start the included Prometheus and Grafana demo.
+
+## Requirements
+
+- Java 21+
+- ResourceWorldResetter 5.2 for your server platform
+- Docker with Compose only when using the bundled dashboard demo
+
+## Install the exporter
+
+<Steps>
+1. Put `RWR-Prometheus-<version>.jar` in `plugins/`.
+2. Start the server once to create `plugins/RWR-Prometheus/config.yml`.
+3. Keep `127.0.0.1` when Prometheus runs directly on the Minecraft host.
+4. Restart and open `http://127.0.0.1:9225/metrics`.
+</Steps>
+
+<Tabs>
+  <TabItem label="Prometheus on the Minecraft host">
+    ```yaml
+    server:
+      address: 127.0.0.1
+      port: 9225
+      metrics-path: /metrics
+    ```
+  </TabItem>
+  <TabItem label="Prometheus in Docker">
+    ```yaml
+    server:
+      address: 0.0.0.0
+      port: 9225
+      metrics-path: /metrics
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="danger" title="The metrics endpoint has no authentication">
+  If you bind to `0.0.0.0`, restrict port 9225 with the host firewall so only Prometheus or the intended private network can reach it.
+</Aside>
+
+## Start the included dashboard
+
+```shell
+docker compose -f demo/docker-compose.yml up -d
+```
+
+Open Prometheus at `http://localhost:9090` and Grafana at `http://localhost:3000`. In Prometheus, `up{job="rwr"}` should return `1`.
+
+[Source, releases, metrics, and Grafana demo](https://github.com/TamaWish/RWR-Prometheus)

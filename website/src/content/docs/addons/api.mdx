@@ -1,0 +1,55 @@
+---
+title: RWR public API
+description: Build plugins against stable RWR snapshots, warning events, and reset lifecycle events.
+---
+
+import { Aside, Card, CardGrid, Tabs, TabItem } from '@astrojs/starlight/components';
+
+The RWR API is for plugin developers. It exposes read-only snapshots and events without coupling your plugin to RWR internals, Multiverse-Core, or Worlds.
+
+## Add the dependency
+
+<Tabs syncKey="build-tool">
+  <TabItem label="Maven">
+    ```xml
+    <dependency>
+      <groupId>io.github.tamawish</groupId>
+      <artifactId>rwr-api</artifactId>
+      <version>5.1.2</version>
+      <scope>provided</scope>
+    </dependency>
+    ```
+  </TabItem>
+  <TabItem label="Gradle">
+    ```kotlin
+    dependencies {
+        compileOnly("io.github.tamawish:rwr-api:5.1.2")
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="caution" title="Do not shade the API">
+  RWR supplies these classes at runtime. Keep the API dependency as `provided` or `compileOnly`, and do not install a separate API JAR on the server.
+</Aside>
+
+## Discover RWR
+
+```java
+RwrApi.find(getServer()).ifPresent(api -> {
+    for (ManagedWorldSnapshot world : api.managedWorlds()) {
+        getLogger().info(world.id() + " -> " + world.state());
+    }
+});
+```
+
+<CardGrid>
+  <Card title="Snapshots" icon="document">Read immutable managed-world and reset-status snapshots.</Card>
+  <Card title="Warning events" icon="notification">Observe scheduled warnings before a reset operation exists.</Card>
+  <Card title="Reset events" icon="seti:java">Cancel a pre-reset event or inspect a terminal post-reset outcome.</Card>
+  <Card title="Platform neutral" icon="puzzle">Support either RWR runtime without provider classes leaking into your API.</Card>
+</CardGrid>
+
+Keep event callbacks short and move external I/O off the server thread. Reacquire the service after plugin lifecycle changes.
+
+[Complete API contract and examples](https://github.com/TamaWish/RWR-API)

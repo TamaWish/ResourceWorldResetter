@@ -28,7 +28,9 @@
 .hero {
   border: 1px solid var(--sl-color-gray-4);
   border-radius: 1rem;
-  background: linear-gradient(135deg, var(--sl-color-gray-6), var(--sl-color-gray-5));
+  background:
+    radial-gradient(circle at 88% 12%, color-mix(in srgb, var(--sl-color-accent) 22%, transparent), transparent 34%),
+    linear-gradient(135deg, var(--sl-color-gray-6), var(--sl-color-gray-5));
   padding: clamp(2rem, 7vw, 4.5rem);
 }
 
@@ -36,3 +38,6 @@
 .hero .tagline { color: var(--sl-color-gray-1); max-width: 45rem; font-size: 1.15rem; }
 .sl-markdown-content a { text-underline-offset: 0.18em; }
 .sl-markdown-content :is(code, pre) { border-color: var(--sl-color-gray-4); }
+.release-line { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem; color: var(--sl-color-gray-2); }
+.sl-markdown-content .card { border-radius: 0.75rem; }
+.sl-markdown-content .card:hover { border-color: color-mix(in srgb, var(--sl-color-accent) 55%, var(--sl-color-gray-4)); }

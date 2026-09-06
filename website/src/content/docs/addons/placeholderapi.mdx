@@ -1,0 +1,51 @@
+---
+title: RWR PlaceholderAPI
+description: Display RWR world status, phases, countdowns, and outcomes in PlaceholderAPI-compatible plugins.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Use RWR PlaceholderAPI when you want reset information in TAB, scoreboards, holograms, chat, menus, or any plugin that supports PlaceholderAPI.
+
+## Requirements
+
+- Java 21+
+- ResourceWorldResetter 5.1+ for your server platform
+- PlaceholderAPI 2.11.7+
+- `RWR-PlaceholderAPI-1.1.0.jar`
+
+## Install
+
+<Steps>
+1. Install ResourceWorldResetter and PlaceholderAPI.
+2. Put `RWR-PlaceholderAPI-1.1.0.jar` in `plugins/`.
+3. Start the server once to create `plugins/RWR-PlaceholderAPI/config.yml`.
+4. Add `%rwr_...%` placeholders to your scoreboard, menu, hologram, or chat plugin.
+5. Check the connection with `/rwrplaceholder status`.
+</Steps>
+
+## Useful placeholders
+
+| Placeholder | Result |
+| --- | --- |
+| `%rwr_worlds%` | Managed world IDs in configuration order. |
+| `%rwr_world_<id>_name%` | The configured display name. |
+| `%rwr_world_<id>_phase%` | Current reset phase, or `idle`. |
+| `%rwr_world_<id>_resetting%` | Whether a reset is active. |
+| `%rwr_world_<id>_countdown%` | Seconds remaining after the latest scheduled warning. |
+| `%rwr_world_<id>_last_outcome%` | `success`, `failed`, `cancelled`, or `interrupted`. |
+
+Player shortcuts such as `%rwr_name%`, `%rwr_phase%`, and `%rwr_countdown%` use the managed world the requesting player is currently in.
+
+<Aside type="note" title="Countdowns after a restart">
+  Countdown and next-reset values are learned from live warning events. Until the next warning fires after a restart, those placeholders use your configured fallback.
+</Aside>
+
+## Administration
+
+| Command | Permission | Purpose |
+| --- | --- | --- |
+| `/rwrplaceholder reload` | `rwrplaceholder.admin` | Reload configuration and locale. |
+| `/rwrplaceholder status` | `rwrplaceholder.admin` | Show API, expansion, and cache status. |
+
+[Source, releases, and complete placeholder list](https://github.com/TamaWish/RWR-PlaceholderAPI)

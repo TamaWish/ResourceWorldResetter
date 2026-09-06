@@ -18,11 +18,13 @@ export default defineConfig({
         },
       ],
       customCss: ['./src/styles/custom.css'],
+      components: {
+        SocialIcons: './src/components/SocialIcons.astro',
+      },
       sidebar: [
         { label: 'Start here', items: [
           { label: 'Overview', slug: '' },
           { label: 'Install RWR', slug: 'getting-started' },
-          { label: 'RWR add-ons', slug: 'addons' },
         ] },
         { label: 'Operator guide', items: [
           { label: 'Configuration', slug: 'operator/configuration' },
@@ -31,6 +33,13 @@ export default defineConfig({
           { label: 'Schedules & evacuation', slug: 'operator/schedules-and-evacuation' },
           { label: 'Recovery & troubleshooting', slug: 'operator/recovery-and-troubleshooting' },
           { label: 'FAQ', slug: 'operator/faq' },
+        ] },
+        { label: 'Add-on wikis', items: [
+          { label: 'All add-ons', slug: 'addons' },
+          { label: 'PlaceholderAPI', slug: 'addons/placeholderapi' },
+          { label: 'Discord Webhook', slug: 'addons/discord-webhook' },
+          { label: 'Prometheus', slug: 'addons/prometheus' },
+          { label: 'Public API', slug: 'addons/api' },
         ] },
         { label: 'Reference', items: [
           { label: 'Operations & migration', slug: 'reference/operations-and-migration' },

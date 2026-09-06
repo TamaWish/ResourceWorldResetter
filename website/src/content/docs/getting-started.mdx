@@ -1,0 +1,81 @@
+---
+title: Install ResourceWorldResetter
+description: Choose the correct RWR build, configure your first world, and run a safe supervised reset.
+---
+
+import { Aside, LinkButton, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+<LinkButton href="https://modrinth.com/plugin/resourceworldresetter/versions" icon="download">Download RWR from Modrinth</LinkButton>
+
+## Before you start
+
+Back up the server, the RWR plugin data folder, and every world you plan to reset. Replace plugin JARs only while the server is stopped; plugin hot-reload tools are not supported.
+
+## Spigot / CraftBukkit
+
+<Steps>
+1. Install **Multiverse-Core 5.8.0 or newer** and confirm your resource worlds are registered there.
+2. Put `RWR-Spigot-5.2.0.jar` in `plugins/`.
+3. Remove any Paper/Folia RWR artifact and restart the server fully.
+4. Open `/rwr gui` or edit `plugins/ResourceWorldResetter/config.yml`.
+5. Use the plain world name reported by Multiverse-Core, then check it with `/rwr status <id>`.
+</Steps>
+
+Requires Java 21 or newer.
+
+## Paper, Purpur, or Folia
+
+<Steps>
+1. Install **Worlds by TheNextLvl 4.4.0 or newer** and confirm your resource dimensions are registered there.
+2. Put `RWR-Paper-Folia-5.2.0.jar` in `plugins/`.
+3. Remove the Spigot RWR artifact and restart the server fully.
+4. Open `/rwr gui` or edit `plugins/ResourceWorldResetter-Paper-Folia/config.yml`.
+5. Use the Worlds key detected by RWR, such as `worlds:resource`, then check it with `/rwr status <id>`.
+</Steps>
+
+Requires Java 25 or newer because Worlds 4.4.0+ requires it.
+
+<Aside type="caution" title="Use one platform build">
+  Do not install both RWR JARs. Paper, Purpur, and Folia use Worlds—not Multiverse-Core—and `rwr-core` is already bundled inside the platform JAR.
+</Aside>
+
+## Configure your first resource world
+
+<Tabs>
+  <TabItem label="Admin GUI">
+    Run `/rwr gui`, add a managed world, choose its schedule and evacuation destination, then save. This is the easiest route for a first installation.
+  </TabItem>
+  <TabItem label="config.yml">
+    ```yaml
+    worlds:
+      resource:
+        multiverse-world: resource
+        display-name: Resource World
+        enabled: true
+        managed: true
+        schedule:
+          type: DAILY
+          time: "03:00"
+        warning-minutes: [30, 10, 5, 1]
+        regeneration:
+          seed-policy: RANDOM
+        evacuation:
+          enabled: true
+          destination: world
+    ```
+
+    Run `/rwr reload` after editing and fix every validation message before continuing.
+  </TabItem>
+</Tabs>
+
+## Run a supervised reset
+
+<Steps>
+1. Confirm the evacuation world is loaded and safe.
+2. Run `/rwr status` and `/rwr history 10`.
+3. Start `/rwr reset <world-id>` while you can watch the console and join the server.
+4. Confirm players are evacuated, the provider regenerates the correct world, verification completes, and history records success.
+5. Only then rely on unattended schedules.
+</Steps>
+
+Continue with [configuration](./operator/configuration/) or read the complete [operations and migration runbook](./reference/operations-and-migration/).

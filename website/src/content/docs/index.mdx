@@ -1,49 +1,64 @@
 ---
 title: ResourceWorldResetter
-description: Safe, observable regeneration for Minecraft resource worlds.
+description: Safe scheduled resource-world resets for Spigot, Paper, Purpur, and Folia.
 template: splash
 hero:
-  tagline: Automate resource-world regeneration without treating it as a blind delete-and-recreate task.
+  tagline: Schedule safe resource-world resets, move players out of danger, and verify every regenerated world before play resumes.
   actions:
-    - text: Install RWR
-      link: /getting-started/
-      icon: right-arrow
+    - text: Download RWR
+      link: https://modrinth.com/plugin/resourceworldresetter/versions
+      icon: download
       variant: primary
     - text: Release notes
-      link: /reference/release-notes/
-      icon: right-arrow
+      link: https://github.com/TamaWish/ResourceWorldResetter/blob/main/docs/public/RELEASE_NOTES.md
+      icon: open-book
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import { Badge, Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
 
-<div class="hero">
+<p class="release-line"><Badge text="5.2.0 release candidate" variant="success" size="medium" /> <span>One plugin family for Spigot, Paper, Purpur, and Folia.</span></p>
 
-# Reset worlds. Keep control.
-
-<p class="tagline">ResourceWorldResetter safely evacuates players, delegates regeneration to the authoritative world provider, verifies the result, and records history for operators.</p>
-
-</div>
-
-## Choose the matching build
-
-| Server | RWR artifact | Required world plugin | Java |
-| --- | --- | --- | --- |
-| Spigot / CraftBukkit | `RWR-Spigot-5.2.0.jar` | Multiverse-Core 5.8.0+ | 21+ |
-| Paper / Purpur / Folia | `RWR-Paper-Folia-5.2.0.jar` | Worlds 4.4.0+ | 25+ |
-
-Install exactly one RWR artifact. The shared core and public API are bundled; do not install `rwr-core` separately. Version 5.2.0 is currently a release candidate awaiting live validation.
-
-## Built for live servers
-
-- **Schedule precisely.** Daily, weekly, monthly, and interval schedules use a configured IANA timezone.
-- **Evacuate safely.** RWR validates the destination and prevents regeneration while players remain.
-- **Delegate correctly.** Multiverse-Core or Worlds remains the authoritative lifecycle provider.
-- **Verify independently.** RWR checks registration, loaded state, identity, and safe spawn after completion.
-- **Recover conservatively.** Ambiguous operations are recorded and paused instead of silently replayed.
+## Pick the build for your server
 
 <CardGrid>
-  <LinkCard title="Install and first reset" href="./getting-started/" description="Choose a platform and run a supervised reset." />
-  <LinkCard title="Configure worlds" href="./operator/configuration/" description="Set schedules, warnings, identities, and evacuation." />
-  <LinkCard title="RWR add-ons" href="./addons/" description="Connect PlaceholderAPI, Discord, Prometheus, or your own integration." />
-  <LinkCard title="Recover safely" href="./operator/recovery-and-troubleshooting/" description="Handle failed and interrupted operations." />
+  <Card title="Spigot / CraftBukkit" icon="puzzle">
+    Use `RWR-Spigot-5.2.0.jar` with **Multiverse-Core 5.8.0+** and Java 21 or newer.
+
+    [Spigot setup →](./getting-started/#spigot--craftbukkit)
+  </Card>
+  <Card title="Paper / Purpur / Folia" icon="rocket">
+    Use `RWR-Paper-Folia-5.2.0.jar` with **Worlds 4.4.0+** and Java 25 or newer.
+
+    [Paper and Folia setup →](./getting-started/#paper-purpur-or-folia)
+  </Card>
+</CardGrid>
+
+> [!CAUTION]
+> Install only one RWR platform JAR. The shared core and public API are already included.
+
+## What happens during a reset?
+
+<Steps>
+1. **Check the world.** RWR confirms the provider, world identity, destination, and current reset state.
+2. **Warn and evacuate players.** Scheduled warnings give players time to finish, then RWR moves everyone to a safe loaded world.
+3. **Regenerate through the world provider.** Multiverse-Core or Worlds performs the authoritative world operation.
+4. **Verify before unlocking.** RWR checks that the replacement world is registered, loaded, and safe, then records the result in history.
+</Steps>
+
+## Explore the wiki
+
+<CardGrid>
+  <LinkCard title="Install and run your first reset" href="./getting-started/" description="Choose the correct JAR, configure one world, and perform a supervised reset." />
+  <LinkCard title="Configure schedules and warnings" href="./operator/configuration/" description="Set world IDs, reset timing, safe destinations, and regeneration behavior." />
+  <LinkCard title="Commands and permissions" href="./operator/commands-and-permissions/" description="Find every player and administrator command in one place." />
+  <LinkCard title="Recover from a failed reset" href="./operator/recovery-and-troubleshooting/" description="Understand history, safety classifications, timeouts, and interrupted operations." />
+</CardGrid>
+
+## Extend your server
+
+<CardGrid>
+  <LinkCard title="PlaceholderAPI" href="./addons/placeholderapi/" description="Put world status, countdowns, and reset outcomes on scoreboards and menus." />
+  <LinkCard title="Discord Webhook" href="./addons/discord-webhook/" description="Send warnings, successes, failures, and interruptions to Discord." />
+  <LinkCard title="Prometheus + Grafana" href="./addons/prometheus/" description="Monitor RWR with scrape-ready metrics and an optional dashboard." />
+  <LinkCard title="Public API" href="./addons/api/" description="Build your own plugin against stable snapshots and lifecycle events." />
 </CardGrid>

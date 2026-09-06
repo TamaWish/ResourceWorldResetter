@@ -1,23 +1,18 @@
 ---
 title: RWR add-ons
-description: Optional companion plugins for integrations, placeholders, alerts, and observability.
+description: Add placeholders, Discord alerts, Prometheus metrics, or your own integration to ResourceWorldResetter.
 ---
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-Each add-on supports either RWR platform runtime through the public read-only API. Install the add-on alongside the matching RWR runtime; do not install a separate API JAR.
+Add-ons are optional companion plugins. Each one works with either RWR platform build through the public API, so your main RWR setup stays the same.
 
 <CardGrid>
-  <LinkCard title="RWR PlaceholderAPI" href="https://github.com/TamaWish/RWR-PlaceholderAPI" description="Expose managed-world state, reset phases, countdowns, and outcomes to PlaceholderAPI consumers." />
-  <LinkCard title="RWR Discord Webhook" href="https://github.com/TamaWish/RWR-Discord-Webhook" description="Send reset warnings and terminal outcomes to a Discord incoming webhook with durable retries." />
-  <LinkCard title="RWR Prometheus" href="https://github.com/TamaWish/RWR-Prometheus" description="Export reset lifecycle metrics for Prometheus, with an optional Grafana dashboard demo." />
-  <LinkCard title="RWR API" href="https://github.com/TamaWish/RWR-API" description="Build a compatible Bukkit, Spigot, Paper, Purpur, or Folia integration against the stable public contract." />
+  <LinkCard title="PlaceholderAPI wiki" href="./addons/placeholderapi/" description="Show world state, reset phases, countdowns, and outcomes anywhere PlaceholderAPI is supported." />
+  <LinkCard title="Discord Webhook wiki" href="./addons/discord-webhook/" description="Deliver reset warnings and final outcomes to a Discord channel reliably." />
+  <LinkCard title="Prometheus wiki" href="./addons/prometheus/" description="Export RWR metrics and bring them into Prometheus and Grafana." />
+  <LinkCard title="Public API wiki" href="./addons/api/" description="Use snapshots and events to create your own RWR-aware plugin." />
 </CardGrid>
 
-## Compatibility
-
-- Use one ResourceWorldResetter runtime: `ResourceWorldResetter` for Spigot/CraftBukkit, or `ResourceWorldResetter-Paper-Folia` for Paper/Purpur/Folia.
-- Add-ons use `softdepend` because either runtime may be installed; they reconnect when the RWR API is available.
-- API consumers must compile with `rwr-api` as `provided` or `compileOnly`; RWR provides the classes at runtime.
-
-See [Integration development](./reference/development/) for service discovery and event-handling guidance.
+> [!NOTE]
+> Server owners do not install a separate API JAR. The matching RWR platform plugin supplies it at runtime.

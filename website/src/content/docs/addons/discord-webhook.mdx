@@ -1,0 +1,51 @@
+---
+title: RWR Discord Webhook
+description: Send RWR reset warnings and outcomes to Discord with durable delivery retries.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+RWR Discord Webhook posts clear embeds for scheduled warnings, successful resets, failures, cancellations, and interrupted operations. It uses a Discord incoming webhook; no Discord bot account is required.
+
+## Requirements
+
+- Java 21+
+- ResourceWorldResetter 5.1+ for your server platform
+- A Discord channel where you can create an incoming webhook
+
+## Install and connect
+
+<Steps>
+1. Put `RWR-Discord-Webhook-1.0.0.jar` in `plugins/` and start the server once.
+2. Create a webhook in the target Discord channel and copy its URL.
+3. Open `plugins/RWR-Discord-Webhook/config.yml` and set `webhook.url`.
+4. Run `/rwr discord reload`.
+5. Run `/rwr discord status` to confirm RWR API availability and delivery state.
+</Steps>
+
+```yaml
+webhook:
+  url: "https://discord.com/api/webhooks/..."
+  username: "RWR"
+  timeout-ms: 8000
+  queue-capacity: 64
+  queue-ttl-hours: 24
+  max-attempts: 8
+
+events:
+  warnings: true
+  success: true
+  failures: true
+  cancellations: true
+  interrupted: true
+```
+
+<Aside type="caution" title="Protect the webhook URL">
+  Treat the webhook URL like a password. Do not paste it into support tickets or logs. The add-on redacts it and never stores it in the pending-delivery queue.
+</Aside>
+
+## Reliable delivery
+
+Webhook requests run asynchronously. Temporary failures use exponential backoff, Discord `Retry-After` values are respected, and pending messages survive restarts in a bounded queue.
+
+[Source, releases, and full configuration](https://github.com/TamaWish/RWR-Discord-Webhook)
