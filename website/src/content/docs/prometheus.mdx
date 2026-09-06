@@ -1,0 +1,15 @@
+---
+title: RWR Prometheus
+description: A dedicated monitoring wiki for the RWR metrics exporter and Grafana dashboard.
+---
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+
+RWR Prometheus is a separate companion plugin that exposes reset lifecycle metrics for Prometheus and includes an optional Grafana demo stack.
+<LinkButton href="./installation/" icon="right-arrow">Install the exporter</LinkButton>
+<CardGrid>
+  <Card title="Exporter" icon="download">Install the jar and verify `/metrics`.</Card>
+  <Card title="Metrics" icon="document">Understand bounded labels, counters, gauges, and histograms.</Card>
+  <Card title="Grafana" icon="rocket">Launch the provided Prometheus and dashboard stack.</Card>
+  <Card title="Security" icon="shield">Bind and firewall the unauthenticated endpoint safely.</Card>
+</CardGrid>
+[Source and releases](https://github.com/TamaWish/RWR-Prometheus)

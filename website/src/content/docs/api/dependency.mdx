@@ -1,0 +1,28 @@
+---
+title: Dependency setup
+description: Add RWR API 5.1.2 to Maven or Gradle correctly.
+---
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="build-tool">
+
+<TabItem label="Maven">
+  ```xml
+  <dependency>
+    <groupId>io.github.tamawish</groupId>
+    <artifactId>rwr-api</artifactId>
+    <version>5.1.2</version>
+    <scope>provided</scope>
+  </dependency>
+  ```
+</TabItem>
+
+<TabItem label="Gradle">
+  ```kotlin
+  dependencies { compileOnly("io.github.tamawish:rwr-api:5.1.2") }
+  ```
+</TabItem>
+
+</Tabs>
+
+<Aside type="caution">Do not shade `rwr-api` and do not install a separate API jar. The running RWR plugin supplies these classes.</Aside>

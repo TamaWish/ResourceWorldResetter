@@ -1,0 +1,15 @@
+---
+title: Install RWR Prometheus
+description: Install and verify the standalone RWR metrics exporter.
+---
+import { Steps } from '@astrojs/starlight/components';
+
+Requires Java 21+, Minecraft 1.21.4+, and the matching ResourceWorldResetter 5.2 runtime.
+<Steps>
+1. Download the release JAR, or the distribution ZIP if you also want the demo stack.
+2. Put `RWR-Prometheus-&lt;version&gt;.jar` in `plugins/`.
+3. Start once to create `plugins/RWR-Prometheus/config.yml`.
+4. Keep the default loopback bind when Prometheus runs on the Minecraft host.
+5. Restart and request `http://127.0.0.1:9225/metrics`.
+</Steps>
+The endpoint returns `503` until initialization completes and `404` for unknown paths.

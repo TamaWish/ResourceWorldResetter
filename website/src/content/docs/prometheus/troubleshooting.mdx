@@ -1,0 +1,9 @@
+---
+title: Security and troubleshooting
+description: Protect the metrics endpoint and diagnose exporter, Docker, and port failures.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="danger" title="No built-in authentication">Never expose the metrics listener directly to the public internet. Bind a private interface and allow port 9225 only from Prometheus.</Aside>
+
+If Prometheus reports `DOWN`, first curl the endpoint on the Minecraft host, then test `host.docker.internal:9225` from the Prometheus container. If port 3000 or 9090 is occupied, change only the left side of the Compose port mapping. If port 9225 is occupied, select another exporter port and update the scrape target to match.

@@ -1,0 +1,21 @@
+---
+title: Install RWR PlaceholderAPI
+description: Requirements and first-time setup for the PlaceholderAPI companion plugin.
+---
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+## Requirements
+- Java 21+
+- ResourceWorldResetter 5.1+
+- PlaceholderAPI 2.11.7+
+- A compatible Minecraft 1.21.4+ server
+
+<Steps>
+1. Install the correct RWR runtime and PlaceholderAPI.
+2. Put `RWR-PlaceholderAPI-1.1.0.jar` in `plugins/`.
+3. Start once to create `plugins/RWR-PlaceholderAPI/config.yml`.
+4. Add a value such as `%rwr_worlds%` to a PlaceholderAPI consumer.
+5. Run `/rwrplaceholder status` to verify the API and expansion.
+</Steps>
+
+<Aside type="note">The add-on stays loaded when RWR or PlaceholderAPI is missing, but returns its configured fallback until both are available.</Aside>

@@ -1,0 +1,13 @@
+---
+// @ts-expect-error Starlight provides this virtual component at build time.
+import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
+import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
+import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
+const route = (Astro.locals as any).starlightRoute;
+const root = route.id.replace(/\.(md|mdx)$/, '').split('/')[0];
+const sectionLabels = { rwr: ['ResourceWorldResetter', 'Reference'], placeholderapi: ['PlaceholderAPI'], discord: ['Discord Webhook'], prometheus: ['Prometheus'], api: ['Public API'], download: ['Reference'], reference: ['Reference'] };
+const labels = sectionLabels[root];
+const sidebar = labels ? route.sidebar.filter((item: { label?: string }) => item.label && labels.includes(item.label)) : route.sidebar;
+---
+<SidebarPersister><SidebarSublist sublist={sidebar} /></SidebarPersister>
+<div class="md:sl-hidden"><MobileMenuFooter /></div>

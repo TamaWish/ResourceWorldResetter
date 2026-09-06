@@ -24,12 +24,12 @@ import { Badge, Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/compo
   <Card title="Spigot / CraftBukkit" icon="puzzle">
     Use `RWR-Spigot-5.2.0.jar` with **Multiverse-Core 5.8.0+** and Java 21 or newer.
 
-    [Spigot setup →](./getting-started/#spigot--craftbukkit)
+    [Spigot setup →](./rwr/installation/)
   </Card>
   <Card title="Paper / Purpur / Folia" icon="rocket">
     Use `RWR-Paper-Folia-5.2.0.jar` with **Worlds 4.4.0+** and Java 25 or newer.
 
-    [Paper and Folia setup →](./getting-started/#paper-purpur-or-folia)
+    [Paper and Folia setup →](./rwr/installation/)
   </Card>
 </CardGrid>
 
@@ -48,17 +48,17 @@ import { Badge, Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/compo
 ## Explore the wiki
 
 <CardGrid>
-  <LinkCard title="Install and run your first reset" href="./getting-started/" description="Choose the correct JAR, configure one world, and perform a supervised reset." />
-  <LinkCard title="Configure schedules and warnings" href="./operator/configuration/" description="Set world IDs, reset timing, safe destinations, and regeneration behavior." />
-  <LinkCard title="Commands and permissions" href="./operator/commands-and-permissions/" description="Find every player and administrator command in one place." />
-  <LinkCard title="Recover from a failed reset" href="./operator/recovery-and-troubleshooting/" description="Understand history, safety classifications, timeouts, and interrupted operations." />
+  <LinkCard title="Install and run your first reset" href="./rwr/installation/" description="Choose the correct JAR, configure one world, and perform a supervised reset." />
+  <LinkCard title="Configure schedules and warnings" href="./rwr/configuration/" description="Set world IDs, reset timing, safe destinations, and regeneration behavior." />
+  <LinkCard title="Commands and permissions" href="./rwr/commands-and-permissions/" description="Find the operator commands and decide who may use them." />
+  <LinkCard title="Recover from a failed reset" href="./rwr/recovery-and-troubleshooting/" description="Understand history, safety classifications, timeouts, and interrupted operations." />
 </CardGrid>
 
 ## Extend your server
 
 <CardGrid>
-  <LinkCard title="PlaceholderAPI" href="./addons/placeholderapi/" description="Put world status, countdowns, and reset outcomes on scoreboards and menus." />
-  <LinkCard title="Discord Webhook" href="./addons/discord-webhook/" description="Send warnings, successes, failures, and interruptions to Discord." />
-  <LinkCard title="Prometheus + Grafana" href="./addons/prometheus/" description="Monitor RWR with scrape-ready metrics and an optional dashboard." />
-  <LinkCard title="Public API" href="./addons/api/" description="Build your own plugin against stable snapshots and lifecycle events." />
+  <LinkCard title="PlaceholderAPI" href="./placeholderapi/" description="Open its independent wiki for scoreboards, menus, placeholders, and configuration." />
+  <LinkCard title="Discord Webhook" href="./discord/" description="Open its independent wiki for webhook setup, delivery, and retries." />
+  <LinkCard title="Prometheus + Grafana" href="./prometheus/" description="Open its independent wiki for metrics, PromQL, Docker, and dashboards." />
+  <LinkCard title="Public API" href="./api/" description="Open the developer wiki for dependencies, snapshots, lifecycle, and events." />
 </CardGrid>

@@ -1,0 +1,15 @@
+---
+title: ResourceWorldResetter API
+description: A dedicated developer wiki for stable RWR snapshots and lifecycle events.
+---
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+
+The public RWR API is a separate developer product. It lets plugins observe managed worlds and reset activity without depending on RWR internals or a world-provider implementation.
+<LinkButton href="./dependency/" icon="right-arrow">Build an integration</LinkButton>
+<CardGrid>
+  <Card title="Dependency" icon="puzzle">Add the public API without shading or installing a separate jar.</Card>
+  <Card title="Service discovery" icon="magnifier">Find either RWR runtime safely through Bukkit services.</Card>
+  <Card title="Snapshots" icon="document">Read immutable world and reset state.</Card>
+  <Card title="Events" icon="notification">Observe warnings and outcomes or cancel a pre-reset event.</Card>
+</CardGrid>
+[Source and releases](https://github.com/TamaWish/RWR-API)

@@ -1,0 +1,17 @@
+---
+title: Install Discord Webhook
+description: Connect ResourceWorldResetter to a Discord channel.
+---
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Requirements
+- Java 21+, Minecraft 1.21.4+, and ResourceWorldResetter 5.1+
+- Permission to create an incoming webhook in the target Discord channel
+
+<Steps>
+1. Put `RWR-Discord-Webhook-1.0.0.jar` in `plugins/` and start once.
+2. In Discord, create an incoming webhook for the target channel and copy its URL.
+3. Set `webhook.url` in `plugins/RWR-Discord-Webhook/config.yml`.
+4. Run `/rwr discord reload`, then `/rwr discord status`.
+</Steps>
+<Aside type="danger" title="Treat the URL as a password">Never paste the webhook URL into logs, screenshots, or support tickets.</Aside>

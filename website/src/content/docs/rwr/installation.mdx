@@ -1,0 +1,25 @@
+---
+title: Install ResourceWorldResetter
+description: Pick the correct runtime and safely complete your first RWR setup.
+---
+import { Aside, Steps, LinkButton } from '@astrojs/starlight/components';
+
+<LinkButton href="https://modrinth.com/plugin/resourceworldresetter/versions" icon="external">Download from Modrinth</LinkButton>
+
+## Requirements
+- Java 21+
+- Minecraft 1.21.4 or newer
+- **Spigot/CraftBukkit:** the Spigot RWR jar
+- **Paper/Purpur/Folia:** the Paper-Folia RWR jar
+
+<Aside type="caution">Install only the runtime matching your server. Do not install both RWR jars.</Aside>
+
+<Steps>
+1. Back up the server and stop it completely.
+2. Put the matching RWR jar in `plugins/`.
+3. Start once to generate configuration, then stop the server.
+4. Configure a disposable world and an evacuation destination.
+5. Start the server and inspect `/rwr status` before scheduling or starting a reset.
+</Steps>
+
+Continue with [configuration](../configuration/) or browse every build on the [downloads page](../../download/).

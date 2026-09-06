@@ -1,0 +1,16 @@
+---
+title: RWR Discord Webhook
+description: A dedicated wiki for reliable RWR warnings and reset outcomes in Discord.
+---
+import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+
+RWR Discord Webhook is a separate companion plugin that posts reset warnings and terminal outcomes through a Discord incoming webhook. No bot account is required.
+
+<LinkButton href="./installation/" icon="right-arrow">Connect Discord</LinkButton>
+<CardGrid>
+  <Card title="Installation" icon="download">Create a webhook, install the jar, and verify the connection.</Card>
+  <Card title="Configuration" icon="setting">Choose identity, timeouts, queue limits, and events.</Card>
+  <Card title="Delivery" icon="notification">Understand the durable queue, retry policy, and rate limits.</Card>
+  <Card title="Troubleshooting" icon="approve-check">Inspect status without exposing the webhook secret.</Card>
+</CardGrid>
+[Source and releases](https://github.com/TamaWish/RWR-Discord-Webhook)
