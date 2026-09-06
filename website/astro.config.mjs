@@ -22,6 +22,7 @@ export default defineConfig({
         { label: 'Start here', items: [
           { label: 'Overview', slug: '' },
           { label: 'Install RWR', slug: 'getting-started' },
+          { label: 'RWR add-ons', slug: 'addons' },
         ] },
         { label: 'Operator guide', items: [
           { label: 'Configuration', slug: 'operator/configuration' },

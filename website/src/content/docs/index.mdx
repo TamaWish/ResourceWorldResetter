@@ -14,6 +14,8 @@ hero:
       icon: right-arrow
 ---
 
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
 <div class="hero">
 
 # Reset worlds. Keep control.
@@ -39,8 +41,9 @@ Install exactly one RWR artifact. The shared core and public API are bundled; do
 - **Verify independently.** RWR checks registration, loaded state, identity, and safe spawn after completion.
 - **Recover conservatively.** Ambiguous operations are recorded and paused instead of silently replayed.
 
-<div class="card-grid">
-  <a class="card" href="./getting-started/"><strong>Install and first reset</strong><span>Choose a platform and run a supervised reset.</span></a>
-  <a class="card" href="./operator/configuration/"><strong>Configure worlds</strong><span>Set schedules, warnings, identities, and evacuation.</span></a>
-  <a class="card" href="./operator/recovery-and-troubleshooting/"><strong>Recover safely</strong><span>Handle failed and interrupted operations.</span></a>
-</div>
+<CardGrid>
+  <LinkCard title="Install and first reset" href="./getting-started/" description="Choose a platform and run a supervised reset." />
+  <LinkCard title="Configure worlds" href="./operator/configuration/" description="Set schedules, warnings, identities, and evacuation." />
+  <LinkCard title="RWR add-ons" href="./addons/" description="Connect PlaceholderAPI, Discord, Prometheus, or your own integration." />
+  <LinkCard title="Recover safely" href="./operator/recovery-and-troubleshooting/" description="Handle failed and interrupted operations." />
+</CardGrid>

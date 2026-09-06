@@ -7,10 +7,8 @@ const targetDirectory = resolve(import.meta.dirname, '..', 'src', 'content', 'do
 const guides = [
   ['OPERATIONS_AND_MIGRATION.md', 'operations-and-migration.md', 'Operations & migration', 'The public runbook for installing, operating, recovering, and migrating RWR 5.'],
   ['RELEASE_NOTES.md', 'release-notes.md', 'Release notes', 'Operator-facing release history for ResourceWorldResetter 5.'],
-  ['DEVELOPMENT.md', 'development.md', 'Integration development', 'Build a compatible add-on against the RWR public API.'],
 ];
 
-await rm(targetDirectory, { recursive: true, force: true });
 await rm(resolve(projectRoot, 'website', '.astro'), { recursive: true, force: true });
 await mkdir(targetDirectory, { recursive: true });
 

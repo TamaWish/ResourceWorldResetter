@@ -1,4 +1,5 @@
 node_modules/
 dist/
 .astro/
-src/content/docs/reference/
+src/content/docs/reference/operations-and-migration.md
+src/content/docs/reference/release-notes.md
