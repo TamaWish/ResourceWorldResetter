@@ -1,120 +1,233 @@
+# ResourceWorldResetter
+
+Safe, scheduled resource-world regeneration for Spigot, CraftBukkit, Paper, Purpur, and Folia servers.
+
 <div align="center">
 
-![ResourceWorldResetter](https://files.catbox.moe/lhrg2i.png)
+![RWR Banner](https://files.catbox.moe/lhrg2i.png)
 
-![GitHub Release](https://img.shields.io/github/v/release/TamaWish/ResourceWorldResetter?include_prereleases&sort=date&display_name=tag&style=plastic&logo=github&logoColor=white&label=Release&color=violet&link=https%3A%2F%2Fgithub.com%2FTamaWish%2FResourceWorldResetter%2Freleases)
-[![Java](https://img.shields.io/badge/Java-21%2B%20%7C%20Paper--Folia%2025%2B-orange?style=plastic-square&logo=openjdk&logoColor=white)](https://www.java.com)
-![GitHub License](https://img.shields.io/github/license/TamaWish/ResourceWorldResetter?style=plastic&logo=github&logoColor=white&label=License&color=red&link=https%3A%2F%2Fgithub.com%2FTamaWish%2FResourceWorldResetter%2Ftree%2Fmain%3Ftab%3DBSD-3-Clause-1-ov-file)
-![Discord](https://img.shields.io/discord/1501244767680467096?style=plastic&logo=discord&logoColor=blue&label=Discord&color=blue&link=https%3A%2F%2Fdiscord.gg%2FkbKZzxDETU)
+[![GitHub Release](https://img.shields.io/github/v/release/TamaWish/ResourceWorldResetter?include_prereleases&sort=date&display_name=tag&style=plastic&logo=github&logoColor=white&label=Release&labelColor=1e293b&color=00b4d8)](https://github.com/TamaWish/ResourceWorldResetter/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/TamaWish/ResourceWorldResetter/ci.yml?branch=main&style=plastic&logo=githubactions&logoColor=white&label=CI&labelColor=1e293b&color=06d6a0)](https://github.com/TamaWish/ResourceWorldResetter/actions/workflows/ci.yml)
+[![Java](https://img.shields.io/badge/Java-21%2B%20%7C%20Paper--Folia%2025%2B-f59e0b?style=plastic&logo=openjdk&logoColor=white&labelColor=1e293b)](https://www.java.com)
+[![License](https://img.shields.io/github/license/TamaWish/ResourceWorldResetter?style=plastic&logo=github&logoColor=white&label=License&labelColor=1e293b&color=64748b)](https://github.com/TamaWish/ResourceWorldResetter/blob/main/LICENSE)
+[![Discord](https://img.shields.io/discord/1501244767680467096?style=plastic&logo=discord&logoColor=white&label=Discord&labelColor=1e293b&color=5865f2)](https://discord.gg/kbKZzxDETU)
 <br>
-![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/PjsJlPJ9?style=plastic&logo=modrinth&logoColor=green&label=Supported%20Version&color=orange)
+[![Supported Version](https://img.shields.io/modrinth/game-versions/PjsJlPJ9?style=plastic&logo=modrinth&logoColor=white&label=Supported%20Version&labelColor=1e293b&color=00b4d8)](https://modrinth.com/plugin/resourceworldresetter)
 <br>
-![Spiget Downloads](https://img.shields.io/spiget/downloads/119878?style=plastic&logo=spigotmc&logoColor=yellow&label=SpigotMC&labelColor=grey&color=yellow&link=https%3A%2F%2Fwww.spigotmc.org%2Fresources%2Fresourceworldresetter-1-21-4-26-x.119878%2F)
-![Modrinth Downloads](https://img.shields.io/modrinth/dt/PjsJlPJ9?style=plastic&logo=modrinth&logoColor=green&label=Modrinth&link=https%3A%2F%2Fmodrinth.com%2Fplugin%2Fresourceworldresetter)
-![Hangar Downloads](https://img.shields.io/hangar/dt/ResourceWorldResetter?style=plastic&label=Hangar&color=grey&link=https%3A%2F%2Fhangar.papermc.io%2FLozaine%2FResourceWorldResetter)
-![CurseForge Downloads](https://img.shields.io/curseforge/dt/1110835?style=plastic&logo=curseforge&logoColor=orange&label=CurseForge&color=orange&link=https%3A%2F%2Fwww.curseforge.com%2Fminecraft%2Fbukkit-plugins%2Fresourceworldresetter)
+[![SpigotMC](https://img.shields.io/spiget/downloads/119878?style=plastic&logo=spigotmc&logoColor=white&label=SpigotMC&labelColor=1e293b&color=e9a825)](https://www.spigotmc.org/resources/resourceworldresetter-1-21-4-26-x.119878/)
+[![Modrinth](https://img.shields.io/modrinth/dt/PjsJlPJ9?style=plastic&logo=modrinth&logoColor=white&label=Modrinth&labelColor=1e293b&color=06d6a0)](https://modrinth.com/plugin/resourceworldresetter)
+[![Hangar](https://img.shields.io/hangar/dt/ResourceWorldResetter?style=plastic&logo=paper&logoColor=white&label=Hangar&labelColor=1e293b&color=38bdf8)](https://hangar.papermc.io/Lozaine/ResourceWorldResetter)
+[![CurseForge](https://img.shields.io/curseforge/dt/1110835?style=plastic&logo=curseforge&logoColor=white&label=CurseForge&labelColor=1e293b&color=f97316)](https://www.curseforge.com/minecraft/bukkit-plugins/resourceworldresetter)
 
 </div>
 
-# ResourceWorldResetter 5.1.0
+## Table of contents
 
-Monorepo for ResourceWorldResetter. Marketing author **Lozaine**; copyright **TamaWish**. License: **BSD 3-Clause**.
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Commands and permissions](#commands-and-permissions)
+- [Localization](#localization)
+- [Metrics](#metrics)
+- [Add-ons and API](#add-ons-and-api)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
 
-> **5.1.0 is ready for release on September 2, 2026.** Final Spigot, Paper, and Folia smoke testing is complete. The latest public runtime remains 5.0.0 until publication.
+## Features
 
-## Download
+- Daily, weekly, monthly, and interval reset schedules with IANA time zones.
+- Guarded evacuation, provider regeneration, result verification, and per-world locking.
+- Configurable countdown warnings and completion broadcasts.
+- Persistent reset history and conservative interrupted-operation recovery.
+- Administration and player teleport GUIs.
+- Transactional configuration and locale reloads with English fallback.
+- MiniMessage localization in English, Simplified Chinese, Japanese, and Korean.
+- Asynchronous update checks that report releases without downloading them.
 
-| Channel | Link |
-|---------|------|
-| GitHub Releases | [https://github.com/TamaWish/ResourceWorldResetter/releases](https://github.com/TamaWish/ResourceWorldResetter/releases) |
-| SpigotMC | [https://www.spigotmc.org/resources/resourceworldresetter.119878/](https://www.spigotmc.org/resources/resourceworldresetter.119878/) |
-| Modrinth | [https://modrinth.com/project/PjsJlPJ9](https://modrinth.com/project/PjsJlPJ9) |
-| Hangar | [https://hangar.papermc.io/Lozaine](https://hangar.papermc.io/Lozaine) |
-| CurseForge | [https://www.curseforge.com/minecraft/bukkit-plugins/resourceworldresetter](https://www.curseforge.com/minecraft/bukkit-plugins/resourceworldresetter) |
+## Requirements
 
-## Required dependencies
+Install exactly one platform JAR and its matching world provider.
 
-Install the world plugin that matches your platform **before** RWR. These are separate downloads (not part of the RWR jar).
+| Platform | Java | Minecraft | Required world provider |
+| --- | --- | --- | --- |
+| Spigot / CraftBukkit | 21+ | 1.21.4+ | [Multiverse-Core](https://modrinth.com/plugin/multiverse-core) 5.8.0+ |
+| Paper / Purpur / Folia | 25+ | 26.1.2+ | [Worlds](https://modrinth.com/plugin/worlds-1) 4.4.0+ |
 
-| Platform | Dependency | Download |
-|----------|------------|----------|
-| Spigot / CraftBukkit | **Multiverse-Core** | [Modrinth](https://modrinth.com/plugin/multiverse-core) |
-| Paper / Purpur / Folia | **Worlds** (TheNextLvl) | [Modrinth](https://modrinth.com/plugin/worlds-1) |
+The Spigot build uses the Bukkit API version `1.21`. Worlds 4.4.0 targets Paper/Folia 26.1.2 and 26.2, so the Paper/Folia build requires Minecraft 26.1.2 or newer.
 
-| Module | Download | Server | World plugin |
-|--------|----------|--------|--------------|
-| [RWR-Spigot](RWR-Spigot/) | `RWR-Spigot-5.1.0.jar` | Spigot / CraftBukkit | [Multiverse-Core](https://modrinth.com/plugin/multiverse-core) |
-| [RWR-Paper-Folia](RWR-Paper-Folia/) | `RWR-Paper-Folia-5.1.0.jar` | Paper / Purpur / Folia | [Worlds](https://modrinth.com/plugin/worlds-1) |
-| [rwr-core](rwr-core/) | **Not a separate download** (shaded into each platform jar) | — | Shared domain |
+## Installation
 
-Install **exactly one** platform jar. You never need to download `rwr-core` for production servers.
+1. Back up the server and every world that RWR will manage.
+2. Install the world provider listed for your platform.
+3. Download the matching JAR from [GitHub Releases](https://github.com/TamaWish/ResourceWorldResetter/releases).
+4. Place the JAR in the server's `plugins/` directory.
+5. Restart the server. Do not use a hot-reload plugin.
+6. Configure worlds with `/rwr gui`; generated world definitions are stored in `managed-worlds.yml`.
+7. Run one supervised `/rwr reset <id>` before enabling unattended resets.
 
-## Compatibility
+Use `RWR-Spigot-5.2.0-beta.1.jar` for Spigot/CraftBukkit or `RWR-Paper-Folia-5.2.0-beta.1.jar` for Paper/Purpur/Folia. Do not install both. The shared core and API adapter are bundled and are not separate server plugins. Current builds are pre-release until 5.2.0 is validated for public release.
 
-- Spigot/CraftBukkit: Java **21+**
-- Paper/Purpur/Folia with Worlds 4.4.0+: Java **25+**
-- API baseline **1.21.4**, tested through **26.2**
-- Spigot/CraftBukkit → [Multiverse-Core](https://modrinth.com/plugin/multiverse-core) 5.x
-- Paper/Purpur/Folia → [Worlds](https://modrinth.com/plugin/worlds-1) ≥ 4.4.0 (`folia-supported`)
+> [!IMPORTANT]
+> RWR 5 requires `config-version: 5`. Version 4 configuration is not migrated automatically. Follow [Operations and Migration](docs/public/OPERATIONS_AND_MIGRATION.md).
 
-Version 5.1 retains the v5 configuration format and adds the embedded public integration API.
+## Usage
 
-## Metrics (bStats)
+Open the administration GUI:
 
-RWR uses bStats to collect anonymous usage metrics. No world names or player identities are included. To disable metrics, open `plugins/bStats/config.yml` and set `enabled: false`; this setting is managed by bStats and is not located in the RWR plugin folder.
+```text
+/rwr gui
+```
 
-## Integrating with RWR
+After defining a managed world, inspect its schedule and run a supervised reset:
 
-Third-party plugins compile against `io.github.tamawish:rwr-api:5.1.2` and discover the live read-only
-service through Bukkit's `ServicesManager`. The contract, examples, sources, and Javadocs live in
-[TamaWish/RWR-API](https://github.com/TamaWish/RWR-API). Use `compileOnly`/`provided`; do not shade the
-API into consumer plugins and do not install a separate API JAR on the server.
+```text
+/rwr status resource
+/rwr reset resource
+/rwr history 10
+```
 
-The query service is available starting with RWR runtime **5.1.0**. RWR **5.0.0 does not provide it**;
-keep integrations optional until server owners have upgraded. The API exposes managed-world snapshots,
-reset status, and reset lifecycle events, but does not let other plugins trigger resets or change RWR's
-configuration. API 5.1.0 contains snapshots, status, and pre/post reset events; scheduled-warning
-listeners compile against the compatible API 5.1.2 addition.
+A reset evacuates players, asks the installed world provider to regenerate the world, verifies the result, and records the terminal outcome. Ambiguous failures pause automatic resets until an operator reviews the world and configuration.
 
-RWR 5.1.0 is intentionally limited to public API integration and scheduled-warning events. New
-commands, locale files, fallback rules, and complete localization are reserved for RWR 5.2.0.
+## Configuration
+
+The generated configuration is stored in:
+
+- Spigot/CraftBukkit: `plugins/ResourceWorldResetter/config.yml` and `managed-worlds.yml`
+- Paper/Purpur/Folia: `plugins/ResourceWorldResetter-Paper-Folia/config.yml` and `managed-worlds.yml`
+
+| Key | Required | Default | Description |
+| --- | --- | --- | --- |
+| `config-version` | Yes | `5` | Configuration schema version. |
+| `locale` | No | `en_US` | Locale filename without `.yml`. |
+| `timezone` | No | `Asia/Kuala_Lumpur` | IANA time zone used by schedules. |
+| `default-hub-world` | Yes | server default world on first install | Default evacuation destination. |
+| `updates.enabled` | No | `true` | Check GitHub Releases at startup. |
+| `reset-policy.max-safe-retries` | No | `2` | Automatic retries after a safe failure. |
+| `managed-worlds.yml: worlds.<id>.managed` | Yes for resets | No implicit default | Must be `true` before RWR regenerates a world. |
+| `managed-worlds.yml: worlds.<id>.schedule.type` | Yes for schedules | — | `DAILY`, `WEEKLY`, `MONTHLY`, or `INTERVAL`. |
+| `managed-worlds.yml: worlds.<id>.regeneration.seed-policy` | Yes for resets | — | `SAME`, `FIXED`, or `RANDOM`. |
+| `teleport.auto-discover` | No | `true` | Discover provider worlds for the teleport menu. |
+
+Minimal daily schedule:
+
+```yaml
+worlds:
+  resource:
+    multiverse-world: resource
+    display-name: "Resource World"
+    enabled: true
+    managed: true
+    schedule:
+      type: DAILY
+      time: "03:00"
+    warning-minutes: [30, 10, 5, 1]
+    regeneration:
+      seed-policy: RANDOM
+      keep-world-config: true
+      keep-gamerules: true
+      keep-world-border: true
+    evacuation:
+      enabled: true
+      destination: world
+```
+
+On Paper/Folia, `multiverse-world` stores a Worlds key such as `worlds:resource`. See the bundled platform `config.yml` files and the [operator configuration guide](website/src/content/docs/operator/configuration.md) for the complete schema.
 
 ## Commands and permissions
 
-| Command | Permission | Description |
-|---------|------------|-------------|
-| `/rwr help` | (none / relevant nodes) | Permission-aware help |
-| `/rwr status [id]` | `rwr.status` | Live reset / schedule status |
-| `/rwr gui` | `rwr.admin` | Admin configuration GUI |
-| `/rwr tp` | `rwr.tp` | Player teleport menu |
-| `/rwr reset <id>` | `rwr.reset` | Guarded immediate reset |
-| `/rwr history [n]` | `rwr.history` | Recent reset history |
-| `/rwr reload` | `rwr.reload` | Transactional config reload |
+| Command | Permission | Purpose |
+| --- | --- | --- |
+| `/rwr help` | Relevant command nodes | Show available commands. |
+| `/rwr status [id]` | `rwr.status` | Show reset and schedule status. |
+| `/rwr gui` | `rwr.admin` | Open the administration GUI. |
+| `/rwr tp` | `rwr.tp` | Open the player teleport menu. |
+| `/rwr reset <id>` | `rwr.reset` | Start a guarded reset. |
+| `/rwr history [count]` | `rwr.history` | Show recent reset history. |
+| `/rwr reload` | `rwr.reload` | Reload configuration, locale, and update-checker settings. |
+| `/rwr version` | `rwr.admin` | Show installed and latest versions. |
 
-| Permission | Default | Description |
-|------------|---------|-------------|
-| `rwr.admin` | op | Full admin GUI and admin actions |
-| `rwr.reload` | op | Reload configuration |
-| `rwr.reset` | op | Force a guarded reset |
-| `rwr.status` | op | View status |
-| `rwr.history` | op | View reset history |
-| `rwr.tp` | true | Open the teleport GUI |
-| `rwr.teleport.world.*` | op | Bypass per-destination teleport permissions |
+Administrative permissions default to server operators. `rwr.tp` defaults to all players. `rwr.teleport.world.*` lets operators bypass destination-specific permissions.
 
-Leave a destination `permission` blank to make it public to anyone with `rwr.tp`. Set it to any Bukkit node (for example a LuckPerms group) to restrict that destination.
+## Localization
 
-## Build
+Bundled locales are `en_US`, `zh_CN`, `ja_JP`, and `ko_KR`. Select one in `config.yml`:
+
+```yaml
+locale: ja_JP
+```
+
+On a fresh install with the default `locale: en_US`, only `locales/en_US.yml` is written to the plugin data folder. Other bundled languages stay inside the JAR until you select them: set `locale` to `zh_CN`, `ja_JP`, or `ko_KR`, then restart or run `/rwr reload` to extract that file under `locales/`.
+
+Messages use MiniMessage. Keep placeholders such as `<world>`, `<latest>`, and `<permission>` unchanged. Legacy ampersand color codes and `%placeholder%` syntax are accepted. Missing keys fall back to bundled English from the JAR (including keys omitted from older on-disk locale files). An invalid locale reload keeps the previous valid locale active. Both `/rwr reload` and the administration GUI reload refresh configuration, locale, and update-checker settings together.
+
+## Metrics
+
+RWR uses [bStats](https://bstats.org/) for anonymous server usage statistics. The Spigot build uses plugin ID [31502](https://bstats.org/plugin/bukkit/ResourceWorldResetter/31502), and the Paper/Folia build uses plugin ID [33605](https://bstats.org/plugin/bukkit/ResourceWorldResetter-Paper-Folia/33605). Disable collection globally in `plugins/bStats/config.yml` by setting `enabled: false`.
+
+## Add-ons and API
+
+- [RWR-PlaceholderAPI](https://github.com/TamaWish/RWR-PlaceholderAPI) provides machine-oriented placeholders.
+- [RWR-Discord Webhook](https://github.com/TamaWish/RWR-Discord-Webhook) publishes reset warnings and outcomes.
+- [RWR-Prometheus](https://github.com/TamaWish/RWR-Prometheus) exports reset lifecycle metrics.
+- [RWR API](https://github.com/TamaWish/RWR-API) provides read-only snapshots and reset lifecycle events.
+
+Integration authors can compile against `io.github.tamawish:rwr-api:5.1.2` with `provided` scope. See [Integration Development](docs/public/DEVELOPMENT.md).
+
+## Project structure
+
+| Path | Purpose |
+| --- | --- |
+| `rwr-core/` | Platform-independent configuration, scheduling, reset, history, and teleport policy. |
+| `rwr-bukkit-api-adapter/` | Bukkit service registration, API snapshots, and events. |
+| `RWR-Spigot/` | Spigot/CraftBukkit and Multiverse-Core integration. |
+| `RWR-Paper-Folia/` | Paper/Purpur/Folia and Worlds integration. |
+| `website/` | Astro/Starlight documentation site. |
+
+## Development
+
+The full Maven reactor requires JDK 25 and Maven 3.9+.
+
+```bash
+git clone https://github.com/TamaWish/ResourceWorldResetter.git
+cd ResourceWorldResetter
+mvn clean verify
+```
+
+Build the two production artifacts:
 
 ```bash
 mvn -pl RWR-Spigot,RWR-Paper-Folia -am clean package
 ```
 
-See each module README for features, credits, and license text.
+Run focused core tests:
 
-## Public documentation
+```bash
+mvn -pl rwr-core test
+```
+
+Check Java formatting:
+
+```bash
+mvn spotless:check
+```
+
+The resulting server JARs are written under `RWR-Spigot/target/` and `RWR-Paper-Folia/target/`.
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a change. Bug reports and pull requests belong in the [GitHub repository](https://github.com/TamaWish/ResourceWorldResetter/issues).
+
+## Documentation and support
 
 - [Operator wiki](https://tamawish.github.io/ResourceWorldResetter/wiki.html)
-- [Operations & Migration](docs/public/OPERATIONS_AND_MIGRATION.md)
-- [v5 changelog](CHANGELOG.md)
-- [v5 release notes](docs/public/RELEASE_NOTES.md)
-- [Legacy v4 changelog](CHANGELOG_v4.md)
+- [Operations and Migration](docs/public/OPERATIONS_AND_MIGRATION.md)
+- [Release notes](RELEASE_NOTES.md)
+- [Changelog](CHANGELOG.md)
+- [Discord](https://discord.gg/kbKZzxDETU)
+
+## License
+
+ResourceWorldResetter is licensed under the [BSD 3-Clause License](LICENSE).

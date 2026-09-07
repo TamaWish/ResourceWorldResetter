@@ -1,0 +1,119 @@
+# =============================================================================
+# ResourceWorldResetter 简体中文本地化（Spigot / CraftBukkit）
+# =============================================================================
+# 默认 + 回退语言文件。复制本文件以添加其他翻译。
+# 支持 MiniMessage。运行时占位符使用 <name> 形式。
+# 请保持标签名称不变；周围文本和颜色可以翻译。
+# 仍接受旧版 &-颜色码和 %placeholders%，加载时会自动转换。
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 前缀
+# -----------------------------------------------------------------------------
+prefix: "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> "
+
+# -----------------------------------------------------------------------------
+# 命令
+# -----------------------------------------------------------------------------
+command:
+  # 通用命令响应。
+  no-permission: "<prefix><red>你没有权限：<permission>"
+  player-only: "<prefix><red><feature> 只能由玩家使用。"
+  unknown: "<prefix><red>未知命令。请使用 /rwr help。"
+  no-worlds: "<prefix><gray>尚未配置任何重置世界。"
+
+  # 帮助列表。
+  help-header: "<prefix><yellow>可用命令："
+  help-entry: "<gray><usage> <dark_gray>- <white><description>"
+
+  # 重载与语言文件保留。
+  reload-success: "<prefix><green>配置与语言文件已重载。活动世界数：<count>。"
+  reload-failed: "<prefix><red>重载被拒绝；<retention>"
+  locale-reload-failed: "<prefix><red>语言文件重载被拒绝；仍使用先前有效的语言文件。"
+  issue: "<red> - <issue>"
+
+  # 受保护重置。
+  reset-start: "<prefix><yellow>正在为 <white><world> <dark_gray>（ID：<world_id>）<yellow> 开始受保护重置。"
+  reset-success: "<prefix><green>重置完成 [操作=<operation>]：<message>"
+  reset-failed: "<prefix><red>重置失败 [<failure>，安全=<safety>，操作=<operation>]：<message>"
+
+  # 重置历史。
+  history-count: "<prefix><red>历史条目数量必须是 1 到 50 之间的整数。"
+  history-empty: "<prefix><gray>重置历史为空。"
+  history-header: "<prefix><gold>最近重置历史 <dark_gray>（<gray><count> 条<dark_gray>）"
+  history-entry: "<gold><world> <dark_gray>（<gray>ID：<world_id><dark_gray>） <white>— <phase>"
+  history-time: "  <gray>完成时间：<white><completed> <dark_gray>| <gray>操作：<white><operation>"
+  history-detail: "  <gray>结果：<white><result> <dark_gray>— <gray><message>"
+
+  # 状态列表。
+  status-header: "<prefix><gold><world> <dark_gray>（<gray>ID：<world_id><dark_gray>）"
+  status-state: "  <gray>状态：<white><phase> <dark_gray>| <gray>提供方世界：<white><world>"
+  status-schedule: "  <gray>下次重置：<white><next>"
+  status-operation: "  <gray>操作：<white><operation> <dark_gray>— <gray><message>"
+
+  # 帮助描述。description 之后的键与 /rwr 子命令对应。
+  description:
+    help: "显示此帮助"
+    status: "显示重置状态"
+    gui: "打开管理界面"
+    tp: "打开传送界面"
+    reset: "请求一次受保护重置"
+    history: "显示重置历史"
+    reload: "重载配置与语言文件"
+    version: "显示已安装与最新的 RWR 版本"
+    discord: "管理 Discord Webhook 扩展"
+    placeholder: "管理 PlaceholderAPI 扩展"
+
+# -----------------------------------------------------------------------------
+# 更新检查器
+# -----------------------------------------------------------------------------
+update:
+  # 玩家与命令响应。
+  checking: "<prefix><yellow>正在检查 GitHub Releases 更新..."
+  current: "<prefix><green>RWR <installed> 已是最新版本。"
+  available: "<prefix><gold>发现更新：<installed> → <latest>。<aqua><url>"
+  failed: "<prefix><gray>当前无法检查更新；RWR 将继续正常运行。"
+  disabled: "<prefix><gray>已禁用 GitHub 更新检查。"
+
+# -----------------------------------------------------------------------------
+# 玩家通知
+# -----------------------------------------------------------------------------
+notification:
+  warning: "<prefix><yellow><world> 将在 <remaining> 后重置。"
+  reset-complete: "<prefix><green><world> 已成功完成重置。"
+  reset-failed: "<prefix><red><world> 重置失败：<failure>。"
+
+# -----------------------------------------------------------------------------
+# GUI
+# -----------------------------------------------------------------------------
+gui:
+  # 操作结果与基于聊天的 GUI 输入。
+  success: "<prefix><green><message>"
+  failure: "<prefix><red><message>"
+  world-saved: "<prefix><green>世界配置已保存。"
+  world-removed: "<prefix><green>世界配置已移除。"
+  issue: "<red> - <issue>"
+  input-prompt: "<prefix><yellow>请在 30 秒内于聊天中输入值，或输入 cancel 取消。"
+  input-timeout: "<prefix><red>输入已超时。"
+  input-cancelled: "<prefix><gray>已取消输入。"
+
+# -----------------------------------------------------------------------------
+# 控制台日志消息
+# -----------------------------------------------------------------------------
+log:
+  update-available: "[RWR] [INFO] 发现更新：<installed> -> <latest>。发布页：<url>"
+  update-failed: "[RWR] [WARN] 更新检查失败：<reason>"
+
+value:
+  none: "无"
+  idle: "空闲"
+  not-scheduled: "未计划"
+  phase:
+    idle: "空闲"
+    precheck: "预检查"
+    evacuate: "疏散中"
+    regenerate: "重新生成中"
+    verify: "验证中"
+    complete: "完成"
+    failed: "失败"
+    interrupted: "已中断"

@@ -33,413 +33,595 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 class ScheduleManagerTest {
-    @Test
-    void warningsAreOneShotOrderedAndDeduplicated() {
-        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
-        FakeTasks tasks = new FakeTasks(clock);
-        List<Integer> warnings = new ArrayList<>();
-        AtomicInteger resets = new AtomicInteger();
-        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+  @Test
+  void warningsAreOneShotOrderedAndDeduplicated() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    List<Integer> warnings = new ArrayList<>();
+    AtomicInteger resets = new AtomicInteger();
+    AtomicReference<PluginSettings> settings =
+        new AtomicReference<>(
+            settings(
                 true,
                 ZoneId.of("UTC"),
                 new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 60),
                 List.of(10, 1, 1)));
-        ScheduleManager manager = manager(settings, resets, tasks, warnings, clock, ResetPhase.COMPLETE);
+    ScheduleManager manager =
+        manager(settings, resets, tasks, warnings, clock, ResetPhase.COMPLETE);
 
-        manager.replaceSchedules(settings.get());
-        tasks.runUntil(() -> resets.get() == 1);
+    manager.replaceSchedules(settings.get());
+    tasks.runUntil(() -> resets.get() == 1);
 
-        assertThat(warnings).containsExactly(10, 1);
-        assertThat(resets).hasValue(1);
-        assertThat(tasks.activeCount()).isEqualTo(3);
-        assertThat(manager.nextRun("resource_id")).contains(
-                ZonedDateTime.ofInstant(clock.instant().plus(Duration.ofMinutes(60)), ZoneId.of("UTC")));
-    }
+    assertThat(warnings).containsExactly(10, 1);
+    assertThat(resets).hasValue(1);
+    assertThat(tasks.activeCount()).isEqualTo(3);
+    assertThat(manager.nextRun("resource_id"))
+        .contains(
+            ZonedDateTime.ofInstant(
+                clock.instant().plus(Duration.ofMinutes(60)), ZoneId.of("UTC")));
+  }
 
-    @Test
-    void reloadCancelsOldGenerationAndLeavesNoDuplicateTasks() {
-        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
-        FakeTasks tasks = new FakeTasks(clock);
-        List<Integer> warnings = new ArrayList<>();
-        AtomicInteger resets = new AtomicInteger();
-        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+  @Test
+  void reloadCancelsOldGenerationAndLeavesNoDuplicateTasks() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    List<Integer> warnings = new ArrayList<>();
+    AtomicInteger resets = new AtomicInteger();
+    AtomicReference<PluginSettings> settings =
+        new AtomicReference<>(
+            settings(
                 true,
                 ZoneId.of("UTC"),
                 new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 60),
                 List.of(10, 1)));
-        ScheduleManager manager = manager(settings, resets, tasks, warnings, clock, ResetPhase.COMPLETE);
+    ScheduleManager manager =
+        manager(settings, resets, tasks, warnings, clock, ResetPhase.COMPLETE);
 
-        manager.replaceSchedules(settings.get());
-        List<FakeTask> firstGeneration = List.copyOf(tasks.tasks);
-        manager.replaceSchedules(settings.get());
+    manager.replaceSchedules(settings.get());
+    List<FakeTask> firstGeneration = List.copyOf(tasks.tasks);
+    manager.replaceSchedules(settings.get());
 
-        assertThat(firstGeneration).allMatch(task -> task.cancelled);
-        assertThat(tasks.activeCount()).isEqualTo(3);
-        assertThat(manager.scheduledWorldCount()).isEqualTo(1);
+    assertThat(firstGeneration).allMatch(task -> task.cancelled);
+    assertThat(tasks.activeCount()).isEqualTo(3);
+    assertThat(manager.scheduledWorldCount()).isEqualTo(1);
 
-        firstGeneration.forEach(task -> task.runnable.run());
-        assertThat(warnings).isEmpty();
-        assertThat(resets).hasValue(0);
-    }
+    firstGeneration.forEach(task -> task.runnable.run());
+    assertThat(warnings).isEmpty();
+    assertThat(resets).hasValue(0);
+  }
 
-    @Test
-    void reloadRecalculatesUsingNewTimezoneAndSchedule() {
-        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
-        FakeTasks tasks = new FakeTasks(clock);
-        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+  @Test
+  void reloadRecalculatesUsingNewTimezoneAndSchedule() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    AtomicReference<PluginSettings> settings =
+        new AtomicReference<>(
+            settings(
                 true,
                 ZoneId.of("UTC"),
                 new ScheduleSettings(ScheduleType.DAILY, java.time.LocalTime.of(3, 0), null, 0, 0),
                 List.of()));
-        ScheduleManager manager = manager(settings, new AtomicInteger(), tasks, new ArrayList<>(), clock, ResetPhase.COMPLETE);
-        manager.replaceSchedules(settings.get());
+    ScheduleManager manager =
+        manager(
+            settings, new AtomicInteger(), tasks, new ArrayList<>(), clock, ResetPhase.COMPLETE);
+    manager.replaceSchedules(settings.get());
 
-        PluginSettings replacement = settings(
-                true,
-                ZoneId.of("Asia/Kuala_Lumpur"),
-                new ScheduleSettings(ScheduleType.DAILY, java.time.LocalTime.of(10, 0), null, 0, 0),
-                List.of());
-        settings.set(replacement);
-        manager.replaceSchedules(replacement);
+    PluginSettings replacement =
+        settings(
+            true,
+            ZoneId.of("Asia/Kuala_Lumpur"),
+            new ScheduleSettings(ScheduleType.DAILY, java.time.LocalTime.of(10, 0), null, 0, 0),
+            List.of());
+    settings.set(replacement);
+    manager.replaceSchedules(replacement);
 
-        assertThat(manager.nextRun("resource_id")).contains(
-                ZonedDateTime.of(2026, 8, 27, 10, 0, 0, 0, ZoneId.of("Asia/Kuala_Lumpur")));
-        assertThat(tasks.activeCount()).isEqualTo(1);
-    }
+    assertThat(manager.nextRun("resource_id"))
+        .contains(ZonedDateTime.of(2026, 8, 27, 10, 0, 0, 0, ZoneId.of("Asia/Kuala_Lumpur")));
+    assertThat(tasks.activeCount()).isEqualTo(1);
+  }
 
-    @Test
-    void disabledWorldsHaveNoResetOrWarningTasks() {
-        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
-        FakeTasks tasks = new FakeTasks(clock);
-        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+  @Test
+  void disabledWorldsHaveNoResetOrWarningTasks() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    AtomicReference<PluginSettings> settings =
+        new AtomicReference<>(
+            settings(
                 true,
                 ZoneId.of("UTC"),
                 new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 60),
                 List.of(10, 1)));
-        ScheduleManager manager = manager(settings, new AtomicInteger(), tasks, new ArrayList<>(), clock, ResetPhase.COMPLETE);
+    ScheduleManager manager =
+        manager(
+            settings, new AtomicInteger(), tasks, new ArrayList<>(), clock, ResetPhase.COMPLETE);
 
-        manager.replaceSchedules(settings.get());
-        List<FakeTask> enabledTasks = List.copyOf(tasks.tasks);
-        PluginSettings disabled = settings(
-                false,
-                ZoneId.of("UTC"),
-                new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 60),
-                List.of(10, 1));
-        settings.set(disabled);
-        manager.replaceSchedules(disabled);
+    manager.replaceSchedules(settings.get());
+    List<FakeTask> enabledTasks = List.copyOf(tasks.tasks);
+    PluginSettings disabled =
+        settings(
+            false,
+            ZoneId.of("UTC"),
+            new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 60),
+            List.of(10, 1));
+    settings.set(disabled);
+    manager.replaceSchedules(disabled);
 
-        assertThat(enabledTasks).allMatch(task -> task.cancelled);
-        assertThat(manager.scheduledWorldCount()).isZero();
-        assertThat(tasks.activeCount()).isZero();
-    }
+    assertThat(enabledTasks).allMatch(task -> task.cancelled);
+    assertThat(manager.scheduledWorldCount()).isZero();
+    assertThat(tasks.activeCount()).isZero();
+  }
 
-    @Test
-    void warningIsSuppressedWhenWorldBecomesIneligibleBeforeItFires() {
-        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
-        FakeTasks tasks = new FakeTasks(clock);
-        List<Integer> warnings = new ArrayList<>();
-        AtomicInteger resets = new AtomicInteger();
-        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+  @Test
+  void warningIsSuppressedWhenWorldBecomesIneligibleBeforeItFires() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    List<Integer> warnings = new ArrayList<>();
+    AtomicInteger resets = new AtomicInteger();
+    AtomicReference<PluginSettings> settings =
+        new AtomicReference<>(
+            settings(
                 true,
                 ZoneId.of("UTC"),
                 new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 60),
                 List.of(10)));
-        ScheduleManager manager = manager(settings, resets, tasks, warnings, clock, ResetPhase.COMPLETE);
-        manager.replaceSchedules(settings.get());
+    ScheduleManager manager =
+        manager(settings, resets, tasks, warnings, clock, ResetPhase.COMPLETE);
+    manager.replaceSchedules(settings.get());
 
-        settings.set(settings(
-                false,
-                ZoneId.of("UTC"),
-                new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 60),
-                List.of(10)));
-        tasks.runNext();
+    settings.set(
+        settings(
+            false,
+            ZoneId.of("UTC"),
+            new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 60),
+            List.of(10)));
+    tasks.runNext();
 
-        assertThat(warnings).isEmpty();
-        assertThat(resets).hasValue(0);
-    }
+    assertThat(warnings).isEmpty();
+    assertThat(resets).hasValue(0);
+  }
 
-    @Test
-    void nonTerminalResetResultDoesNotCreateAnotherCycle() {
-        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
-        FakeTasks tasks = new FakeTasks(clock);
-        AtomicInteger resets = new AtomicInteger();
-        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+  @Test
+  void nonTerminalResetResultDoesNotCreateAnotherCycle() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    AtomicInteger resets = new AtomicInteger();
+    AtomicReference<PluginSettings> settings =
+        new AtomicReference<>(
+            settings(
                 true,
                 ZoneId.of("UTC"),
                 new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 1),
                 List.of()));
-        ScheduleManager manager = manager(settings, resets, tasks, new ArrayList<>(), clock, ResetPhase.PRECHECK);
-        manager.replaceSchedules(settings.get());
+    ScheduleManager manager =
+        manager(settings, resets, tasks, new ArrayList<>(), clock, ResetPhase.PRECHECK);
+    manager.replaceSchedules(settings.get());
 
-        tasks.runNext();
+    tasks.runNext();
 
-        assertThat(resets).hasValue(1);
-        assertThat(tasks.activeCount()).isZero();
-        assertThat(manager.nextRun("resource_id")).isEmpty();
-    }
+    assertThat(resets).hasValue(1);
+    assertThat(tasks.activeCount()).isZero();
+    assertThat(manager.nextRun("resource_id")).isEmpty();
+  }
 
-    @Test
-    void manualResetCancelsPendingGenerationAndStartsNextOnlyAfterTerminalResult() {
-        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
-        FakeTasks tasks = new FakeTasks(clock);
-        AtomicInteger resets = new AtomicInteger();
-        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+  @Test
+  void manualResetCancelsPendingGenerationAndStartsNextOnlyAfterTerminalResult() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    AtomicInteger resets = new AtomicInteger();
+    AtomicReference<PluginSettings> settings =
+        new AtomicReference<>(
+            settings(
                 true,
                 ZoneId.of("UTC"),
                 new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 60),
                 List.of(10)));
-        ScheduleManager manager = manager(settings, resets, tasks, new ArrayList<>(), clock, ResetPhase.COMPLETE);
-        manager.replaceSchedules(settings.get());
-        List<FakeTask> oldTasks = List.copyOf(tasks.tasks);
+    ScheduleManager manager =
+        manager(settings, resets, tasks, new ArrayList<>(), clock, ResetPhase.COMPLETE);
+    manager.replaceSchedules(settings.get());
+    List<FakeTask> oldTasks = List.copyOf(tasks.tasks);
 
-        ResetOutcome outcome = manager.resetNow("resource_id");
+    ResetOutcome outcome = manager.resetNow("resource_id");
 
-        assertThat(outcome.phase()).isEqualTo(ResetPhase.COMPLETE);
-        assertThat(oldTasks).allMatch(task -> task.cancelled);
-        assertThat(resets).hasValue(1);
-        assertThat(tasks.activeCount()).isEqualTo(2);
-    }
+    assertThat(outcome.phase()).isEqualTo(ResetPhase.COMPLETE);
+    assertThat(oldTasks).allMatch(task -> task.cancelled);
+    assertThat(resets).hasValue(1);
+    assertThat(tasks.activeCount()).isEqualTo(2);
+  }
 
-    @Test
-    void ambiguousScheduledFailureHaltsFurtherAutomation() {
-        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
-        FakeTasks tasks = new FakeTasks(clock);
-        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+  @Test
+  void ambiguousScheduledFailureHaltsFurtherAutomation() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    AtomicReference<PluginSettings> settings =
+        new AtomicReference<>(
+            settings(
                 true,
                 ZoneId.of("UTC"),
                 new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 1),
                 List.of()));
-        ResetExecutor executor = worldId -> ResetOutcome.rejected(
+    ResetExecutor executor =
+        worldId ->
+            ResetOutcome.rejected(
                 worldId,
                 "resource",
                 ResetFailureType.MULTIVERSE_API_EXCEPTION,
                 FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
                 "upstream result is unknown");
-        ScheduleManager manager = new ScheduleManager(
-                settings::get,
-                executor,
-                new NextRunCalculator(),
-                tasks,
-                (world, minutes, resetAt) -> {},
-                clock);
-        manager.replaceSchedules(settings.get());
+    ScheduleManager manager =
+        new ScheduleManager(
+            settings::get,
+            executor,
+            new NextRunCalculator(),
+            tasks,
+            (world, minutes, resetAt) -> {},
+            clock);
+    manager.replaceSchedules(settings.get());
 
-        tasks.runNext();
+    tasks.runNext();
 
-        assertThat(tasks.activeCount()).isZero();
-        assertThat(manager.nextRun("resource_id")).isEmpty();
-    }
+    assertThat(tasks.activeCount()).isZero();
+    assertThat(manager.nextRun("resource_id")).isEmpty();
+  }
 
-    @Test
-    void safeScheduledFailureUsesConfiguredRetryLimitAndDelay() {
-        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
-        FakeTasks tasks = new FakeTasks(clock);
-        AtomicInteger resets = new AtomicInteger();
-        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+  @Test
+  void safeScheduledFailureUsesConfiguredRetryLimitAndDelay() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    AtomicInteger resets = new AtomicInteger();
+    AtomicReference<PluginSettings> settings =
+        new AtomicReference<>(
+            settings(
                 true,
                 ZoneId.of("UTC"),
                 new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 1),
                 List.of()));
-        ResetExecutor executor = worldId -> {
-            resets.incrementAndGet();
-            return ResetOutcome.rejected(
-                    worldId,
-                    "resource",
-                    ResetFailureType.GLOBAL_RESET_BUSY,
-                    FailureSafety.SAFE_TO_RETRY,
-                    "try later");
+    ResetExecutor executor =
+        worldId -> {
+          resets.incrementAndGet();
+          return ResetOutcome.rejected(
+              worldId,
+              "resource",
+              ResetFailureType.GLOBAL_RESET_BUSY,
+              FailureSafety.SAFE_TO_RETRY,
+              "try later");
         };
-        ScheduleManager manager = new ScheduleManager(
-                settings::get,
-                executor,
-                new NextRunCalculator(),
-                tasks,
-                (world, minutes, resetAt) -> {},
-                clock);
-        manager.replaceSchedules(settings.get());
+    ScheduleManager manager =
+        new ScheduleManager(
+            settings::get,
+            executor,
+            new NextRunCalculator(),
+            tasks,
+            (world, minutes, resetAt) -> {},
+            clock);
+    manager.replaceSchedules(settings.get());
 
-        tasks.runNext();
-        assertThat(manager.nextRun("resource_id")).contains(
-                ZonedDateTime.ofInstant(clock.instant().plusSeconds(30), ZoneId.of("UTC")));
-        tasks.runNext();
-        tasks.runNext();
+    tasks.runNext();
+    assertThat(manager.nextRun("resource_id"))
+        .contains(ZonedDateTime.ofInstant(clock.instant().plusSeconds(30), ZoneId.of("UTC")));
+    tasks.runNext();
+    tasks.runNext();
 
-        assertThat(resets).hasValue(3);
-        assertThat(manager.nextRun("resource_id")).contains(
-                ZonedDateTime.ofInstant(clock.instant().plusSeconds(60), ZoneId.of("UTC")));
-    }
+    assertThat(resets).hasValue(3);
+    assertThat(manager.nextRun("resource_id"))
+        .contains(ZonedDateTime.ofInstant(clock.instant().plusSeconds(60), ZoneId.of("UTC")));
+  }
 
-    @Test
-    void exceptionalScheduledResetDoesNotRemainRunning() {
-        MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
-        FakeTasks tasks = new FakeTasks(clock);
-        AtomicReference<PluginSettings> settings = new AtomicReference<>(settings(
+  @Test
+  void exceptionalScheduledResetDoesNotRemainRunning() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    AtomicReference<PluginSettings> settings =
+        new AtomicReference<>(
+            settings(
                 true,
                 ZoneId.of("UTC"),
                 new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 1),
                 List.of()));
-        ResetExecutor executor = new ResetExecutor() {
-            @Override
-            public ResetOutcome reset(String worldId) {
-                throw new IllegalStateException("unexpected synchronous path");
-            }
+    ResetExecutor executor =
+        new ResetExecutor() {
+          @Override
+          public ResetOutcome reset(String worldId) {
+            throw new IllegalStateException("unexpected synchronous path");
+          }
 
-            @Override
-            public java.util.concurrent.CompletionStage<ResetOutcome> resetAsync(String worldId) {
-                return CompletableFuture.failedFuture(new IllegalStateException("adapter failed"));
-            }
+          @Override
+          public java.util.concurrent.CompletionStage<ResetOutcome> resetAsync(String worldId) {
+            return CompletableFuture.failedFuture(new IllegalStateException("adapter failed"));
+          }
         };
-        ScheduleManager manager = new ScheduleManager(
-                settings::get, executor, new NextRunCalculator(), tasks, (world, minutes, resetAt) -> {}, clock);
-        manager.replaceSchedules(settings.get());
+    ScheduleManager manager =
+        new ScheduleManager(
+            settings::get,
+            executor,
+            new NextRunCalculator(),
+            tasks,
+            (world, minutes, resetAt) -> {},
+            clock);
+    manager.replaceSchedules(settings.get());
 
-        tasks.runNext();
+    tasks.runNext();
 
-        assertThat(manager.nextRun("resource_id")).isEmpty();
-        assertThat(tasks.activeCount()).isZero();
-    }
+    assertThat(manager.nextRun("resource_id")).isEmpty();
+    assertThat(tasks.activeCount()).isZero();
+  }
 
-    private static ScheduleManager manager(
-            AtomicReference<PluginSettings> settings,
-            AtomicInteger resets,
-            FakeTasks tasks,
-            List<Integer> warnings,
-            Clock clock,
-            ResetPhase outcomePhase) {
-        ResetExecutor executor = worldId -> {
-            resets.incrementAndGet();
-            return new ResetOutcome(
-                    "operation",
-                    worldId,
-                    "resource",
-                    outcomePhase,
-                    null,
-                    FailureSafety.NOT_RETRYABLE,
-                    "test outcome");
+  @Test
+  void reloadAndDuplicateManualResetPreserveActiveResetAndItsFailure() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    PluginSettings config =
+        settings(
+            true,
+            ZoneId.of("UTC"),
+            new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 1),
+            List.of());
+    CompletableFuture<ResetOutcome> pending = new CompletableFuture<>();
+    AtomicInteger calls = new AtomicInteger();
+    ResetExecutor executor =
+        new ResetExecutor() {
+          @Override
+          public ResetOutcome reset(String worldId) {
+            throw new AssertionError("unexpected synchronous reset");
+          }
+
+          @Override
+          public java.util.concurrent.CompletionStage<ResetOutcome> resetAsync(String worldId) {
+            calls.incrementAndGet();
+            return pending;
+          }
         };
-        return new ScheduleManager(
-                settings::get,
-                executor,
-                new NextRunCalculator(),
-                tasks,
-                (world, minutes, resetAt) -> warnings.add(minutes),
-                clock);
-    }
+    ScheduleManager manager =
+        new ScheduleManager(
+            () -> config,
+            executor,
+            new NextRunCalculator(),
+            tasks,
+            (world, minutes, resetAt) -> {},
+            clock);
+    manager.replaceSchedules(config);
+    tasks.runNext();
+    manager.replaceSchedules(config);
 
-    private static PluginSettings settings(
-            boolean enabled,
-            ZoneId zone,
-            ScheduleSettings schedule,
-            List<Integer> warnings) {
-        WorldOperationalState state = enabled ? WorldOperationalState.MANAGED : WorldOperationalState.DISABLED;
-        ManagedWorldSettings world = new ManagedWorldSettings(
+    assertThat(manager.resetNowAsync("resource_id").toCompletableFuture().join().failure())
+        .isEqualTo(ResetFailureType.WORLD_BUSY);
+    assertThat(calls).hasValue(1);
+    assertThat(tasks.activeCount()).isZero();
+    pending.complete(
+        ResetOutcome.rejected(
+            "resource_id",
+            "resource",
+            ResetFailureType.MULTIVERSE_API_EXCEPTION,
+            FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
+            "unknown upstream state"));
+    manager.replaceSchedules(config);
+
+    assertThat(manager.nextRun("resource_id")).isEmpty();
+    assertThat(tasks.activeCount()).isZero();
+  }
+
+  @Test
+  void immediateExecutorExceptionIsReportedAndStopsAutomation() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    PluginSettings config =
+        settings(
+            true,
+            ZoneId.of("UTC"),
+            new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 1),
+            List.of());
+    List<ResetOutcome> outcomes = new ArrayList<>();
+    ResetExecutor executor =
+        new ResetExecutor() {
+          @Override
+          public ResetOutcome reset(String worldId) {
+            throw new IllegalStateException("adapter failed immediately");
+          }
+
+          @Override
+          public java.util.concurrent.CompletionStage<ResetOutcome> resetAsync(String worldId) {
+            throw new IllegalStateException("adapter failed immediately");
+          }
+        };
+    ScheduleManager manager =
+        new ScheduleManager(
+            () -> config,
+            executor,
+            new NextRunCalculator(),
+            tasks,
+            (world, minutes, resetAt) -> {},
+            clock,
+            (world, outcome, broadcast) -> outcomes.add(outcome));
+    manager.replaceSchedules(config);
+    tasks.runNext();
+
+    assertThat(outcomes)
+        .singleElement()
+        .satisfies(
+            outcome ->
+                assertThat(outcome.safety()).isEqualTo(FailureSafety.AMBIGUOUS_REVIEW_REQUIRED));
+    assertThat(manager.resetNow("resource_id").safety())
+        .isEqualTo(FailureSafety.AMBIGUOUS_REVIEW_REQUIRED);
+    assertThat(manager.resetNowAsync("resource_id").toCompletableFuture().join().safety())
+        .isEqualTo(FailureSafety.AMBIGUOUS_REVIEW_REQUIRED);
+    assertThat(tasks.activeCount()).isZero();
+  }
+
+  @Test
+  void startupRestoresSafetyHoldUntilAnExplicitSuccessfulReset() {
+    MutableClock clock = new MutableClock(Instant.parse("2026-08-27T00:00:00Z"));
+    FakeTasks tasks = new FakeTasks(clock);
+    AtomicReference<PluginSettings> config =
+        new AtomicReference<>(
+            settings(
+                true,
+                ZoneId.of("UTC"),
+                new ScheduleSettings(ScheduleType.INTERVAL, null, null, 0, 1),
+                List.of()));
+    ScheduleManager manager =
+        manager(config, new AtomicInteger(), tasks, new ArrayList<>(), clock, ResetPhase.COMPLETE);
+    manager.restoreSafetyHolds(
+        List.of(
+            new io.github.tamawish.rwr.history.ResetHistoryEntry(
+                "interrupted",
                 "resource_id",
                 "resource",
-                "Resource",
-                enabled,
-                true,
-                schedule,
-                warnings,
-                new RegenerationSettings(SeedPolicy.SAME, null, true, true, true),
-                new EvacuationSettings(true, "world"),
-                state);
-        return new PluginSettings(
-                5,
-                zone,
-                "world",
-                new ResetPolicySettings(2, 30, true),
-                Map.of(world.id(), world),
-                new TeleportSettings(true, false, true, Map.of()));
+                "start",
+                "end",
+                ResetPhase.INTERRUPTED,
+                ResetFailureType.INTERRUPTED_OPERATION,
+                FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
+                "review required")));
+    manager.replaceSchedules(config.get());
+
+    assertThat(tasks.activeCount()).isZero();
+    assertThat(manager.resetNow("resource_id").successful()).isTrue();
+    assertThat(tasks.activeCount()).isEqualTo(1);
+  }
+
+  private static ScheduleManager manager(
+      AtomicReference<PluginSettings> settings,
+      AtomicInteger resets,
+      FakeTasks tasks,
+      List<Integer> warnings,
+      Clock clock,
+      ResetPhase outcomePhase) {
+    ResetExecutor executor =
+        worldId -> {
+          resets.incrementAndGet();
+          return new ResetOutcome(
+              "operation",
+              worldId,
+              "resource",
+              outcomePhase,
+              null,
+              FailureSafety.NOT_RETRYABLE,
+              "test outcome");
+        };
+    return new ScheduleManager(
+        settings::get,
+        executor,
+        new NextRunCalculator(),
+        tasks,
+        (world, minutes, resetAt) -> warnings.add(minutes),
+        clock);
+  }
+
+  private static PluginSettings settings(
+      boolean enabled, ZoneId zone, ScheduleSettings schedule, List<Integer> warnings) {
+    WorldOperationalState state =
+        enabled ? WorldOperationalState.MANAGED : WorldOperationalState.DISABLED;
+    ManagedWorldSettings world =
+        new ManagedWorldSettings(
+            "resource_id",
+            "resource",
+            "Resource",
+            enabled,
+            true,
+            schedule,
+            warnings,
+            new RegenerationSettings(SeedPolicy.SAME, null, true, true, true),
+            new EvacuationSettings(true, "world"),
+            state);
+    return new PluginSettings(
+        5,
+        zone,
+        "world",
+        new ResetPolicySettings(2, 30, true),
+        Map.of(world.id(), world),
+        new TeleportSettings(true, false, true, Map.of()));
+  }
+
+  private static final class MutableClock extends Clock {
+    private Instant instant;
+
+    private MutableClock(Instant instant) {
+      this.instant = instant;
     }
 
-    private static final class MutableClock extends Clock {
-        private Instant instant;
-
-        private MutableClock(Instant instant) {
-            this.instant = instant;
-        }
-
-        @Override
-        public ZoneId getZone() {
-            return ZoneOffset.UTC;
-        }
-
-        @Override
-        public Clock withZone(ZoneId zone) {
-            return this;
-        }
-
-        @Override
-        public Instant instant() {
-            return instant;
-        }
-
-        private void set(Instant value) {
-            instant = value;
-        }
+    @Override
+    public ZoneId getZone() {
+      return ZoneOffset.UTC;
     }
 
-    private static final class FakeTasks implements OneShotTaskScheduler {
-        private final MutableClock clock;
-        private final List<FakeTask> tasks = new ArrayList<>();
-        private long sequence;
-
-        private FakeTasks(MutableClock clock) {
-            this.clock = clock;
-        }
-
-        @Override
-        public ScheduledTaskHandle schedule(Duration delay, Runnable task) {
-            FakeTask scheduled = new FakeTask(clock.instant().plus(delay), sequence++, task);
-            tasks.add(scheduled);
-            return scheduled;
-        }
-
-        private int activeCount() {
-            return (int) tasks.stream().filter(FakeTask::active).count();
-        }
-
-        private void runNext() {
-            FakeTask next = tasks.stream()
-                    .filter(FakeTask::active)
-                    .min(Comparator.comparing((FakeTask task) -> task.at).thenComparingLong(task -> task.sequence))
-                    .orElseThrow();
-            clock.set(next.at);
-            next.executed = true;
-            next.runnable.run();
-        }
-
-        private void runUntil(java.util.function.BooleanSupplier condition) {
-            int limit = 20;
-            while (!condition.getAsBoolean() && limit-- > 0) {
-                runNext();
-            }
-            if (!condition.getAsBoolean()) {
-                throw new AssertionError("Condition was not reached before task limit");
-            }
-        }
+    @Override
+    public Clock withZone(ZoneId zone) {
+      return this;
     }
 
-    private static final class FakeTask implements ScheduledTaskHandle {
-        private final Instant at;
-        private final long sequence;
-        private final Runnable runnable;
-        private boolean cancelled;
-        private boolean executed;
-
-        private FakeTask(Instant at, long sequence, Runnable runnable) {
-            this.at = at;
-            this.sequence = sequence;
-            this.runnable = runnable;
-        }
-
-        @Override
-        public void cancel() {
-            cancelled = true;
-        }
-
-        private boolean active() {
-            return !cancelled && !executed;
-        }
+    @Override
+    public Instant instant() {
+      return instant;
     }
+
+    private void set(Instant value) {
+      instant = value;
+    }
+  }
+
+  private static final class FakeTasks implements OneShotTaskScheduler {
+    private final MutableClock clock;
+    private final List<FakeTask> tasks = new ArrayList<>();
+    private long sequence;
+
+    private FakeTasks(MutableClock clock) {
+      this.clock = clock;
+    }
+
+    @Override
+    public ScheduledTaskHandle schedule(Duration delay, Runnable task) {
+      FakeTask scheduled = new FakeTask(clock.instant().plus(delay), sequence++, task);
+      tasks.add(scheduled);
+      return scheduled;
+    }
+
+    private int activeCount() {
+      return (int) tasks.stream().filter(FakeTask::active).count();
+    }
+
+    private void runNext() {
+      FakeTask next =
+          tasks.stream()
+              .filter(FakeTask::active)
+              .min(
+                  Comparator.comparing((FakeTask task) -> task.at)
+                      .thenComparingLong(task -> task.sequence))
+              .orElseThrow();
+      clock.set(next.at);
+      next.executed = true;
+      next.runnable.run();
+    }
+
+    private void runUntil(java.util.function.BooleanSupplier condition) {
+      int limit = 20;
+      while (!condition.getAsBoolean() && limit-- > 0) {
+        runNext();
+      }
+      if (!condition.getAsBoolean()) {
+        throw new AssertionError("Condition was not reached before task limit");
+      }
+    }
+  }
+
+  private static final class FakeTask implements ScheduledTaskHandle {
+    private final Instant at;
+    private final long sequence;
+    private final Runnable runnable;
+    private boolean cancelled;
+    private boolean executed;
+
+    private FakeTask(Instant at, long sequence, Runnable runnable) {
+      this.at = at;
+      this.sequence = sequence;
+      this.runnable = runnable;
+    }
+
+    @Override
+    public void cancel() {
+      cancelled = true;
+    }
+
+    private boolean active() {
+      return !cancelled && !executed;
+    }
+  }
 }

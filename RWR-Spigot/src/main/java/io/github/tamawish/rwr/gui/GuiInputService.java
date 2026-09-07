@@ -19,81 +19,107 @@ import org.bukkit.scheduler.BukkitTask;
 
 /** Anvil text input with a deliberately boring, reliable chat fallback. */
 public final class GuiInputService implements Listener, AutoCloseable {
-    private static final long TIMEOUT_TICKS = Duration.ofSeconds(30).toSeconds() * 20L;
-    private final JavaPlugin plugin;
-    private final MessageService messages;
-    private final Map<UUID, PendingChat> pending = new ConcurrentHashMap<>();
+  private static final long TIMEOUT_TICKS = Duration.ofSeconds(30).toSeconds() * 20L;
+  private final JavaPlugin plugin;
+  private final MessageService messages;
+  private final Map<UUID, PendingChat> pending = new ConcurrentHashMap<>();
 
-    public GuiInputService(JavaPlugin plugin, MessageService messages) {
-        this.plugin = plugin;
-        this.messages = messages;
+  public GuiInputService(JavaPlugin plugin, MessageService messages) {
+    this.plugin = plugin;
+    this.messages = messages;
+  }
+
+  /**
+   * Requests text input using an anvil GUI with a chat fallback.
+   *
+   * @param player player providing input
+   * @param title input screen title
+   * @param initial initial input value
+   * @param callback callback receiving input on the server thread
+   */
+  public void request(Player player, String title, String initial, Consumer<String> callback) {
+    cancel(player.getUniqueId());
+    try {
+      new AnvilGUI.Builder()
+          .plugin(plugin)
+          .title(title)
+          .text(initial.isBlank() ? " " : initial)
+          .itemLeft(new ItemStack(Material.PAPER))
+          .onClick(
+              (slot, state) -> {
+                if (slot != AnvilGUI.Slot.OUTPUT) {
+                  return List.of();
+                }
+                String value = state.getText().trim();
+                plugin.getServer().getScheduler().runTask(plugin, () -> callback.accept(value));
+                return List.of(AnvilGUI.ResponseAction.close());
+              })
+          .open(player);
+    } catch (LinkageError | RuntimeException unavailable) {
+      openChat(player, callback);
     }
+  }
 
-    public void request(Player player, String title, String initial, Consumer<String> callback) {
-        cancel(player.getUniqueId());
-        try {
-            new AnvilGUI.Builder()
-                    .plugin(plugin)
-                    .title(title)
-                    .text(initial.isBlank() ? " " : initial)
-                    .itemLeft(new ItemStack(Material.PAPER))
-                    .onClick((slot, state) -> {
-                        if (slot != AnvilGUI.Slot.OUTPUT) {
-                            return List.of();
-                        }
-                        String value = state.getText().trim();
-                        plugin.getServer().getScheduler().runTask(plugin, () -> callback.accept(value));
-                        return List.of(AnvilGUI.ResponseAction.close());
-                    })
-                    .open(player);
-        } catch (LinkageError | RuntimeException unavailable) {
-            openChat(player, callback);
-        }
+  private void openChat(Player player, Consumer<String> callback) {
+    player.closeInventory();
+    messages.send(player, "gui.input-prompt");
+    BukkitTask timeout =
+        plugin
+            .getServer()
+            .getScheduler()
+            .runTaskLater(
+                plugin,
+                () -> {
+                  PendingChat removed = pending.remove(player.getUniqueId());
+                  if (removed != null) {
+                    messages.send(player, "gui.input-timeout");
+                  }
+                },
+                TIMEOUT_TICKS);
+    pending.put(player.getUniqueId(), new PendingChat(callback, timeout));
+  }
+
+  /**
+   * Accepts chat as a fallback response to a pending input request.
+   *
+   * @param event asynchronous chat event that may satisfy a pending request
+   */
+  @SuppressWarnings("deprecation")
+  @EventHandler
+  public void onChat(AsyncPlayerChatEvent event) {
+    PendingChat value = pending.remove(event.getPlayer().getUniqueId());
+    if (value == null) {
+      return;
     }
-
-    private void openChat(Player player, Consumer<String> callback) {
-        player.closeInventory();
-        messages.send(player, "gui.input-prompt");
-        BukkitTask timeout = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            PendingChat removed = pending.remove(player.getUniqueId());
-            if (removed != null) {
-                messages.send(player, "gui.input-timeout");
-            }
-        }, TIMEOUT_TICKS);
-        pending.put(player.getUniqueId(), new PendingChat(callback, timeout));
-    }
-
-    @SuppressWarnings("deprecation")
-    @EventHandler
-    public void onChat(AsyncPlayerChatEvent event) {
-        PendingChat value = pending.remove(event.getPlayer().getUniqueId());
-        if (value == null) {
-            return;
-        }
-        event.setCancelled(true);
-        value.timeout().cancel();
-        String message = event.getMessage().trim();
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
-            if (message.equalsIgnoreCase("cancel")) {
+    event.setCancelled(true);
+    value.timeout().cancel();
+    String message = event.getMessage().trim();
+    plugin
+        .getServer()
+        .getScheduler()
+        .runTask(
+            plugin,
+            () -> {
+              if (message.equalsIgnoreCase("cancel")) {
                 messages.send(event.getPlayer(), "gui.input-cancelled");
-            } else {
+              } else {
                 value.callback().accept(message);
-            }
-        });
-    }
+              }
+            });
+  }
 
-    private void cancel(UUID playerId) {
-        PendingChat old = pending.remove(playerId);
-        if (old != null) {
-            old.timeout().cancel();
-        }
+  private void cancel(UUID playerId) {
+    PendingChat old = pending.remove(playerId);
+    if (old != null) {
+      old.timeout().cancel();
     }
+  }
 
-    @Override
-    public void close() {
-        pending.values().forEach(value -> value.timeout().cancel());
-        pending.clear();
-    }
+  @Override
+  public void close() {
+    pending.values().forEach(value -> value.timeout().cancel());
+    pending.clear();
+  }
 
-    private record PendingChat(Consumer<String> callback, BukkitTask timeout) {}
+  private record PendingChat(Consumer<String> callback, BukkitTask timeout) {}
 }

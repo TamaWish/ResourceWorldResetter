@@ -9,22 +9,22 @@ import org.bukkit.Server;
 
 /** Shared Bukkit event publisher for both RWR platform variants. */
 public final class BukkitResetEventPublisher implements ResetEventPublisher {
-    private final Server server;
+  private final Server server;
 
-    public BukkitResetEventPublisher(Server server) {
-        this.server = Objects.requireNonNull(server, "server");
-    }
+  public BukkitResetEventPublisher(Server server) {
+    this.server = Objects.requireNonNull(server, "server");
+  }
 
-    @Override
-    public boolean beforeReset(ManagedWorldSettings world, String operationId) {
-        ResourceWorldPreResetEvent event =
-                new ResourceWorldPreResetEvent(operationId, world.id(), world.multiverseWorld());
-        server.getPluginManager().callEvent(event);
-        return !event.isCancelled();
-    }
+  @Override
+  public boolean beforeReset(ManagedWorldSettings world, String operationId) {
+    ResourceWorldPreResetEvent event =
+        new ResourceWorldPreResetEvent(operationId, world.id(), world.multiverseWorld());
+    server.getPluginManager().callEvent(event);
+    return !event.isCancelled();
+  }
 
-    @Override
-    public void afterReset(ResetOutcome outcome) {
-        server.getPluginManager().callEvent(ApiMappings.postEvent(outcome));
-    }
+  @Override
+  public void afterReset(ResetOutcome outcome) {
+    server.getPluginManager().callEvent(ApiMappings.postEvent(outcome));
+  }
 }

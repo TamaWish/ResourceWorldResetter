@@ -22,3 +22,7 @@ No. It asks the selected provider to perform the authoritative lifecycle operati
 ## Can I hot reload the plugin?
 
 No. Replace JARs and dependencies while the server is stopped, then do a full restart.
+
+## Which locale files appear after a clean install?
+
+With the default `locale: en_US`, only `locales/en_US.yml` is extracted. Other bundled languages (`zh_CN`, `ja_JP`, `ko_KR`) stay inside the JAR until you select them in `config.yml` and restart or run `/rwr reload`.

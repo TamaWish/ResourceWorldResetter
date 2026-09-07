@@ -9,7 +9,7 @@ description: Inspect, manage, and operate resource-world resets.
 | `/rwr status [id]` | `rwr.status` | Show state, current phase, and next schedule. |
 | `/rwr history [count]` | `rwr.history` | Read persisted terminal and interrupted operations. |
 | `/rwr reset <id>` | `rwr.reset` | Start a guarded immediate reset. |
-| `/rwr reload` | `rwr.reload` | Transactionally validate and activate configuration and locale changes. |
+| `/rwr reload` | `rwr.reload` | Validate and activate configuration, locale, and update-checker settings. |
 | `/rwr gui` | `rwr.admin` | Open the administration dashboard. |
 | `/rwr tp` | `rwr.tp` | Open the player teleport menu. |
 | `/rwr version` | `rwr.admin` | Show cached update status. |

@@ -13,11 +13,11 @@ import io.github.tamawish.rwr.config.ScheduleType;
 import io.github.tamawish.rwr.config.TeleportDestinationSettings;
 import io.github.tamawish.rwr.config.TeleportSettings;
 import io.github.tamawish.rwr.multiverse.DestinationResult;
-import io.github.tamawish.rwr.world.WorldProvider;
 import io.github.tamawish.rwr.multiverse.RegenerationOutcome;
 import io.github.tamawish.rwr.multiverse.RegenerationRequest;
 import io.github.tamawish.rwr.multiverse.SeedPolicy;
 import io.github.tamawish.rwr.multiverse.WorldSnapshot;
+import io.github.tamawish.rwr.world.WorldProvider;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.DayOfWeek;
@@ -32,132 +32,183 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class GuiConfigurationEditorTest {
-    @TempDir
-    Path directory;
+  @TempDir Path directory;
 
-    private Path configFile;
-    private FakeGateway gateway;
-    private ConfigService configs;
-    private GuiConfigurationEditor editor;
+  private Path configFile;
+  private FakeGateway gateway;
+  private ConfigService configs;
+  private GuiConfigurationEditor editor;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        configFile = directory.resolve("config.yml");
-        Files.writeString(configFile, emptyConfig());
-        gateway = new FakeGateway();
-        configs = new ConfigService(new ConfigRepository(configFile, gateway));
-        assertThat(configs.reload().accepted()).isTrue();
-        editor = new GuiConfigurationEditor(configs, gateway);
-    }
+  @BeforeEach
+  void setUp() throws Exception {
+    configFile = directory.resolve("config.yml");
+    Files.writeString(configFile, emptyConfig());
+    gateway = new FakeGateway();
+    configs = new ConfigService(new ConfigRepository(configFile, gateway));
+    assertThat(configs.reload().accepted()).isTrue();
+    editor = new GuiConfigurationEditor(configs, gateway);
+  }
 
-    @Test
-    void addConfiguresExistingMultiverseWorldWithoutCallingLifecycleOperations() {
-        assertThat(editor.addWorld("resource").accepted()).isTrue();
+  @Test
+  void addConfiguresExistingMultiverseWorldWithoutCallingLifecycleOperations() {
+    assertThat(editor.addWorld("resource").accepted()).isTrue();
 
-        ManagedWorldSettings added = configs.current().world("resource").orElseThrow();
-        assertThat(added.multiverseWorld()).isEqualTo("resource");
-        assertThat(added.enabled()).isFalse();
-        assertThat(added.managed()).isTrue();
-        assertThat(gateway.regenerationCalls).hasValue(0);
-        assertThat(editor.addWorld("resource").accepted()).isFalse();
-        assertThat(editor.addWorld("world").accepted()).isFalse();
-    }
+    ManagedWorldSettings added = configs.current().world("resource").orElseThrow();
+    assertThat(added.multiverseWorld()).isEqualTo("resource");
+    assertThat(added.enabled()).isFalse();
+    assertThat(added.managed()).isTrue();
+    assertThat(gateway.regenerationCalls).hasValue(0);
+    assertThat(editor.addWorld("resource").accepted()).isFalse();
+    assertThat(editor.addWorld("world").accepted()).isFalse();
+  }
 
-    @Test
-    void everySupportedWorldSettingIsValidatedSavedAndReloaded() {
-        assertThat(editor.addWorld("resource").accepted()).isTrue();
-        GuiEditResult result = editor.updateWorld("resource", old -> GuiConfigurationEditor.copyWorld(
-                old,
-                "Mining World",
-                true,
-                new ScheduleSettings(ScheduleType.WEEKLY, LocalTime.of(4, 30), DayOfWeek.FRIDAY, 0, 0),
-                List.of(30, 10, 1),
-                new RegenerationSettings(SeedPolicy.FIXED, 12345L, false, false, false),
-                new EvacuationSettings(true, "hub")), "saved");
+  @Test
+  void everySupportedWorldSettingIsValidatedSavedAndReloaded() {
+    assertThat(editor.addWorld("resource").accepted()).isTrue();
+    GuiEditResult result =
+        editor.updateWorld(
+            "resource",
+            old ->
+                GuiConfigurationEditor.copyWorld(
+                    old,
+                    "Mining World",
+                    true,
+                    new ScheduleSettings(
+                        ScheduleType.WEEKLY, LocalTime.of(4, 30), DayOfWeek.FRIDAY, 0, 0),
+                    List.of(30, 10, 1),
+                    new RegenerationSettings(SeedPolicy.FIXED, 12345L, false, false, false),
+                    new EvacuationSettings(true, "hub")),
+            "saved");
 
-        assertThat(result.accepted()).isTrue();
-        ConfigService reopened = new ConfigService(new ConfigRepository(configFile, gateway));
-        assertThat(reopened.reload().accepted()).isTrue();
-        ManagedWorldSettings persisted = reopened.current().world("resource").orElseThrow();
-        assertThat(persisted.displayName()).isEqualTo("Mining World");
-        assertThat(persisted.enabled()).isTrue();
-        assertThat(persisted.schedule().type()).isEqualTo(ScheduleType.WEEKLY);
-        assertThat(persisted.schedule().dayOfWeek()).isEqualTo(DayOfWeek.FRIDAY);
-        assertThat(persisted.warnings()).containsExactly(30, 10, 1);
-        assertThat(persisted.regeneration().seedPolicy()).isEqualTo(SeedPolicy.FIXED);
-        assertThat(persisted.regeneration().fixedSeed()).isEqualTo(12345L);
-        assertThat(persisted.regeneration().keepWorldConfig()).isFalse();
-        assertThat(persisted.regeneration().keepGameRules()).isFalse();
-        assertThat(persisted.regeneration().keepWorldBorder()).isFalse();
-        assertThat(persisted.evacuation().destination()).isEqualTo("hub");
-    }
+    assertThat(result.accepted()).isTrue();
+    ConfigService reopened = new ConfigService(new ConfigRepository(configFile, gateway));
+    assertThat(reopened.reload().accepted()).isTrue();
+    ManagedWorldSettings persisted = reopened.current().world("resource").orElseThrow();
+    assertThat(persisted.displayName()).isEqualTo("Mining World");
+    assertThat(persisted.enabled()).isTrue();
+    assertThat(persisted.schedule().type()).isEqualTo(ScheduleType.WEEKLY);
+    assertThat(persisted.schedule().dayOfWeek()).isEqualTo(DayOfWeek.FRIDAY);
+    assertThat(persisted.warnings()).containsExactly(30, 10, 1);
+    assertThat(persisted.regeneration().seedPolicy()).isEqualTo(SeedPolicy.FIXED);
+    assertThat(persisted.regeneration().fixedSeed()).isEqualTo(12345L);
+    assertThat(persisted.regeneration().keepWorldConfig()).isFalse();
+    assertThat(persisted.regeneration().keepGameRules()).isFalse();
+    assertThat(persisted.regeneration().keepWorldBorder()).isFalse();
+    assertThat(persisted.evacuation().destination()).isEqualTo("hub");
+  }
 
-    @Test
-    void invalidEditDoesNotPersistOrNotifyRescheduler() {
-        assertThat(editor.addWorld("resource").accepted()).isTrue();
-        AtomicInteger reschedules = new AtomicInteger();
-        configs.addChangeListener(ignored -> reschedules.incrementAndGet());
+  @Test
+  void invalidEditDoesNotPersistOrNotifyRescheduler() {
+    assertThat(editor.addWorld("resource").accepted()).isTrue();
+    AtomicInteger reschedules = new AtomicInteger();
+    configs.addChangeListener(ignored -> reschedules.incrementAndGet());
 
-        GuiEditResult rejected = editor.updateWorld("resource", old -> GuiConfigurationEditor.copyWorld(
-                old, "", null, null, null, null, null), "saved");
+    GuiEditResult rejected =
+        editor.updateWorld(
+            "resource",
+            old -> GuiConfigurationEditor.copyWorld(old, "", null, null, null, null, null),
+            "saved");
 
-        assertThat(rejected.accepted()).isFalse();
-        assertThat(configs.current().world("resource").orElseThrow().displayName()).isEqualTo("resource");
-        assertThat(reschedules).hasValue(0);
-    }
+    assertThat(rejected.accepted()).isFalse();
+    assertThat(configs.current().world("resource").orElseThrow().displayName())
+        .isEqualTo("resource");
+    assertThat(reschedules).hasValue(0);
+  }
 
-    @Test
-    void globalAndTeleportSettingsAreEditableWithoutYaml() {
-        assertThat(editor.setTimezone(ZoneId.of("Europe/London")).accepted()).isTrue();
-        assertThat(editor.setHub("hub").accepted()).isTrue();
-        assertThat(editor.updateResetPolicy(old -> new ResetPolicySettings(4, 90, false)).accepted()).isTrue();
-        assertThat(editor.updateTeleport(old -> new TeleportSettings(false, true, false, old.worlds()), "saved")
-                .accepted()).isTrue();
-        assertThat(editor.updateTeleportWorld("resource", old ->
-                        new TeleportDestinationSettings(true, "rwr.teleport.resource"), "saved")
-                .accepted()).isTrue();
+  @Test
+  void globalAndTeleportSettingsAreEditableWithoutYaml() {
+    assertThat(editor.setTimezone(ZoneId.of("Europe/London")).accepted()).isTrue();
+    assertThat(editor.setHub("hub").accepted()).isTrue();
+    assertThat(editor.updateResetPolicy(old -> new ResetPolicySettings(4, 90, false)).accepted())
+        .isTrue();
+    assertThat(
+            editor
+                .updateTeleport(
+                    old -> new TeleportSettings(false, true, false, old.worlds()), "saved")
+                .accepted())
+        .isTrue();
+    assertThat(
+            editor
+                .updateTeleportWorld(
+                    "resource",
+                    old -> new TeleportDestinationSettings(true, "rwr.teleport.resource"),
+                    "saved")
+                .accepted())
+        .isTrue();
 
-        ConfigService reopened = new ConfigService(new ConfigRepository(configFile, gateway));
-        assertThat(reopened.reload().accepted()).isTrue();
-        assertThat(reopened.current().timezone()).isEqualTo(ZoneId.of("Europe/London"));
-        assertThat(reopened.current().defaultHubWorld()).isEqualTo("hub");
-        assertThat(reopened.current().resetPolicy()).isEqualTo(new ResetPolicySettings(4, 90, false));
-        assertThat(reopened.current().teleport().autoDiscover()).isFalse();
-        assertThat(reopened.current().teleport().defaultEnabled()).isTrue();
-        assertThat(reopened.current().teleport().showLocked()).isFalse();
-        assertThat(reopened.current().teleport().worlds().get("resource").permission())
-                .isEqualTo("rwr.teleport.resource");
-    }
+    ConfigService reopened = new ConfigService(new ConfigRepository(configFile, gateway));
+    assertThat(reopened.reload().accepted()).isTrue();
+    assertThat(reopened.current().timezone()).isEqualTo(ZoneId.of("Europe/London"));
+    assertThat(reopened.current().defaultHubWorld()).isEqualTo("hub");
+    assertThat(reopened.current().resetPolicy()).isEqualTo(new ResetPolicySettings(4, 90, false));
+    assertThat(reopened.current().teleport().autoDiscover()).isFalse();
+    assertThat(reopened.current().teleport().defaultEnabled()).isTrue();
+    assertThat(reopened.current().teleport().showLocked()).isFalse();
+    assertThat(reopened.current().teleport().worlds().get("resource").permission())
+        .isEqualTo("rwr.teleport.resource");
+  }
 
-    @Test
-    void removalDeletesOnlyRwrConfigurationAndNeverTheMultiverseWorld() {
-        assertThat(editor.addWorld("resource").accepted()).isTrue();
-        GuiEditResult removed = editor.removeWorld("resource");
+  @Test
+  void removalDeletesOnlyRwrConfigurationAndNeverTheMultiverseWorld() {
+    assertThat(editor.addWorld("resource").accepted()).isTrue();
+    GuiEditResult removed = editor.removeWorld("resource");
 
-        assertThat(removed.accepted()).isTrue();
-        assertThat(removed.message()).contains("Multiverse world was not deleted");
-        assertThat(configs.current().worlds()).isEmpty();
-        assertThat(gateway.world("resource")).isPresent();
-        assertThat(gateway.regenerationCalls).hasValue(0);
-    }
+    assertThat(removed.accepted()).isTrue();
+    assertThat(removed.message()).contains("Multiverse world was not deleted");
+    assertThat(configs.current().worlds()).isEmpty();
+    assertThat(gateway.world("resource")).isPresent();
+    assertThat(gateway.regenerationCalls).hasValue(0);
+  }
 
-    @Test
-    void warningParserOrdersAndDeduplicatesBeforeValidation() {
-        assertThat(GuiConfigurationEditor.parseWarnings("1, 30, 10, 1"))
-                .containsExactly(30, 10, 1);
-        assertThat(GuiConfigurationEditor.parseWarnings("none")).isEmpty();
-    }
+  @Test
+  void warningParserOrdersAndDeduplicatesBeforeValidation() {
+    assertThat(GuiConfigurationEditor.parseWarnings("1, 30, 10, 1")).containsExactly(30, 10, 1);
+    assertThat(GuiConfigurationEditor.parseWarnings("none")).isEmpty();
+  }
 
-    @Test
-    void newlyManagedWorldsPreserveLeftToRightInsertionOrder() {
-        assertThat(editor.addWorld("resource").accepted()).isTrue();
-        assertThat(editor.addWorld("rainforest").accepted()).isTrue();
+  @Test
+  void newlyManagedWorldsPreserveLeftToRightInsertionOrder() {
+    assertThat(editor.addWorld("resource").accepted()).isTrue();
+    assertThat(editor.addWorld("rainforest").accepted()).isTrue();
 
-        assertThat(configs.current().worlds().keySet()).containsExactly("resource", "rainforest");
-    }
+    assertThat(configs.current().worlds().keySet()).containsExactly("resource", "rainforest");
+  }
 
-    private static String emptyConfig() {
-        return """
+  @Test
+  void guiSavePreservesLocaleUpdateSettingsAndExtensionKeys() throws Exception {
+    Files.writeString(
+        configFile,
+        emptyConfig()
+            .replace(
+                "timezone: UTC\n",
+                """
+                locale: zh_CN
+                timezone: UTC
+                updates:
+                  enabled: false
+                  request-timeout-seconds: 25
+                  notify-admins-on-join: false
+                extension-setting: retained
+                """));
+    assertThat(configs.reload().accepted()).isTrue();
+    String configBeforeGuiSave = Files.readString(configFile);
+
+    assertThat(editor.addWorld("resource").accepted()).isTrue();
+
+    String saved = Files.readString(configFile);
+    String managed = Files.readString(configFile.resolveSibling("managed-worlds.yml"));
+    assertThat(saved).isEqualTo(configBeforeGuiSave);
+    assertThat(saved).contains("locale: zh_CN");
+    assertThat(saved).contains("updates:");
+    assertThat(saved).contains("request-timeout-seconds: 25");
+    assertThat(saved).contains("extension-setting: retained");
+    assertThat(managed).contains("managed-worlds-version: 1");
+    assertThat(managed).contains("worlds:", "resource:", "schedule:");
+    assertThat(managed).doesNotContain("schedule: {");
+  }
+
+  private static String emptyConfig() {
+    return """
                 config-version: 5
                 timezone: UTC
                 default-hub-world: world
@@ -172,56 +223,57 @@ class GuiConfigurationEditorTest {
                   show-locked: true
                   worlds: {}
                 """;
+  }
+
+  private static final class FakeGateway implements WorldProvider {
+    private final List<WorldSnapshot> worlds =
+        List.of(snapshot("world"), snapshot("hub"), snapshot("resource"), snapshot("rainforest"));
+    private final AtomicInteger regenerationCalls = new AtomicInteger();
+
+    @Override
+    public String providerName() {
+      return "Multiverse";
     }
 
-    private static final class FakeGateway implements WorldProvider {
-        private final List<WorldSnapshot> worlds = List.of(
-                snapshot("world"), snapshot("hub"), snapshot("resource"), snapshot("rainforest"));
-        private final AtomicInteger regenerationCalls = new AtomicInteger();
-
-        @Override
-        public String providerName() {
-            return "Multiverse";
-        }
-
-        @Override
-        public List<WorldSnapshot> registeredWorlds() {
-            return worlds;
-        }
-
-        @Override
-        public List<WorldSnapshot> loadedWorlds() {
-            return worlds;
-        }
-
-        @Override
-        public Optional<WorldSnapshot> world(String name) {
-            return worlds.stream().filter(world -> world.name().equalsIgnoreCase(name)).findFirst();
-        }
-
-        @Override
-        public DestinationResult resolveSafeDestination(String name) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public RegenerationOutcome regenerate(RegenerationRequest request) {
-            regenerationCalls.incrementAndGet();
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Set<String> registeredWorldNames() {
-            return Set.of("world", "hub", "resource", "rainforest");
-        }
-
-        @Override
-        public String defaultWorldName() {
-            return "world";
-        }
-
-        private static WorldSnapshot snapshot(String name) {
-            return new WorldSnapshot(name, name, name, true, "NORMAL", 1L, "", "", "NORMAL", true, true, "0,64,0");
-        }
+    @Override
+    public List<WorldSnapshot> registeredWorlds() {
+      return worlds;
     }
+
+    @Override
+    public List<WorldSnapshot> loadedWorlds() {
+      return worlds;
+    }
+
+    @Override
+    public Optional<WorldSnapshot> world(String name) {
+      return worlds.stream().filter(world -> world.name().equalsIgnoreCase(name)).findFirst();
+    }
+
+    @Override
+    public DestinationResult resolveSafeDestination(String name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public RegenerationOutcome regenerate(RegenerationRequest request) {
+      regenerationCalls.incrementAndGet();
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<String> registeredWorldNames() {
+      return Set.of("world", "hub", "resource", "rainforest");
+    }
+
+    @Override
+    public String defaultWorldName() {
+      return "world";
+    }
+
+    private static WorldSnapshot snapshot(String name) {
+      return new WorldSnapshot(
+          name, name, name, true, "NORMAL", 1L, "", "", "NORMAL", true, true, "0,64,0");
+    }
+  }
 }

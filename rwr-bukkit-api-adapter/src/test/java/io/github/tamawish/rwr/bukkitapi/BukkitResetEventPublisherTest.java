@@ -21,31 +21,33 @@ import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.Test;
 
 class BukkitResetEventPublisherTest {
-    @Test
-    void listenerCancellationStopsTheReset() {
-        Server server = mock(Server.class);
-        PluginManager plugins = mock(PluginManager.class);
-        ManagedWorldSettings world = new ManagedWorldSettings(
-                "resource",
-                "resource_world",
-                "Resource World",
-                true,
-                true,
-                new ScheduleSettings(ScheduleType.DAILY, LocalTime.NOON, null, 1, 0),
-                List.of(),
-                new RegenerationSettings(SeedPolicy.SAME, null, true, true, true),
-                new EvacuationSettings(true, "world"),
-                WorldOperationalState.MANAGED);
-        when(server.getPluginManager()).thenReturn(plugins);
-        doAnswer(invocation -> {
-                    if (invocation.getArgument(0) instanceof ResourceWorldPreResetEvent event) {
-                        event.setCancelled(true);
-                    }
-                    return null;
-                })
-                .when(plugins)
-                .callEvent(any());
+  @Test
+  void listenerCancellationStopsTheReset() {
+    Server server = mock(Server.class);
+    PluginManager plugins = mock(PluginManager.class);
+    ManagedWorldSettings world =
+        new ManagedWorldSettings(
+            "resource",
+            "resource_world",
+            "Resource World",
+            true,
+            true,
+            new ScheduleSettings(ScheduleType.DAILY, LocalTime.NOON, null, 1, 0),
+            List.of(),
+            new RegenerationSettings(SeedPolicy.SAME, null, true, true, true),
+            new EvacuationSettings(true, "world"),
+            WorldOperationalState.MANAGED);
+    when(server.getPluginManager()).thenReturn(plugins);
+    doAnswer(
+            invocation -> {
+              if (invocation.getArgument(0) instanceof ResourceWorldPreResetEvent event) {
+                event.setCancelled(true);
+              }
+              return null;
+            })
+        .when(plugins)
+        .callEvent(any());
 
-        assertThat(new BukkitResetEventPublisher(server).beforeReset(world, "operation")).isFalse();
-    }
+    assertThat(new BukkitResetEventPublisher(server).beforeReset(world, "operation")).isFalse();
+  }
 }

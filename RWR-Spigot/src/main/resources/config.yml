@@ -1,5 +1,5 @@
 # =============================================================================
-# ResourceWorldResetter v5.1.0 - Spigot / CraftBukkit
+# ResourceWorldResetter v5.2.0-beta.1 - Spigot / CraftBukkit
 # Author: Lozaine@TamaWish
 # =============================================================================
 # Requires Java 21+ and Multiverse-Core 5.8.0+.
@@ -8,6 +8,11 @@
 # =============================================================================
 
 config-version: 5
+
+# Server-wide message locale. Use a bundled locale (en_US, zh_CN, ja_JP, or ko_KR),
+# or add <locale>.yml under plugins/ResourceWorldResetter/locales/.
+# Apply changes in-game with /rwr reload.
+locale: en_US
 
 # -----------------------------------------------------------------------------
 # Server Defaults
@@ -23,8 +28,12 @@ default-hub-world: world
 # Update Checker
 # -----------------------------------------------------------------------------
 # Checks GitHub Releases asynchronously at startup. Disable to prevent this check.
-update-checker:
+updates:
   enabled: true
+  # Timeout for the GitHub request. Accepted range: 1-60 seconds.
+  request-timeout-seconds: 10
+  # Notify players with rwr.admin when they join and a cached update is available.
+  notify-admins-on-join: true
 
 # -----------------------------------------------------------------------------
 # Reset Policy
@@ -39,53 +48,6 @@ reset-policy:
   broadcast-completion: true
 
 # -----------------------------------------------------------------------------
-# Managed Resource Worlds
-# -----------------------------------------------------------------------------
-# Add only worlds that already exist in Multiverse-Core. Use the exact legacy
-# Multiverse name shown by /mv list, such as "resource".
-#
-# Safety: managed must be explicitly true before RWR can regenerate a world.
-# Missing managed is always treated as false.
-worlds: {}
-
-# Example: replace worlds: {} above with a block like this.
-#
-# Schedule types:
-# - DAILY: uses time.
-# - WEEKLY: uses time and day-of-week.
-# - MONTHLY: uses time and day-of-month.
-# - INTERVAL: uses interval-minutes.
-#
-# Seed policies:
-# - SAME: preserves the current seed.
-# - FIXED: uses fixed-seed.
-# - RANDOM: generates a new seed for every reset.
-# worlds:
-#   resource:
-#     multiverse-world: resource
-#     display-name: "Resource World"
-#     enabled: true
-#     managed: true
-#     schedule:
-#       type: DAILY
-#       time: "03:00"
-#       day-of-week: MONDAY
-#       day-of-month: 1
-#       interval-minutes: 1440
-#     # Whole minutes before reset. Every eligible value produces one warning.
-#     # Use [] to disable warnings.
-#     warning-minutes: [30, 10, 5, 1]
-#     regeneration:
-#       seed-policy: RANDOM
-#       fixed-seed: 0
-#       keep-world-config: true
-#       keep-gamerules: true
-#       keep-world-border: true
-#     evacuation:
-#       enabled: true
-#       destination: world
-
-# -----------------------------------------------------------------------------
 # Player Teleport Menu
 # -----------------------------------------------------------------------------
 teleport:
@@ -95,11 +57,4 @@ teleport:
   default-enabled: false
   # Show permission-locked entries in the player GUI instead of hiding them.
   show-locked: true
-  # Overrides control visibility and permission only. Display names come from
-  # the managed-world settings above.
-  # Example:
-  # worlds:
-  #   resource:
-  #     enabled: true
-  #     permission: "" # blank = public to players with rwr.tp
-  worlds: {}
+  # Per-world overrides are stored in managed-worlds.yml.

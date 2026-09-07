@@ -1,0 +1,119 @@
+# =============================================================================
+# ResourceWorldResetter 한국어 로케일 (Spigot / CraftBukkit)
+# =============================================================================
+# 기본 + 대체 로케일입니다. 이 파일을 복사하여 번역을 추가하세요.
+# MiniMessage를 지원합니다. 런타임 플레이스홀더는 <name> 형식을 사용합니다.
+# 태그 이름은 변경하지 마세요. 주변 텍스트와 색상은 번역할 수 있습니다.
+# 레거시 &-코드와 %placeholders%도 로드 시 변환됩니다.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 접두사
+# -----------------------------------------------------------------------------
+prefix: "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> "
+
+# -----------------------------------------------------------------------------
+# 명령어
+# -----------------------------------------------------------------------------
+command:
+  # 일반 명령 응답.
+  no-permission: "<prefix><red>권한이 없습니다: <permission>"
+  player-only: "<prefix><red><feature> 은(는) 플레이어만 사용할 수 있습니다."
+  unknown: "<prefix><red>알 수 없는 명령입니다. /rwr help 를 사용하세요."
+  no-worlds: "<prefix><gray>설정된 리셋 월드가 없습니다."
+
+  # 도움말 목록.
+  help-header: "<prefix><yellow>사용 가능한 명령:"
+  help-entry: "<gray><usage> <dark_gray>- <white><description>"
+
+  # 리로드 및 로케일 유지.
+  reload-success: "<prefix><green>설정과 로케일을 다시 불러왔습니다. 활성 월드: <count>."
+  reload-failed: "<prefix><red>리로드가 거부되었습니다. <retention>"
+  locale-reload-failed: "<prefix><red>로케일 리로드가 거부되었습니다. 이전에 유효한 로케일을 계속 사용합니다."
+  issue: "<red> - <issue>"
+
+  # 보호된 리셋.
+  reset-start: "<prefix><yellow><white><world> <dark_gray>(ID: <world_id>)<yellow> 의 보호된 리셋을 시작합니다."
+  reset-success: "<prefix><green>리셋 완료 [작업=<operation>]: <message>"
+  reset-failed: "<prefix><red>리셋 실패 [<failure>, 안전=<safety>, 작업=<operation>]: <message>"
+
+  # 리셋 기록.
+  history-count: "<prefix><red>기록 개수는 1부터 50 사이의 정수여야 합니다."
+  history-empty: "<prefix><gray>리셋 기록이 비어 있습니다."
+  history-header: "<prefix><gold>최근 리셋 기록 <dark_gray>(<gray><count>개<dark_gray>)"
+  history-entry: "<gold><world> <dark_gray>(<gray>ID: <world_id><dark_gray>) <white>— <phase>"
+  history-time: "  <gray>완료: <white><completed> <dark_gray>| <gray>작업: <white><operation>"
+  history-detail: "  <gray>결과: <white><result> <dark_gray>— <gray><message>"
+
+  # 상태 목록.
+  status-header: "<prefix><gold><world> <dark_gray>(<gray>ID: <world_id><dark_gray>)"
+  status-state: "  <gray>상태: <white><phase> <dark_gray>| <gray>제공자 월드: <white><world>"
+  status-schedule: "  <gray>다음 리셋: <white><next>"
+  status-operation: "  <gray>작업: <white><operation> <dark_gray>— <gray><message>"
+
+  # 도움말 설명. description 이후 키는 /rwr 하위 명령과 일치합니다.
+  description:
+    help: "이 도움말 표시"
+    status: "리셋 상태 표시"
+    gui: "관리 GUI 열기"
+    tp: "텔레포트 GUI 열기"
+    reset: "보호된 리셋 요청"
+    history: "리셋 기록 표시"
+    reload: "설정과 로케일 다시 불러오기"
+    version: "설치된 RWR 버전과 최신 버전 표시"
+    discord: "Discord 웹훅 애드온 관리"
+    placeholder: "PlaceholderAPI 애드온 관리"
+
+# -----------------------------------------------------------------------------
+# 업데이트 검사기
+# -----------------------------------------------------------------------------
+update:
+  # 플레이어 및 명령 응답.
+  checking: "<prefix><yellow>GitHub Releases에서 업데이트를 확인하는 중..."
+  current: "<prefix><green>RWR <installed> 은(는) 최신 버전입니다."
+  available: "<prefix><gold>업데이트가 있습니다: <installed> → <latest>. <aqua><url>"
+  failed: "<prefix><gray>현재 업데이트 확인을 사용할 수 없습니다. RWR은 정상적으로 계속 작동합니다."
+  disabled: "<prefix><gray>GitHub 업데이트 확인이 비활성화되어 있습니다."
+
+# -----------------------------------------------------------------------------
+# 플레이어 알림
+# -----------------------------------------------------------------------------
+notification:
+  warning: "<prefix><yellow><world> 이(가) <remaining> 후에 리셋됩니다."
+  reset-complete: "<prefix><green><world> 리셋이 성공적으로 완료되었습니다."
+  reset-failed: "<prefix><red><world> 리셋 실패: <failure>."
+
+# -----------------------------------------------------------------------------
+# GUI
+# -----------------------------------------------------------------------------
+gui:
+  # 작업 결과 및 채팅 기반 GUI 입력.
+  success: "<prefix><green><message>"
+  failure: "<prefix><red><message>"
+  world-saved: "<prefix><green>월드 설정을 저장했습니다."
+  world-removed: "<prefix><green>월드 설정을 제거했습니다."
+  issue: "<red> - <issue>"
+  input-prompt: "<prefix><yellow>30초 안에 채팅으로 값을 입력하거나 cancel을 입력하세요."
+  input-timeout: "<prefix><red>입력 시간이 초과되었습니다."
+  input-cancelled: "<prefix><gray>입력이 취소되었습니다."
+
+# -----------------------------------------------------------------------------
+# 콘솔 로그 메시지
+# -----------------------------------------------------------------------------
+log:
+  update-available: "[RWR] [INFO] 업데이트 있음: <installed> -> <latest>. 릴리스: <url>"
+  update-failed: "[RWR] [WARN] 업데이트 확인 실패: <reason>"
+
+value:
+  none: "없음"
+  idle: "대기 중"
+  not-scheduled: "예약되지 않음"
+  phase:
+    idle: "대기 중"
+    precheck: "사전 확인"
+    evacuate: "대피 중"
+    regenerate: "재생성 중"
+    verify: "검증 중"
+    complete: "완료"
+    failed: "실패"
+    interrupted: "중단됨"

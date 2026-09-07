@@ -1,0 +1,355 @@
+# =============================================================================
+# ResourceWorldResetter English Locale (Paper / Purpur / Folia)
+# =============================================================================
+# Default + fallback locale. Copy this file to add translations.
+# MiniMessage is supported. Runtime placeholders use the <name> form.
+# Keep tag names unchanged; surrounding text and colors may be translated.
+# Legacy &-codes and %placeholders% are still accepted and converted on load.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Prefix
+# -----------------------------------------------------------------------------
+prefix: "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> "
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+command:
+  # General command responses.
+  no-permission: "<prefix><red>You do not have permission: <permission>"
+  player-only: "<prefix><red>The <feature> can only be used by a player."
+  unknown: "<prefix><red>Unknown command. Use /rwr help."
+  no-worlds: "<prefix><gray>No reset worlds are configured."
+
+  # Help listing.
+  help-header: "<prefix><yellow>Available commands:"
+  help-entry: "<gray><usage> <dark_gray>- <white><description>"
+
+  # Reload and locale retention.
+  reload-success: "<prefix><green>Configuration and locale reloaded. Active worlds: <count>."
+  reload-failed: "<prefix><red>Reload rejected; <retention>"
+  locale-reload-failed: "<prefix><red>Locale reload rejected; the previous valid locale remains active."
+  issue: "<red> - <issue>"
+
+  # Guarded reset.
+  reset-start: "<prefix><yellow>Starting guarded reset for <white><world> <dark_gray>(ID: <world_id>)<yellow>."
+  reset-success: "<prefix><green>Reset complete [operation=<operation>]: <message>"
+  reset-failed: "<prefix><red>Reset failed [<failure>, safety=<safety>, operation=<operation>]: <message>"
+
+  # Reset history.
+  history-count: "<prefix><red>History count must be an integer from 1 through 50."
+  history-empty: "<prefix><gray>Reset history is empty."
+  history-header: "<prefix><gold>Recent reset history <dark_gray>(<gray><count> entries<dark_gray>)"
+  history-entry: "<gold><world> <dark_gray>(<gray>ID: <world_id><dark_gray>) <white>— <phase>"
+  history-time: "  <gray>Completed: <white><completed> <dark_gray>| <gray>Operation: <white><operation>"
+  history-detail: "  <gray>Result: <white><result> <dark_gray>— <gray><message>"
+
+  # Status listing.
+  status-header: "<prefix><gold><world> <dark_gray>(<gray>ID: <world_id><dark_gray>)"
+  status-state: "  <gray>State: <white><phase> <dark_gray>| <gray>Provider world: <white><world>"
+  status-schedule: "  <gray>Next reset: <white><next>"
+  status-operation: "  <gray>Operation: <white><operation> <dark_gray>— <gray><message>"
+
+  # Help descriptions. Keys after description. match /rwr subcommands.
+  description:
+    help: "Show this help"
+    status: "Show reset status"
+    gui: "Open the administration GUI"
+    tp: "Open the teleport GUI"
+    reset: "Request a guarded reset"
+    history: "Show reset history"
+    reload: "Reload configuration and locale"
+    version: "Show installed and latest RWR versions"
+    discord: "Manage the Discord webhook add-on"
+    placeholder: "Manage the PlaceholderAPI add-on"
+  feature:
+    admin-gui: "administration GUI"
+    teleport-gui: "teleport GUI"
+  retention:
+    previous: "the previous valid configuration remains active."
+    none: "no configuration is active."
+
+# -----------------------------------------------------------------------------
+# Update Checker
+# -----------------------------------------------------------------------------
+update:
+  # Player and command responses.
+  checking: "<prefix><yellow>Checking GitHub Releases for updates..."
+  current: "<prefix><green>RWR <installed> is up to date."
+  available: "<prefix><gold>Update available: <installed> → <latest>. <aqua><url>"
+  failed: "<prefix><gray>The update check is currently unavailable; RWR continues normally."
+  disabled: "<prefix><gray>GitHub update checking is disabled."
+
+# -----------------------------------------------------------------------------
+# Teleport Outcomes
+# -----------------------------------------------------------------------------
+teleport:
+  not-configured: "That destination is disabled or no longer configured."
+  no-permission: "You do not have permission for that destination."
+  unavailable: "That Worlds world is not currently loaded."
+  resetting: "That world is currently resetting."
+  safe-unavailable: "No safe destination is currently available."
+  reset-started: "That world started resetting; teleport cancelled."
+  failed: "Teleport failed."
+  rejected: "The server rejected the teleport."
+  success: "Teleported to <world>."
+
+# -----------------------------------------------------------------------------
+# Player Notifications
+# -----------------------------------------------------------------------------
+notification:
+  warning: "<prefix><yellow><world> will reset in <remaining>."
+  reset-complete: "<prefix><green><world> reset completed successfully."
+  reset-failed: "<prefix><red><world> reset failed: <failure>."
+
+# -----------------------------------------------------------------------------
+# GUI
+# -----------------------------------------------------------------------------
+gui:
+  # Action results and chat-based GUI input.
+  success: "<prefix><green><message>"
+  failure: "<prefix><red><message>"
+  world-saved: "<prefix><green>World configuration saved."
+  world-removed: "<prefix><green>World configuration removed."
+  world-added: "<prefix><green>World configuration added."
+  timezone-saved: "<prefix><green>Timezone updated."
+  hub-saved: "<prefix><green>Default hub updated."
+  reset-policy-saved: "<prefix><green>Reset policy updated."
+  teleport-override-removed: "<prefix><green>Teleport override removed; discovery defaults now apply."
+  edit-rejected: "<prefix><red>Edit rejected; the previous valid configuration remains active."
+  issue: "<red> - <issue>"
+  input-prompt: "<prefix><yellow>Type the value in chat within 30 seconds, or type cancel."
+  input-cancel-keyword: "cancel"
+  input-timeout: "<prefix><red>Input timed out."
+  input-cancelled: "<prefix><gray>Input cancelled."
+  reload-success: "<prefix><green>Configuration reloaded; all GUI values and schedules were refreshed."
+  reload-failed: "<prefix><red>Reload rejected; the previous valid configuration remains active."
+  world-saved-plain: "World configuration saved."
+  teleport-defaults-saved: "Teleport defaults saved."
+  teleport-destination-saved: "Teleport destination saved."
+  common:
+    back: "Back"
+    cancel: "Cancel"
+    close: "Close"
+    previous-page: "Previous page"
+    next-page: "Next page"
+    page: "Page <page>"
+    page-of: "Page <page>/<pages>"
+    id: "ID: <id>"
+    world-key: "Worlds key: <world>"
+    state: "State: <state>"
+    status: "Status: <status>"
+    next: "Next: <next>"
+    requires-confirmation: "Requires confirmation"
+  teleport:
+    title: "RWR Worlds <page>/<pages>"
+    world: "World: <world>"
+    players: "Players: <count>"
+    permission: "Permission: <permission>"
+    state:
+      available: "Available — click to teleport"
+      locked: "Locked — permission required"
+      unavailable: "Unavailable — world is not loaded"
+      resetting: "Unavailable — reset in progress"
+  admin:
+    dashboard-title: "RWR 5 Admin - Dashboard"
+    managed-worlds: "Managed worlds"
+    configured-count: "<count> configured world(s)"
+    entries-order: "Entries fill left to right"
+    click-configure: "Click to configure"
+    add-world: "Add managed world"
+    add-world-description: "Adds RWR configuration only."
+    global-settings: "Global settings"
+    teleport-admin: "Teleport administration"
+    reset-history: "Reset history"
+    reload: "Reload configuration"
+    reload-description: "Atomically reloads and reschedules."
+    add-title: "RWR 5 - Add Worlds World"
+    rwr-status: "RWR: <status>"
+    click-add: "Click to add configuration only"
+    cannot-select: "Cannot be selected"
+    world-title: "RWR 5 - <world>"
+  input:
+    display-name: "World display name"
+    schedule-time: "Schedule time (HH:mm)"
+    month-day: "Day of month (1-31)"
+    interval: "Interval minutes"
+    warnings: "Warning minutes: 30,10,5,1"
+    fixed-seed: "Fixed seed"
+    evacuation: "Evacuation Worlds key"
+    timezone: "IANA timezone"
+    hub: "Default hub Worlds key"
+    retries: "Safe retry count"
+    retry-delay: "Retry delay seconds"
+    permission: "Permission (none to clear)"
+  field:
+    display-name: "Display name"
+    evacuation: "Evacuation destination"
+    hub: "Default hub"
+  error:
+    evacuation-self: "A world cannot evacuate into itself."
+    timezone: "Unknown IANA timezone."
+    world-missing: "That RWR configuration no longer exists."
+    action-unavailable: "That action is no longer safe or available."
+    reset-blocked: "Reset blocked: the persisted world is protected, disabled, or unavailable."
+    whole-number: "Enter a valid whole number."
+    time-format: "Enter a valid 24-hour time in HH:mm format."
+    range: "Value must be from <minimum> through <maximum>."
+    world-changed: "World configuration changed; reopen the GUI."
+    registered-world: "<field> must name a registered Worlds world."
+    blank: "<field> cannot be blank."
+    warnings: "Warning minutes must be positive whole numbers separated by commas."
+  world:
+    display-name: "Display name"
+    scheduling: "Scheduling enabled"
+    schedule-type: "Schedule type"
+    time: "Time"
+    time-description: "Used by daily/weekly/monthly"
+    weekday: "Day of week"
+    month-day: "Day of month"
+    interval: "Interval minutes"
+    warnings: "Warning minutes"
+    warnings-description: "Whole minutes before reset"
+    warnings-example: "Example: 30,10,5,1"
+    warnings-disable: "Type 'none' to disable"
+    seed-policy: "Seed policy"
+    fixed-seed: "Fixed seed"
+    keep-config: "Keep Worlds config"
+    keep-gamerules: "Keep gamerules"
+    keep-border: "Keep world border"
+    evacuate: "Evacuate players"
+    evacuation-destination: "Evacuation destination"
+    failure-policy: "Failure policy (global)"
+    safe-retries: "Safe retries: <count>"
+    retry-delay: "Retry delay: <seconds>s"
+    edit-global: "Click to edit global policy"
+    reset-now: "Reset now"
+    blocked: "Blocked: <state>"
+    remove: "Remove RWR configuration"
+    remove-description: "Does NOT delete the Worlds world"
+  global:
+    title: "RWR 5 - Global Settings"
+    timezone: "Timezone"
+    timezone-description: "Use an IANA ZoneId"
+    hub: "Default protected hub"
+    hub-description: "Cannot be an RWR-managed world"
+    retries: "Maximum safe retries"
+    retry-delay: "Retry delay seconds"
+    broadcast: "Broadcast completion"
+    auto-discovery: "Teleport auto-discovery"
+    discovered-enabled: "Discovered worlds enabled"
+    show-locked: "Show locked destinations"
+  teleport-admin:
+    title: "RWR 5 - Teleport Admin"
+    explicit: "Explicit override"
+    discovery: "Discovery defaults"
+    auto-discover: "Auto-discover"
+    default-enabled: "Default enabled"
+    show-locked: "Show locked"
+    world-title: "RWR Teleport - <world>"
+    destination-enabled: "Destination enabled"
+    shared-name: "Shared display name"
+    shared-name-description: "Edit this in the managed-world dashboard"
+    permission: "Permission"
+    permission-clear: "'none' clears it"
+    use-defaults: "Use discovery defaults"
+    use-defaults-description: "Removes only this teleport override"
+    orphaned: "Orphaned override"
+    orphaned-description: "World is not registered in Worlds"
+    orphaned-action: "You may edit or remove this RWR entry"
+  history:
+    title: "RWR 5 - Reset History"
+    completed: "Completed: <time>"
+    result: "Result: <result>"
+    failure: "Failure: <failure>"
+  confirm:
+    reset-title: "Confirm guarded reset"
+    remove-title: "Confirm RWR removal"
+    reset-description: "Runs the guarded reset coordinator"
+    reset-protected: "Protected worlds cannot reach this screen"
+    remove-description: "Removes RWR configuration ONLY"
+    remove-keeps-world: "The Worlds world remains registered"
+    remove-no-delete: "RWR never calls world deletion here"
+    confirm-reset: "CONFIRM: Reset now"
+    confirm-remove: "CONFIRM: Remove RWR config"
+
+# -----------------------------------------------------------------------------
+# Console Log Messages
+# -----------------------------------------------------------------------------
+log:
+  update-available: "[RWR] [INFO] Update available: <installed> -> <latest>. Release: <url>"
+  update-failed: "[RWR] [WARN] Update check failed: <reason>"
+
+value:
+  none: "None"
+  idle: "Idle"
+  not-scheduled: "Not scheduled"
+  unavailable: "Unavailable"
+  loaded: "Loaded"
+  unloaded: "Unloaded"
+  unloaded-or-orphaned: "Unloaded/orphaned"
+  available: "Available"
+  protected: "Protected"
+  already-configured: "Already configured"
+  enabled: "Enabled"
+  disabled: "Disabled"
+  successful: "Successful"
+  now: "now"
+  duration-hours: "<count> hour(s)"
+  duration-minutes: "<count> minute(s)"
+  state:
+    managed: "Managed"
+    disabled: "Disabled"
+    protected: "Protected"
+    orphaned: "Orphaned"
+  schedule:
+    daily: "Daily"
+    weekly: "Weekly"
+    monthly: "Monthly"
+    interval: "Interval"
+  seed:
+    same: "Same seed"
+    random: "Random"
+    fixed: "Fixed"
+  weekday:
+    monday: "Monday"
+    tuesday: "Tuesday"
+    wednesday: "Wednesday"
+    thursday: "Thursday"
+    friday: "Friday"
+    saturday: "Saturday"
+    sunday: "Sunday"
+  safety:
+    safe_to_retry: "Safe to retry"
+    ambiguous_review_required: "Review required"
+    not_retryable: "Not retryable"
+  failure:
+    unknown_world_id: "Unknown world ID"
+    world_not_managed: "World not managed"
+    world_busy: "World busy"
+    global_reset_busy: "Another reset is active"
+    event_cancelled: "Event cancelled"
+    world_not_registered: "World not registered"
+    world_not_loaded: "World not loaded"
+    world_identity_changed: "World identity changed"
+    evacuation_disabled: "Evacuation disabled"
+    evacuation_destination_unavailable: "Evacuation destination unavailable"
+    evacuation_failed: "Evacuation failed"
+    players_remaining: "Players remain"
+    multiverse_rejected: "Worlds rejected the reset"
+    multiverse_delete_failed: "Worlds deletion failed"
+    multiverse_create_failed: "Worlds creation failed"
+    multiverse_api_exception: "Worlds API error"
+    verification_failed: "Verification failed"
+    journal_unavailable: "Safety journal unavailable"
+    interrupted_operation: "Operation interrupted"
+  phase:
+    idle: "Idle"
+    precheck: "Pre-check"
+    evacuate: "Evacuating"
+    regenerate: "Regenerating"
+    verify: "Verifying"
+    complete: "Complete"
+    failed: "Failed"
+    interrupted: "Interrupted"

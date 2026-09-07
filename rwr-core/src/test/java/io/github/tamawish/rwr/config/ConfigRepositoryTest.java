@@ -3,99 +3,106 @@ package io.github.tamawish.rwr.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.io.RandomAccessFile;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class ConfigRepositoryTest {
-    private static final WorldCatalogView CATALOG = new WorldCatalogView() {
+  private static final WorldCatalogView CATALOG =
+      new WorldCatalogView() {
         @Override
         public Set<String> registeredWorldNames() {
-            return Set.of("world", "resource");
+          return Set.of("world", "resource");
         }
 
         @Override
         public String defaultWorldName() {
-            return "world";
+          return "world";
         }
-    };
+      };
 
-    @TempDir
-    Path temporaryDirectory;
+  @TempDir Path temporaryDirectory;
 
-    @Test
-    void rejectsOversizedConfigurationBeforeParsing() throws Exception {
-        Path file = temporaryDirectory.resolve("config.yml");
-        try (RandomAccessFile output = new RandomAccessFile(file.toFile(), "rw")) {
-            output.setLength(1_048_577L);
-        }
-
-        ConfigLoadResult result = new ConfigRepository(file, CATALOG).load();
-
-        assertThat(result.valid()).isFalse();
-        assertThat(result.issues()).anyMatch(issue -> issue.message().contains("exceeds"));
+  @Test
+  void rejectsOversizedConfigurationBeforeParsing() throws Exception {
+    Path file = temporaryDirectory.resolve("config.yml");
+    try (RandomAccessFile output = new RandomAccessFile(file.toFile(), "rw")) {
+      output.setLength(1_048_577L);
     }
 
-    @Test
-    void loadsStableIdSeparatelyFromMultiverseName() throws Exception {
-        ConfigLoadResult result = load(validConfig("resource", true, true));
+    ConfigLoadResult result = new ConfigRepository(file, CATALOG).load();
 
-        assertThat(result.valid()).isTrue();
-        ManagedWorldSettings world = result.settings().world("mining-id").orElseThrow();
-        assertThat(world.id()).isEqualTo("mining-id");
-        assertThat(world.multiverseWorld()).isEqualTo("resource");
-        assertThat(world.state()).isEqualTo(WorldOperationalState.MANAGED);
-        assertThat(world.canReset()).isTrue();
-        assertThat(world.regeneration().fixedSeed()).isNull();
-    }
+    assertThat(result.valid()).isFalse();
+    assertThat(result.issues()).anyMatch(issue -> issue.message().contains("exceeds"));
+  }
 
-    @Test
-    void missingManagedDefaultsToFalse() throws Exception {
-        String config = validConfig("resource", true, true).replace("    managed: true\n", "");
-        ConfigLoadResult result = load(config);
+  @Test
+  void loadsStableIdSeparatelyFromMultiverseName() throws Exception {
+    ConfigLoadResult result = load(validConfig("resource", true, true));
 
-        assertThat(result.valid()).isTrue();
-        ManagedWorldSettings world = result.settings().world("mining-id").orElseThrow();
-        assertThat(world.managed()).isFalse();
-        assertThat(world.state()).isEqualTo(WorldOperationalState.DISABLED);
-        assertThat(world.canReset()).isFalse();
-    }
+    assertThat(result.valid()).isTrue();
+    ManagedWorldSettings world = result.settings().world("mining-id").orElseThrow();
+    assertThat(world.id()).isEqualTo("mining-id");
+    assertThat(world.multiverseWorld()).isEqualTo("resource");
+    assertThat(world.state()).isEqualTo(WorldOperationalState.MANAGED);
+    assertThat(world.canReset()).isTrue();
+    assertThat(world.regeneration().fixedSeed()).isNull();
+  }
 
-    @Test
-    void missingMultiverseWorldIsRetainedAsOrphaned() throws Exception {
-        ConfigLoadResult result = load(validConfig("missing-resource", true, true));
+  @Test
+  void missingManagedDefaultsToFalse() throws Exception {
+    String config = validConfig("resource", true, true).replace("    managed: true\n", "");
+    ConfigLoadResult result = load(config);
 
-        assertThat(result.valid()).isTrue();
-        ManagedWorldSettings world = result.settings().world("mining-id").orElseThrow();
-        assertThat(world.state()).isEqualTo(WorldOperationalState.ORPHANED);
-        assertThat(world.canReset()).isFalse();
-    }
+    assertThat(result.valid()).isTrue();
+    ManagedWorldSettings world = result.settings().world("mining-id").orElseThrow();
+    assertThat(world.managed()).isFalse();
+    assertThat(world.state()).isEqualTo(WorldOperationalState.DISABLED);
+    assertThat(world.canReset()).isFalse();
+  }
 
-    @Test
-    void defaultAndHubWorldCannotBecomeManaged() throws Exception {
-        ConfigLoadResult result = load(validConfig("world", true, true));
+  @Test
+  void missingMultiverseWorldIsRetainedAsOrphaned() throws Exception {
+    ConfigLoadResult result = load(validConfig("missing-resource", true, true));
 
-        assertThat(result.status()).isEqualTo(ConfigLoadStatus.INVALID);
-        assertThat(result.issues()).anyMatch(issue ->
-                issue.path().equals("worlds.mining-id.managed") && issue.message().contains("cannot be managed"));
-    }
+    assertThat(result.valid()).isTrue();
+    ManagedWorldSettings world = result.settings().world("mining-id").orElseThrow();
+    assertThat(world.state()).isEqualTo(WorldOperationalState.ORPHANED);
+    assertThat(world.canReset()).isFalse();
+  }
 
-    @Test
-    void namespacedMultiverseWorldIsRejectedOnSpigotBuild() throws Exception {
-        ConfigLoadResult result = load(validConfig("minecraft:resource", true, true));
+  @Test
+  void defaultAndHubWorldCannotBecomeManaged() throws Exception {
+    ConfigLoadResult result = load(validConfig("world", true, true));
 
-        assertThat(result.status()).isEqualTo(ConfigLoadStatus.INVALID);
-        assertThat(result.issues()).anyMatch(issue ->
+    assertThat(result.status()).isEqualTo(ConfigLoadStatus.INVALID);
+    assertThat(result.issues())
+        .anyMatch(
+            issue ->
+                issue.path().equals("worlds.mining-id.managed")
+                    && issue.message().contains("cannot be managed"));
+  }
+
+  @Test
+  void namespacedMultiverseWorldIsRejectedOnSpigotBuild() throws Exception {
+    ConfigLoadResult result = load(validConfig("minecraft:resource", true, true));
+
+    assertThat(result.status()).isEqualTo(ConfigLoadStatus.INVALID);
+    assertThat(result.issues())
+        .anyMatch(
+            issue ->
                 issue.path().equals("worlds.mining-id.multiverse-world")
-                        && issue.message().contains("plain Multiverse world name"));
-    }
+                    && issue.message().contains("plain Multiverse world name"));
+  }
 
-    @Test
-    void namespacedTeleportOverrideIsRejectedOnSpigotBuild() throws Exception {
-        String config = validConfig("resource", true, true).replace(
+  @Test
+  void namespacedTeleportOverrideIsRejectedOnSpigotBuild() throws Exception {
+    String config =
+        validConfig("resource", true, true)
+            .replace(
                 "  worlds: {}\n",
                 """
                   worlds:
@@ -105,33 +112,38 @@ class ConfigRepositoryTest {
                       permission: ""
                 """);
 
-        ConfigLoadResult result = load(config);
+    ConfigLoadResult result = load(config);
 
-        assertThat(result.status()).isEqualTo(ConfigLoadStatus.INVALID);
-        assertThat(result.issues()).anyMatch(issue ->
+    assertThat(result.status()).isEqualTo(ConfigLoadStatus.INVALID);
+    assertThat(result.issues())
+        .anyMatch(
+            issue ->
                 issue.path().equals("teleport.worlds.minecraft:resource")
-                        && issue.message().contains("plain Multiverse world name"));
-    }
+                    && issue.message().contains("plain Multiverse world name"));
+  }
 
-    @Test
-    void hubBukkitNameIsAcceptedWhenCatalogHasNamespacedIdentityAndFolderName() throws Exception {
-        WorldCatalogView paperCatalog = new WorldCatalogView() {
-            @Override
-            public Set<String> registeredWorldNames() {
-                return Set.of("minecraft:overworld", "world", "minecraft:the_nether", "world_nether");
-            }
+  @Test
+  void hubBukkitNameIsAcceptedWhenCatalogHasNamespacedIdentityAndFolderName() throws Exception {
+    WorldCatalogView paperCatalog =
+        new WorldCatalogView() {
+          @Override
+          public Set<String> registeredWorldNames() {
+            return Set.of("minecraft:overworld", "world", "minecraft:the_nether", "world_nether");
+          }
 
-            @Override
-            public String defaultWorldName() {
-                return "world";
-            }
+          @Override
+          public String defaultWorldName() {
+            return "world";
+          }
 
-            @Override
-            public boolean allowsNamespacedWorldNames() {
-                return true;
-            }
+          @Override
+          public boolean allowsNamespacedWorldNames() {
+            return true;
+          }
         };
-        Path configFile = write("""
+    Path configFile =
+        write(
+            """
                 config-version: 5
                 timezone: Asia/Kuala_Lumpur
                 default-hub-world: world
@@ -147,127 +159,202 @@ class ConfigRepositoryTest {
                   worlds: {}
                 """);
 
-        ConfigLoadResult result = new ConfigRepository(configFile, paperCatalog).load();
+    ConfigLoadResult result = new ConfigRepository(configFile, paperCatalog).load();
 
-        assertThat(result.valid()).isTrue();
-        assertThat(result.issues()).isEmpty();
-    }
+    assertThat(result.valid()).isTrue();
+    assertThat(result.issues()).isEmpty();
+  }
 
-    @Test
-    void namespacedWorldKeyIsAcceptedWhenCatalogAllowsIt() throws Exception {
-        WorldCatalogView paperCatalog = new WorldCatalogView() {
-            @Override
-            public Set<String> registeredWorldNames() {
-                return Set.of("world", "worlds:resource", "resource");
-            }
+  @Test
+  void namespacedWorldKeyIsAcceptedWhenCatalogAllowsIt() throws Exception {
+    WorldCatalogView paperCatalog =
+        new WorldCatalogView() {
+          @Override
+          public Set<String> registeredWorldNames() {
+            return Set.of("world", "worlds:resource", "resource");
+          }
 
-            @Override
-            public String defaultWorldName() {
-                return "world";
-            }
+          @Override
+          public String defaultWorldName() {
+            return "world";
+          }
 
-            @Override
-            public boolean allowsNamespacedWorldNames() {
-                return true;
-            }
+          @Override
+          public boolean allowsNamespacedWorldNames() {
+            return true;
+          }
         };
 
-        ConfigLoadResult result = new ConfigRepository(write(validConfig("worlds:resource", true, true)), paperCatalog)
-                .load();
+    ConfigLoadResult result =
+        new ConfigRepository(write(validConfig("worlds:resource", true, true)), paperCatalog)
+            .load();
 
-        assertThat(result.valid()).isTrue();
-        assertThat(result.settings().world("mining-id").orElseThrow().multiverseWorld()).isEqualTo("worlds:resource");
+    assertThat(result.valid()).isTrue();
+    assertThat(result.settings().world("mining-id").orElseThrow().multiverseWorld())
+        .isEqualTo("worlds:resource");
+  }
+
+  @Test
+  void detectsV4InsteadOfInterpretingItAsV5() throws Exception {
+    ConfigLoadResult result = load("worldName: resource\nworldSeed: 42\n");
+
+    assertThat(result.status()).isEqualTo(ConfigLoadStatus.MIGRATION_REQUIRED);
+    assertThat(result.settings()).isNull();
+  }
+
+  @Test
+  void invalidCandidateCannotOverwriteValidFile() throws Exception {
+    Path configFile = write(validConfig("resource", true, true));
+    ConfigRepository repository = new ConfigRepository(configFile, CATALOG);
+    PluginSettings valid = repository.load().settings();
+    ManagedWorldSettings original = valid.world("mining-id").orElseThrow();
+    ManagedWorldSettings protectedWorld =
+        new ManagedWorldSettings(
+            original.id(),
+            "world",
+            original.displayName(),
+            true,
+            true,
+            original.schedule(),
+            original.warnings(),
+            original.regeneration(),
+            original.evacuation(),
+            WorldOperationalState.PROTECTED);
+    PluginSettings invalid =
+        new PluginSettings(
+            5,
+            valid.timezone(),
+            valid.defaultHubWorld(),
+            valid.resetPolicy(),
+            java.util.Map.of(protectedWorld.id(), protectedWorld),
+            valid.teleport());
+    String before = Files.readString(configFile);
+
+    assertThatThrownBy(() -> repository.save(invalid))
+        .isInstanceOf(ConfigValidationException.class);
+    assertThat(Files.readString(configFile)).isEqualTo(before);
+  }
+
+  @Test
+  void saveUsesCompleteRoundTrippableSnapshot() throws Exception {
+    Path configFile = write(validConfig("resource", true, true));
+    ConfigRepository repository = new ConfigRepository(configFile, CATALOG);
+    PluginSettings settings = repository.load().settings();
+
+    repository.save(settings);
+
+    ConfigLoadResult reloaded = repository.load();
+    assertThat(reloaded.valid()).isTrue();
+    assertThat(reloaded.settings()).isEqualTo(settings);
+    try (var files = Files.list(temporaryDirectory)) {
+      assertThat(files.filter(path -> path.getFileName().toString().endsWith(".tmp"))).isEmpty();
     }
+  }
 
-    @Test
-    void detectsV4InsteadOfInterpretingItAsV5() throws Exception {
-        ConfigLoadResult result = load("worldName: resource\nworldSeed: 42\n");
+  @Test
+  void savePreservesSettingsOutsideTheCoreConfigurationModel() throws Exception {
+    Path configFile =
+        write(
+            validConfig("resource", true, true)
+                .replace(
+                    "timezone: Asia/Kuala_Lumpur\n",
+                    """
+                    locale: ja_JP
+                    timezone: Asia/Kuala_Lumpur
+                    updates:
+                      enabled: false
+                      request-timeout-seconds: 27
+                      notify-admins-on-join: false
+                    future-extension:
+                      nested-value: keep-me
+                    """));
+    ConfigRepository repository = new ConfigRepository(configFile, CATALOG);
+    PluginSettings settings = repository.load().settings();
 
-        assertThat(result.status()).isEqualTo(ConfigLoadStatus.MIGRATION_REQUIRED);
-        assertThat(result.settings()).isNull();
-    }
+    repository.save(settings);
 
-    @Test
-    void invalidCandidateCannotOverwriteValidFile() throws Exception {
-        Path configFile = write(validConfig("resource", true, true));
-        ConfigRepository repository = new ConfigRepository(configFile, CATALOG);
-        PluginSettings valid = repository.load().settings();
-        ManagedWorldSettings original = valid.world("mining-id").orElseThrow();
-        ManagedWorldSettings protectedWorld = new ManagedWorldSettings(
-                original.id(),
-                "world",
-                original.displayName(),
-                true,
-                true,
-                original.schedule(),
-                original.warnings(),
-                original.regeneration(),
-                original.evacuation(),
-                WorldOperationalState.PROTECTED);
-        PluginSettings invalid = new PluginSettings(
-                5,
-                valid.timezone(),
-                valid.defaultHubWorld(),
-                valid.resetPolicy(),
-                java.util.Map.of(protectedWorld.id(), protectedWorld),
-                valid.teleport());
-        String before = Files.readString(configFile);
+    String saved = Files.readString(configFile);
+    assertThat(saved).contains("locale: ja_JP");
+    assertThat(saved).contains("updates:");
+    assertThat(saved).contains("enabled: false");
+    assertThat(saved).contains("request-timeout-seconds: 27");
+    assertThat(saved).contains("notify-admins-on-join: false");
+    assertThat(saved).contains("future-extension:");
+    assertThat(saved).contains("nested-value: keep-me");
+    assertThat(saved).doesNotContain("reset-policy: {");
+  }
 
-        assertThatThrownBy(() -> repository.save(invalid)).isInstanceOf(ConfigValidationException.class);
-        assertThat(Files.readString(configFile)).isEqualTo(before);
-    }
+  @Test
+  void saveDoesNotOverwriteAConfigurationThatBecameMalformed() throws Exception {
+    Path configFile = write(validConfig("resource", true, true));
+    ConfigRepository repository = new ConfigRepository(configFile, CATALOG);
+    PluginSettings settings = repository.load().settings();
+    String malformed = "locale: ja_JP\nworlds: [\n";
+    Files.writeString(configFile, malformed);
 
-    @Test
-    void saveUsesCompleteRoundTrippableSnapshot() throws Exception {
-        Path configFile = write(validConfig("resource", true, true));
-        ConfigRepository repository = new ConfigRepository(configFile, CATALOG);
-        PluginSettings settings = repository.load().settings();
+    assertThatThrownBy(() -> repository.save(settings)).isInstanceOf(java.io.IOException.class);
+    assertThat(Files.readString(configFile)).isEqualTo(malformed);
+  }
 
-        repository.save(settings);
+  @Test
+  void initializesManagedWorldsFromAnExistingCombinedV5Configuration() throws Exception {
+    Path configFile = write(validConfig("resource", true, true));
+    ConfigRepository repository = new ConfigRepository(configFile, CATALOG);
 
-        ConfigLoadResult reloaded = repository.load();
-        assertThat(reloaded.valid()).isTrue();
-        assertThat(reloaded.settings()).isEqualTo(settings);
-        try (var files = Files.list(temporaryDirectory)) {
-            assertThat(files.filter(path -> path.getFileName().toString().endsWith(".tmp"))).isEmpty();
-        }
-    }
+    repository.initializeManagedWorldsFile();
 
-    @Test
-    void dottedTeleportWorldNameSurvivesSaveAndReload() throws Exception {
-        WorldCatalogView dottedCatalog = new WorldCatalogView() {
-            @Override
-            public Set<String> registeredWorldNames() {
-                return Set.of("world", "resource", "resource.world");
-            }
+    Path managedFile = configFile.resolveSibling("managed-worlds.yml");
+    String managed = Files.readString(managedFile);
+    assertThat(managed).startsWith("# Managed by ResourceWorldResetter.");
+    assertThat(managed).contains("managed-worlds-version: 1", "mining-id:");
+    Files.writeString(configFile, validConfig("resource", false, false));
+    ConfigLoadResult reloaded = repository.load();
+    assertThat(reloaded.valid()).isTrue();
+    assertThat(reloaded.settings().world("mining-id").orElseThrow().enabled()).isTrue();
+    assertThat(reloaded.settings().world("mining-id").orElseThrow().managed()).isTrue();
+  }
 
-            @Override
-            public String defaultWorldName() {
-                return "world";
-            }
+  @Test
+  void dottedTeleportWorldNameSurvivesSaveAndReload() throws Exception {
+    WorldCatalogView dottedCatalog =
+        new WorldCatalogView() {
+          @Override
+          public Set<String> registeredWorldNames() {
+            return Set.of("world", "resource", "resource.world");
+          }
+
+          @Override
+          public String defaultWorldName() {
+            return "world";
+          }
         };
-        Path configFile = write(validConfig("resource", true, true).replace(
-                "  worlds: {}\n",
-                """
+    Path configFile =
+        write(
+            validConfig("resource", true, true)
+                .replace(
+                    "  worlds: {}\n",
+                    """
                   worlds:
                     resource.world:
                       enabled: true
                       permission: rwr.teleport.resource
                 """));
-        ConfigRepository repository = new ConfigRepository(configFile, dottedCatalog);
-        PluginSettings settings = repository.load().settings();
+    ConfigRepository repository = new ConfigRepository(configFile, dottedCatalog);
+    PluginSettings settings = repository.load().settings();
 
-        repository.save(settings);
+    repository.save(settings);
 
-        ConfigLoadResult reloaded = repository.load();
-        assertThat(reloaded.valid()).isTrue();
-        assertThat(reloaded.settings().teleport().worlds()).containsKey("resource.world");
-        assertThat(reloaded.settings()).isEqualTo(settings);
-    }
+    ConfigLoadResult reloaded = repository.load();
+    assertThat(reloaded.valid()).isTrue();
+    assertThat(reloaded.settings().teleport().worlds()).containsKey("resource.world");
+    assertThat(reloaded.settings()).isEqualTo(settings);
+  }
 
-    @Test
-    void migratesLegacySecondWarningsAndRemovesTeleportDisplayNameOnSave() throws Exception {
-        String config = validConfig("resource", true, true).replace(
+  @Test
+  void migratesLegacySecondWarningsAndRemovesTeleportDisplayNameOnSave() throws Exception {
+    String config =
+        validConfig("resource", true, true)
+            .replace(
                 "  worlds: {}\n",
                 """
                   worlds:
@@ -276,33 +363,32 @@ class ConfigRepositoryTest {
                       display-name: Legacy duplicate
                       permission: rwr.teleport.resource
                 """);
-        Path configFile = write(config);
-        ConfigRepository repository = new ConfigRepository(configFile, CATALOG);
-        PluginSettings settings = repository.load().settings();
+    Path configFile = write(config);
+    ConfigRepository repository = new ConfigRepository(configFile, CATALOG);
+    PluginSettings settings = repository.load().settings();
 
-        assertThat(settings.world("mining-id").orElseThrow().warnings())
-                .containsExactly(30, 10, 1);
-        repository.save(settings);
+    assertThat(settings.world("mining-id").orElseThrow().warnings()).containsExactly(30, 10, 1);
+    repository.save(settings);
 
-        String saved = Files.readString(configFile);
-        assertThat(saved).contains("warning-minutes:");
-        assertThat(saved).doesNotContain("warnings:");
-        assertThat(saved).doesNotContain("Legacy duplicate");
-        assertThat(saved).contains("permission: rwr.teleport.resource");
-    }
+    String saved = Files.readString(configFile.resolveSibling("managed-worlds.yml"));
+    assertThat(saved).contains("warning-minutes:");
+    assertThat(saved).doesNotContain("warnings:");
+    assertThat(saved).doesNotContain("Legacy duplicate");
+    assertThat(saved).contains("permission: rwr.teleport.resource");
+  }
 
-    private ConfigLoadResult load(String content) throws Exception {
-        return new ConfigRepository(write(content), CATALOG).load();
-    }
+  private ConfigLoadResult load(String content) throws Exception {
+    return new ConfigRepository(write(content), CATALOG).load();
+  }
 
-    private Path write(String content) throws Exception {
-        Path configFile = temporaryDirectory.resolve("config.yml");
-        Files.writeString(configFile, content);
-        return configFile;
-    }
+  private Path write(String content) throws Exception {
+    Path configFile = temporaryDirectory.resolve("config.yml");
+    Files.writeString(configFile, content);
+    return configFile;
+  }
 
-    private static String validConfig(String multiverseWorld, boolean enabled, boolean managed) {
-        return """
+  private static String validConfig(String multiverseWorld, boolean enabled, boolean managed) {
+    return """
                 config-version: 5
                 timezone: Asia/Kuala_Lumpur
                 default-hub-world: world
@@ -334,6 +420,7 @@ class ConfigRepositoryTest {
                   default-enabled: false
                   show-locked: true
                   worlds: {}
-                """.formatted(multiverseWorld, enabled, managed);
-    }
+                """
+        .formatted(multiverseWorld, enabled, managed);
+  }
 }

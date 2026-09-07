@@ -1,0 +1,352 @@
+# =============================================================================
+# ResourceWorldResetter 日本語ロケール（Paper / Purpur / Folia）
+# =============================================================================
+# デフォルト＋フォールバック用ロケール。このファイルをコピーして翻訳を追加できます。
+# MiniMessage に対応しています。実行時プレースホルダーは <name> 形式です。
+# タグ名は変更しないでください。周囲のテキストと色は翻訳して構いません。
+# 旧式の &-コードおよび %placeholders% も読み込み時に変換されます。
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# プレフィックス
+# -----------------------------------------------------------------------------
+prefix: "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> "
+
+# -----------------------------------------------------------------------------
+# コマンド
+# -----------------------------------------------------------------------------
+command:
+  # 一般的なコマンド応答。
+  no-permission: "<prefix><red>権限がありません: <permission>"
+  player-only: "<prefix><red><feature> はプレイヤーのみ使用できます。"
+  unknown: "<prefix><red>不明なコマンドです。/rwr help を使用してください。"
+  no-worlds: "<prefix><gray>リセット対象のワールドは設定されていません。"
+
+  # ヘルプ一覧。
+  help-header: "<prefix><yellow>利用可能なコマンド:"
+  help-entry: "<gray><usage> <dark_gray>- <white><description>"
+
+  # リロードとロケール保持。
+  reload-success: "<prefix><green>設定とロケールを再読み込みしました。有効なワールド数: <count>。"
+  reload-failed: "<prefix><red>再読み込みは拒否されました。<retention>"
+  locale-reload-failed: "<prefix><red>ロケールの再読み込みは拒否されました。以前の有効なロケールを引き続き使用します。"
+  issue: "<red> - <issue>"
+
+  # 保護付きリセット。
+  reset-start: "<prefix><yellow><white><world> <dark_gray>（ID: <world_id>）<yellow> の保護付きリセットを開始します。"
+  reset-success: "<prefix><green>リセット完了 [操作=<operation>]: <message>"
+  reset-failed: "<prefix><red>リセット失敗 [<failure>, 安全=<safety>, 操作=<operation>]: <message>"
+
+  # リセット履歴。
+  history-count: "<prefix><red>履歴件数は 1 から 50 の整数である必要があります。"
+  history-empty: "<prefix><gray>リセット履歴はありません。"
+  history-header: "<prefix><gold>最近のリセット履歴 <dark_gray>（<gray><count> 件<dark_gray>）"
+  history-entry: "<gold><world> <dark_gray>（<gray>ID: <world_id><dark_gray>） <white>— <phase>"
+  history-time: "  <gray>完了: <white><completed> <dark_gray>| <gray>操作: <white><operation>"
+  history-detail: "  <gray>結果: <white><result> <dark_gray>— <gray><message>"
+
+  # ステータス一覧。
+  status-header: "<prefix><gold><world> <dark_gray>（<gray>ID: <world_id><dark_gray>）"
+  status-state: "  <gray>状態: <white><phase> <dark_gray>| <gray>プロバイダーワールド: <white><world>"
+  status-schedule: "  <gray>次回リセット: <white><next>"
+  status-operation: "  <gray>操作: <white><operation> <dark_gray>— <gray><message>"
+
+  # ヘルプ説明。description 以降のキーは /rwr サブコマンドと対応します。
+  description:
+    help: "このヘルプを表示"
+    status: "リセット状態を表示"
+    gui: "管理GUIを開く"
+    tp: "テレポートGUIを開く"
+    reset: "保護付きリセットを要求"
+    history: "リセット履歴を表示"
+    reload: "設定とロケールを再読み込み"
+    version: "インストール済みおよび最新の RWR バージョンを表示"
+    discord: "Discord Webhook アドオンを管理"
+    placeholder: "PlaceholderAPI アドオンを管理"
+  feature:
+    admin-gui: "管理 GUI"
+    teleport-gui: "テレポート GUI"
+  retention:
+    previous: "以前の有効な設定を引き続き使用します。"
+    none: "有効な設定はありません。"
+
+# -----------------------------------------------------------------------------
+# アップデートチェッカー
+# -----------------------------------------------------------------------------
+update:
+  # プレイヤーおよびコマンドの応答。
+  checking: "<prefix><yellow>GitHub Releases で更新を確認しています..."
+  current: "<prefix><green>RWR <installed> は最新です。"
+  available: "<prefix><gold>更新があります: <installed> → <latest>。<aqua><url>"
+  failed: "<prefix><gray>現在アップデート確認は利用できません。RWR は通常どおり動作します。"
+  disabled: "<prefix><gray>GitHub のアップデート確認は無効です。"
+
+teleport:
+  not-configured: "この行き先は無効になっているか、設定から削除されました。"
+  no-permission: "この行き先へのテレポート権限がありません。"
+  unavailable: "対象の Worlds ワールドは現在読み込まれていません。"
+  resetting: "このワールドは現在リセット中です。"
+  safe-unavailable: "現在利用できる安全な行き先がありません。"
+  reset-started: "ワールドのリセットが開始されたため、テレポートをキャンセルしました。"
+  failed: "テレポートに失敗しました。"
+  rejected: "サーバーがテレポートを拒否しました。"
+  success: "<world> にテレポートしました。"
+
+# -----------------------------------------------------------------------------
+# プレイヤー通知
+# -----------------------------------------------------------------------------
+notification:
+  warning: "<prefix><yellow><world> は <remaining> 後にリセットされます。"
+  reset-complete: "<prefix><green><world> のリセットが正常に完了しました。"
+  reset-failed: "<prefix><red><world> のリセットに失敗しました: <failure>。"
+
+# -----------------------------------------------------------------------------
+# GUI
+# -----------------------------------------------------------------------------
+gui:
+  # 操作結果とチャット入力による GUI。
+  success: "<prefix><green><message>"
+  failure: "<prefix><red><message>"
+  world-saved: "<prefix><green>ワールド設定を保存しました。"
+  world-removed: "<prefix><green>ワールド設定を削除しました。"
+  world-added: "<prefix><green>ワールド設定を追加しました。"
+  timezone-saved: "<prefix><green>タイムゾーンを更新しました。"
+  hub-saved: "<prefix><green>既定ハブを更新しました。"
+  reset-policy-saved: "<prefix><green>リセット方針を更新しました。"
+  teleport-override-removed: "<prefix><green>テレポート個別設定を削除し、自動検出の既定値を適用しました。"
+  edit-rejected: "<prefix><red>編集は拒否されました。以前の有効な設定を引き続き使用します。"
+  issue: "<red> - <issue>"
+  input-prompt: "<prefix><yellow>30秒以内にチャットで値を入力するか、「キャンセル」と入力してください。"
+  input-cancel-keyword: "キャンセル"
+  input-timeout: "<prefix><red>入力がタイムアウトしました。"
+  input-cancelled: "<prefix><gray>入力をキャンセルしました。"
+  reload-success: "<prefix><green>設定を再読み込みし、GUI の値とスケジュールを更新しました。"
+  reload-failed: "<prefix><red>再読み込みは拒否されました。以前の有効な設定を引き続き使用します。"
+  world-saved-plain: "ワールド設定を保存しました。"
+  teleport-defaults-saved: "テレポートの既定値を保存しました。"
+  teleport-destination-saved: "テレポート先を保存しました。"
+  common:
+    back: "戻る"
+    cancel: "キャンセル"
+    close: "閉じる"
+    previous-page: "前のページ"
+    next-page: "次のページ"
+    page: "<page> ページ"
+    page-of: "<page>/<pages> ページ"
+    id: "ID: <id>"
+    world-key: "Worlds キー: <world>"
+    state: "状態: <state>"
+    status: "状態: <status>"
+    next: "次回: <next>"
+    requires-confirmation: "確認が必要です"
+  teleport:
+    title: "RWR ワールド <page>/<pages>"
+    world: "ワールド: <world>"
+    players: "プレイヤー数: <count>"
+    permission: "権限: <permission>"
+    state:
+      available: "利用可能 — クリックしてテレポート"
+      locked: "ロック中 — 権限が必要です"
+      unavailable: "利用不可 — ワールドが未読み込みです"
+      resetting: "利用不可 — リセット中です"
+  admin:
+    dashboard-title: "RWR 5 管理 - ダッシュボード"
+    managed-worlds: "管理対象ワールド"
+    configured-count: "設定済みワールド: <count>"
+    entries-order: "項目は左から順に表示されます"
+    click-configure: "クリックして設定"
+    add-world: "管理ワールドを追加"
+    add-world-description: "RWR 設定のみを追加します。"
+    global-settings: "全体設定"
+    teleport-admin: "テレポート管理"
+    reset-history: "リセット履歴"
+    reload: "設定を再読み込み"
+    reload-description: "設定を安全に再読み込みし、再スケジュールします。"
+    add-title: "RWR 5 - Worlds ワールドを追加"
+    rwr-status: "RWR: <status>"
+    click-add: "クリックして RWR 設定のみを追加"
+    cannot-select: "選択できません"
+    world-title: "RWR 5 - <world>"
+  input:
+    display-name: "ワールド表示名"
+    schedule-time: "スケジュール時刻 (HH:mm)"
+    month-day: "日付 (1-31)"
+    interval: "間隔（分）"
+    warnings: "警告する分数: 30,10,5,1"
+    fixed-seed: "固定シード値"
+    evacuation: "退避先の Worlds キー"
+    timezone: "IANA タイムゾーン"
+    hub: "既定ハブの Worlds キー"
+    retries: "安全な再試行回数"
+    retry-delay: "再試行までの秒数"
+    permission: "権限（none で消去）"
+  field:
+    display-name: "表示名"
+    evacuation: "退避先"
+    hub: "既定ハブ"
+  error:
+    evacuation-self: "同じワールド自身へ退避することはできません。"
+    timezone: "不明な IANA タイムゾーンです。"
+    world-missing: "この RWR 設定は存在しなくなりました。"
+    action-unavailable: "この操作は安全でないか、利用できなくなりました。"
+    reset-blocked: "保存されたワールドが保護中、無効、または利用不可のためリセットできません。"
+    whole-number: "有効な整数を入力してください。"
+    time-format: "HH:mm 形式の有効な24時間表記を入力してください。"
+    range: "<minimum> から <maximum> までの値を入力してください。"
+    world-changed: "ワールド設定が変更されました。GUI を開き直してください。"
+    registered-world: "<field>には登録済みの Worlds ワールドを指定してください。"
+    blank: "<field>は空にできません。"
+    warnings: "警告する分数は、正の整数をカンマ区切りで入力してください。"
+  world:
+    display-name: "表示名"
+    scheduling: "スケジュール有効"
+    schedule-type: "スケジュール種類"
+    time: "時刻"
+    time-description: "毎日・毎週・毎月の設定で使用"
+    weekday: "曜日"
+    month-day: "日付"
+    interval: "間隔（分）"
+    warnings: "警告する分数"
+    warnings-description: "リセット前の分数"
+    warnings-example: "例: 30,10,5,1"
+    warnings-disable: "無効にするには none と入力"
+    seed-policy: "シード方針"
+    fixed-seed: "固定シード値"
+    keep-config: "Worlds 設定を保持"
+    keep-gamerules: "ゲームルールを保持"
+    keep-border: "ワールド境界を保持"
+    evacuate: "プレイヤーを退避"
+    evacuation-destination: "退避先"
+    failure-policy: "失敗時の方針（全体）"
+    safe-retries: "安全な再試行: <count> 回"
+    retry-delay: "再試行間隔: <seconds> 秒"
+    edit-global: "クリックして全体方針を編集"
+    reset-now: "今すぐリセット"
+    blocked: "実行不可: <state>"
+    remove: "RWR 設定を削除"
+    remove-description: "Worlds ワールド自体は削除しません"
+  global:
+    title: "RWR 5 - 全体設定"
+    timezone: "タイムゾーン"
+    timezone-description: "IANA ZoneId を使用"
+    hub: "保護する既定ハブ"
+    hub-description: "RWR 管理ワールドにはできません"
+    retries: "安全な最大再試行回数"
+    retry-delay: "再試行までの秒数"
+    broadcast: "完了を全体通知"
+    auto-discovery: "テレポート先を自動検出"
+    discovered-enabled: "検出ワールドを既定で有効化"
+    show-locked: "ロック中の行き先を表示"
+  teleport-admin:
+    title: "RWR 5 - テレポート管理"
+    explicit: "個別設定"
+    discovery: "自動検出の既定値"
+    auto-discover: "自動検出"
+    default-enabled: "既定で有効"
+    show-locked: "ロック中を表示"
+    world-title: "RWR テレポート - <world>"
+    destination-enabled: "行き先を有効化"
+    shared-name: "共通表示名"
+    shared-name-description: "管理ワールド画面で編集できます"
+    permission: "権限"
+    permission-clear: "none で消去"
+    use-defaults: "自動検出の既定値を使用"
+    use-defaults-description: "このテレポート個別設定のみを削除します"
+    orphaned: "孤立した個別設定"
+    orphaned-description: "ワールドが Worlds に登録されていません"
+    orphaned-action: "この RWR 項目は編集または削除できます"
+  history:
+    title: "RWR 5 - リセット履歴"
+    completed: "完了: <time>"
+    result: "結果: <result>"
+    failure: "失敗: <failure>"
+  confirm:
+    reset-title: "保護付きリセットの確認"
+    remove-title: "RWR 設定削除の確認"
+    reset-description: "保護付きリセット処理を実行します"
+    reset-protected: "保護ワールドではこの画面を開けません"
+    remove-description: "RWR 設定のみを削除します"
+    remove-keeps-world: "Worlds ワールドは登録されたままです"
+    remove-no-delete: "RWR はここでワールドを削除しません"
+    confirm-reset: "確認: 今すぐリセット"
+    confirm-remove: "確認: RWR 設定を削除"
+
+# -----------------------------------------------------------------------------
+# コンソールログメッセージ
+# -----------------------------------------------------------------------------
+log:
+  update-available: "[RWR] [INFO] 更新があります: <installed> -> <latest>。リリース: <url>"
+  update-failed: "[RWR] [WARN] アップデート確認に失敗しました: <reason>"
+
+value:
+  none: "なし"
+  idle: "待機中"
+  not-scheduled: "未スケジュール"
+  unavailable: "利用不可"
+  loaded: "読み込み済み"
+  unloaded: "未読み込み"
+  unloaded-or-orphaned: "未読み込み／孤立"
+  available: "利用可能"
+  protected: "保護対象"
+  already-configured: "設定済み"
+  enabled: "有効"
+  disabled: "無効"
+  successful: "成功"
+  now: "まもなく"
+  duration-hours: "<count> 時間"
+  duration-minutes: "<count> 分"
+  state:
+    managed: "管理中"
+    disabled: "無効"
+    protected: "保護対象"
+    orphaned: "孤立"
+  schedule:
+    daily: "毎日"
+    weekly: "毎週"
+    monthly: "毎月"
+    interval: "一定間隔"
+  seed:
+    same: "同じシード"
+    random: "ランダム"
+    fixed: "固定"
+  weekday:
+    monday: "月曜日"
+    tuesday: "火曜日"
+    wednesday: "水曜日"
+    thursday: "木曜日"
+    friday: "金曜日"
+    saturday: "土曜日"
+    sunday: "日曜日"
+  safety:
+    safe_to_retry: "安全に再試行可能"
+    ambiguous_review_required: "確認が必要"
+    not_retryable: "再試行不可"
+  failure:
+    unknown_world_id: "不明なワールド ID"
+    world_not_managed: "管理対象外のワールド"
+    world_busy: "ワールドを使用中"
+    global_reset_busy: "別のリセットを実行中"
+    event_cancelled: "イベントによりキャンセル"
+    world_not_registered: "ワールド未登録"
+    world_not_loaded: "ワールド未読み込み"
+    world_identity_changed: "ワールド識別情報が変更済み"
+    evacuation_disabled: "退避が無効"
+    evacuation_destination_unavailable: "退避先を利用不可"
+    evacuation_failed: "退避に失敗"
+    players_remaining: "プレイヤーが残っています"
+    multiverse_rejected: "Worlds がリセットを拒否"
+    multiverse_delete_failed: "Worlds の削除に失敗"
+    multiverse_create_failed: "Worlds の作成に失敗"
+    multiverse_api_exception: "Worlds API エラー"
+    verification_failed: "検証に失敗"
+    journal_unavailable: "安全ジャーナルを利用不可"
+    interrupted_operation: "操作が中断されました"
+  phase:
+    idle: "待機中"
+    precheck: "事前確認"
+    evacuate: "退避中"
+    regenerate: "再生成中"
+    verify: "検証中"
+    complete: "完了"
+    failed: "失敗"
+    interrupted: "中断"

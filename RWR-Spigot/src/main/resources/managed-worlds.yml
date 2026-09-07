@@ -1,0 +1,6 @@
+# Managed by ResourceWorldResetter. Use /rwr gui to configure resource worlds.
+managed-worlds-version: 1
+
+worlds: {}
+
+teleport-worlds: {}

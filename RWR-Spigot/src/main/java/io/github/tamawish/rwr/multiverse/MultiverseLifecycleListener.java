@@ -15,59 +15,81 @@ import org.mvplugins.multiverse.core.event.world.MVWorldRemovedEvent;
 import org.mvplugins.multiverse.core.event.world.MVWorldUnloadedEvent;
 import org.mvplugins.multiverse.core.world.MultiverseWorld;
 
+/** Reconciles RWR configuration with Multiverse world lifecycle events. */
 public final class MultiverseLifecycleListener implements Listener {
-    private final ConfigService configService;
-    private final WorldProvider gateway;
-    private final Logger logger;
+  private final ConfigService configService;
+  private final WorldProvider gateway;
+  private final Logger logger;
 
-    public MultiverseLifecycleListener(
-            ConfigService configService,
-            WorldProvider gateway,
-            Logger logger) {
-        this.configService = configService;
-        this.gateway = gateway;
-        this.logger = logger;
-    }
+  /**
+   * Creates a listener that reconciles RWR state with Multiverse lifecycle events.
+   *
+   * @param configService active configuration service
+   * @param gateway Multiverse-backed world provider
+   * @param logger destination for reconciliation diagnostics
+   */
+  public MultiverseLifecycleListener(
+      ConfigService configService, WorldProvider gateway, Logger logger) {
+    this.configService = configService;
+    this.gateway = gateway;
+    this.logger = logger;
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldCreated(MVWorldCreatedEvent event) {
-        reconcile("created", event.getWorld());
-    }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onWorldCreated(MVWorldCreatedEvent event) {
+    reconcile("created", event.getWorld());
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldImported(MVWorldImportedEvent event) {
-        reconcile("imported", event.getWorld());
-    }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onWorldImported(MVWorldImportedEvent event) {
+    reconcile("imported", event.getWorld());
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldLoaded(MVWorldLoadedEvent event) {
-        reconcile("loaded", event.getWorld());
-    }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onWorldLoaded(MVWorldLoadedEvent event) {
+    reconcile("loaded", event.getWorld());
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldUnloaded(MVWorldUnloadedEvent event) {
-        reconcile("unloaded", event.getWorld());
-    }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onWorldUnloaded(MVWorldUnloadedEvent event) {
+    reconcile("unloaded", event.getWorld());
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldRemoved(MVWorldRemovedEvent event) {
-        reconcile("removed", event.getWorld());
-    }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onWorldRemoved(MVWorldRemovedEvent event) {
+    reconcile("removed", event.getWorld());
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldRegenerated(MVWorldRegeneratedEvent event) {
-        reconcile("regenerated", event.getWorld());
-    }
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onWorldRegenerated(MVWorldRegeneratedEvent event) {
+    reconcile("regenerated", event.getWorld());
+  }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldPropertyChanged(MVWorldPropertyChangedEvent<?> event) {
-        logger.fine(() -> "Observed Multiverse world property change: "
-                + event.getWorld().getName() + "." + event.getName());
-    }
+  /**
+   * Records property changes observed from Multiverse.
+   *
+   * @param event Multiverse property-change event
+   */
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onWorldPropertyChanged(MVWorldPropertyChangedEvent<?> event) {
+    logger.fine(
+        () ->
+            "Observed Multiverse world property change: "
+                + event.getWorld().getName()
+                + "."
+                + event.getName());
+  }
 
-    private void reconcile(String action, MultiverseWorld world) {
-        ConfigService.ReconciliationResult result = configService.reconcileWorldStates(gateway);
-        logger.fine(() -> "Observed Multiverse world " + action + ": " + world.getName()
-                + "; reconciled " + result.changedWorlds() + " RWR state(s) in memory.");
-    }
+  private void reconcile(String action, MultiverseWorld world) {
+    ConfigService.ReconciliationResult result = configService.reconcileWorldStates(gateway);
+    logger.fine(
+        () ->
+            "Observed Multiverse world "
+                + action
+                + ": "
+                + world.getName()
+                + "; reconciled "
+                + result.changedWorlds()
+                + " RWR state(s) in memory.");
+  }
 }

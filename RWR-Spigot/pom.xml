@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.github.tamawish</groupId>
         <artifactId>resource-world-resetter-parent</artifactId>
-        <version>5.1.0</version>
+        <version>5.2.0-beta.1</version>
     </parent>
 
     <artifactId>resource-world-resetter</artifactId>
@@ -95,7 +95,7 @@
     </dependencies>
 
     <build>
-        <finalName>RWR-Spigot-5.1.0</finalName>
+        <finalName>RWR-Spigot-${project.version}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -162,6 +162,7 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/versions/**</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

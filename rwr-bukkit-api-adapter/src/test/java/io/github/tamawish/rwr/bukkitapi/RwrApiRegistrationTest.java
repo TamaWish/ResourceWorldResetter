@@ -13,18 +13,18 @@ import org.bukkit.plugin.ServicesManager;
 import org.junit.jupiter.api.Test;
 
 class RwrApiRegistrationTest {
-    @Test
-    void registersAndUnregistersTheExactServiceOnce() {
-        Server server = mock(Server.class);
-        ServicesManager services = mock(ServicesManager.class);
-        Plugin plugin = mock(Plugin.class);
-        RwrApi api = mock(RwrApi.class);
-        when(server.getServicesManager()).thenReturn(services);
+  @Test
+  void registersAndUnregistersTheExactServiceOnce() {
+    Server server = mock(Server.class);
+    ServicesManager services = mock(ServicesManager.class);
+    Plugin plugin = mock(Plugin.class);
+    RwrApi api = mock(RwrApi.class);
+    when(server.getServicesManager()).thenReturn(services);
 
-        RwrApiRegistration registration = RwrApiRegistration.register(server, plugin, api);
-        verify(services).register(RwrApi.class, api, plugin, ServicePriority.Normal);
-        registration.close();
-        registration.close();
-        verify(services, times(1)).unregister(RwrApi.class, api);
-    }
+    RwrApiRegistration registration = RwrApiRegistration.register(server, plugin, api);
+    verify(services).register(RwrApi.class, api, plugin, ServicePriority.Normal);
+    registration.close();
+    registration.close();
+    verify(services, times(1)).unregister(RwrApi.class, api);
+  }
 }

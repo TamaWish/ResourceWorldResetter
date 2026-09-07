@@ -6,9 +6,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class RwrCommandTest {
-    @Test
-    void completionIsCaseInsensitiveSortedAndPrefixBounded() {
-        assertThat(RwrCommand.matching("R", List.of("status", "reload", "reset", "gui")))
-                .containsExactly("reload", "reset");
-    }
+  @Test
+  void completionIsCaseInsensitiveSortedAndPrefixBounded() {
+    assertThat(RwrCommand.matching("R", List.of("status", "reload", "reset", "gui")))
+        .containsExactly("reload", "reset");
+  }
 }

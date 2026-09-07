@@ -1,3 +1,13 @@
+# =============================================================================
+# ResourceWorldResetter Plugin Descriptor — Spigot / CraftBukkit
+# =============================================================================
+# Declares plugin metadata, the root command, and Bukkit permissions.
+# =============================================================================
+
+# =============================================================================
+# Plugin Metadata
+# =============================================================================
+
 name: ResourceWorldResetter
 version: '${project.version}'
 main: io.github.tamawish.rwr.ResourceWorldResetterPlugin
@@ -6,10 +16,20 @@ load: POSTWORLD
 authors: [Lozaine]
 description: ResourceWorldResetter 5 for Spigot and CraftBukkit using Multiverse-Core
 softdepend: [Multiverse-Core]
+
+# =============================================================================
+# Commands
+# =============================================================================
+
 commands:
   rwr:
     description: ResourceWorldResetter commands
     usage: /rwr help
+
+# =============================================================================
+# Permissions
+# =============================================================================
+
 permissions:
   rwr.admin:
     description: Allows use of the v5 administration GUI

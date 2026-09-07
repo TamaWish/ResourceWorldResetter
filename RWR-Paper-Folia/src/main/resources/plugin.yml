@@ -1,3 +1,13 @@
+# =============================================================================
+# ResourceWorldResetter Plugin Descriptor — Paper / Purpur / Folia
+# =============================================================================
+# Declares plugin metadata, the root command, and Bukkit permissions.
+# =============================================================================
+
+# =============================================================================
+# Plugin Metadata
+# =============================================================================
+
 name: ResourceWorldResetter-Paper-Folia
 version: '${project.version}'
 main: io.github.tamawish.rwr.ResourceWorldResetterPlugin
@@ -9,11 +19,19 @@ authors: [Lozaine]
 description: ResourceWorldResetter 5 for Paper, Purpur, and Folia using TheNextLvl Worlds
 website: https://github.com/TamaWish/ResourceWorldResetter
 
+# =============================================================================
+# Commands
+# =============================================================================
+
 commands:
   rwr:
     description: ResourceWorldResetter root command
     usage: /rwr help
     aliases: [resourceworldresetter, rwreset]
+
+# =============================================================================
+# Permissions
+# =============================================================================
 
 permissions:
   rwr.admin:

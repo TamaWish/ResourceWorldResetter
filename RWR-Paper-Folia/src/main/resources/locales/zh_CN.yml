@@ -1,0 +1,352 @@
+# =============================================================================
+# ResourceWorldResetter 简体中文本地化（Paper / Purpur / Folia）
+# =============================================================================
+# 默认 + 回退语言文件。复制本文件以添加其他翻译。
+# 支持 MiniMessage。运行时占位符使用 <name> 形式。
+# 请保持标签名称不变；周围文本和颜色可以翻译。
+# 仍接受旧版 &-颜色码和 %placeholders%，加载时会自动转换。
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 前缀
+# -----------------------------------------------------------------------------
+prefix: "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> "
+
+# -----------------------------------------------------------------------------
+# 命令
+# -----------------------------------------------------------------------------
+command:
+  # 通用命令响应。
+  no-permission: "<prefix><red>你没有权限：<permission>"
+  player-only: "<prefix><red><feature> 只能由玩家使用。"
+  unknown: "<prefix><red>未知命令。请使用 /rwr help。"
+  no-worlds: "<prefix><gray>尚未配置任何重置世界。"
+
+  # 帮助列表。
+  help-header: "<prefix><yellow>可用命令："
+  help-entry: "<gray><usage> <dark_gray>- <white><description>"
+
+  # 重载与语言文件保留。
+  reload-success: "<prefix><green>配置与语言文件已重载。活动世界数：<count>。"
+  reload-failed: "<prefix><red>重载被拒绝；<retention>"
+  locale-reload-failed: "<prefix><red>语言文件重载被拒绝；仍使用先前有效的语言文件。"
+  issue: "<red> - <issue>"
+
+  # 受保护重置。
+  reset-start: "<prefix><yellow>正在为 <white><world> <dark_gray>（ID：<world_id>）<yellow> 开始受保护重置。"
+  reset-success: "<prefix><green>重置完成 [操作=<operation>]：<message>"
+  reset-failed: "<prefix><red>重置失败 [<failure>，安全=<safety>，操作=<operation>]：<message>"
+
+  # 重置历史。
+  history-count: "<prefix><red>历史条目数量必须是 1 到 50 之间的整数。"
+  history-empty: "<prefix><gray>重置历史为空。"
+  history-header: "<prefix><gold>最近重置历史 <dark_gray>（<gray><count> 条<dark_gray>）"
+  history-entry: "<gold><world> <dark_gray>（<gray>ID：<world_id><dark_gray>） <white>— <phase>"
+  history-time: "  <gray>完成时间：<white><completed> <dark_gray>| <gray>操作：<white><operation>"
+  history-detail: "  <gray>结果：<white><result> <dark_gray>— <gray><message>"
+
+  # 状态列表。
+  status-header: "<prefix><gold><world> <dark_gray>（<gray>ID：<world_id><dark_gray>）"
+  status-state: "  <gray>状态：<white><phase> <dark_gray>| <gray>提供方世界：<white><world>"
+  status-schedule: "  <gray>下次重置：<white><next>"
+  status-operation: "  <gray>操作：<white><operation> <dark_gray>— <gray><message>"
+
+  # 帮助描述。description 之后的键与 /rwr 子命令对应。
+  description:
+    help: "显示此帮助"
+    status: "显示重置状态"
+    gui: "打开管理界面"
+    tp: "打开传送界面"
+    reset: "请求一次受保护重置"
+    history: "显示重置历史"
+    reload: "重载配置与语言文件"
+    version: "显示已安装与最新的 RWR 版本"
+    discord: "管理 Discord Webhook 扩展"
+    placeholder: "管理 PlaceholderAPI 扩展"
+  feature:
+    admin-gui: "管理界面"
+    teleport-gui: "传送界面"
+  retention:
+    previous: "仍使用先前有效的配置。"
+    none: "当前没有有效配置。"
+
+# -----------------------------------------------------------------------------
+# 更新检查器
+# -----------------------------------------------------------------------------
+update:
+  # 玩家与命令响应。
+  checking: "<prefix><yellow>正在检查 GitHub Releases 更新..."
+  current: "<prefix><green>RWR <installed> 已是最新版本。"
+  available: "<prefix><gold>发现更新：<installed> → <latest>。<aqua><url>"
+  failed: "<prefix><gray>当前无法检查更新；RWR 将继续正常运行。"
+  disabled: "<prefix><gray>已禁用 GitHub 更新检查。"
+
+teleport:
+  not-configured: "该目的地已禁用或不再存在于配置中。"
+  no-permission: "你没有传送至该目的地的权限。"
+  unavailable: "该 Worlds 世界当前未加载。"
+  resetting: "该世界当前正在重置。"
+  safe-unavailable: "当前没有可用的安全目的地。"
+  reset-started: "世界已开始重置，传送已取消。"
+  failed: "传送失败。"
+  rejected: "服务器拒绝了本次传送。"
+  success: "已传送至 <world>。"
+
+# -----------------------------------------------------------------------------
+# 玩家通知
+# -----------------------------------------------------------------------------
+notification:
+  warning: "<prefix><yellow><world> 将在 <remaining> 后重置。"
+  reset-complete: "<prefix><green><world> 已成功完成重置。"
+  reset-failed: "<prefix><red><world> 重置失败：<failure>。"
+
+# -----------------------------------------------------------------------------
+# GUI
+# -----------------------------------------------------------------------------
+gui:
+  # 操作结果与基于聊天的 GUI 输入。
+  success: "<prefix><green><message>"
+  failure: "<prefix><red><message>"
+  world-saved: "<prefix><green>世界配置已保存。"
+  world-removed: "<prefix><green>世界配置已移除。"
+  world-added: "<prefix><green>世界配置已添加。"
+  timezone-saved: "<prefix><green>时区已更新。"
+  hub-saved: "<prefix><green>默认中心已更新。"
+  reset-policy-saved: "<prefix><green>重置策略已更新。"
+  teleport-override-removed: "<prefix><green>传送覆盖已移除，现已应用发现默认值。"
+  edit-rejected: "<prefix><red>编辑被拒绝；仍使用先前有效的配置。"
+  issue: "<red> - <issue>"
+  input-prompt: "<prefix><yellow>请在 30 秒内于聊天中输入值，或输入“取消”。"
+  input-cancel-keyword: "取消"
+  input-timeout: "<prefix><red>输入已超时。"
+  input-cancelled: "<prefix><gray>已取消输入。"
+  reload-success: "<prefix><green>配置已重载，界面值与计划均已刷新。"
+  reload-failed: "<prefix><red>重载被拒绝；仍使用先前有效的配置。"
+  world-saved-plain: "世界配置已保存。"
+  teleport-defaults-saved: "传送默认值已保存。"
+  teleport-destination-saved: "传送目的地已保存。"
+  common:
+    back: "返回"
+    cancel: "取消"
+    close: "关闭"
+    previous-page: "上一页"
+    next-page: "下一页"
+    page: "第 <page> 页"
+    page-of: "第 <page>/<pages> 页"
+    id: "ID：<id>"
+    world-key: "Worlds 键：<world>"
+    state: "状态：<state>"
+    status: "状态：<status>"
+    next: "下次：<next>"
+    requires-confirmation: "需要确认"
+  teleport:
+    title: "RWR 世界 <page>/<pages>"
+    world: "世界：<world>"
+    players: "玩家数：<count>"
+    permission: "权限：<permission>"
+    state:
+      available: "可用 — 点击传送"
+      locked: "已锁定 — 需要权限"
+      unavailable: "不可用 — 世界未加载"
+      resetting: "不可用 — 正在重置"
+  admin:
+    dashboard-title: "RWR 5 管理 - 控制面板"
+    managed-worlds: "托管世界"
+    configured-count: "已配置 <count> 个世界"
+    entries-order: "条目从左至右排列"
+    click-configure: "点击配置"
+    add-world: "添加托管世界"
+    add-world-description: "仅添加 RWR 配置。"
+    global-settings: "全局设置"
+    teleport-admin: "传送管理"
+    reset-history: "重置历史"
+    reload: "重载配置"
+    reload-description: "安全地重载并重新安排计划。"
+    add-title: "RWR 5 - 添加 Worlds 世界"
+    rwr-status: "RWR：<status>"
+    click-add: "点击仅添加 RWR 配置"
+    cannot-select: "无法选择"
+    world-title: "RWR 5 - <world>"
+  input:
+    display-name: "世界显示名称"
+    schedule-time: "计划时间 (HH:mm)"
+    month-day: "每月日期 (1-31)"
+    interval: "间隔分钟数"
+    warnings: "警告分钟数：30,10,5,1"
+    fixed-seed: "固定种子"
+    evacuation: "疏散目的地 Worlds 键"
+    timezone: "IANA 时区"
+    hub: "默认中心 Worlds 键"
+    retries: "安全重试次数"
+    retry-delay: "重试延迟秒数"
+    permission: "权限（输入 none 清除）"
+  field:
+    display-name: "显示名称"
+    evacuation: "疏散目的地"
+    hub: "默认中心"
+  error:
+    evacuation-self: "世界不能疏散至自身。"
+    timezone: "未知的 IANA 时区。"
+    world-missing: "该 RWR 配置已不存在。"
+    action-unavailable: "该操作已不安全或不可用。"
+    reset-blocked: "保存的世界受保护、已禁用或不可用，重置被阻止。"
+    whole-number: "请输入有效整数。"
+    time-format: "请输入 HH:mm 格式的有效 24 小时时间。"
+    range: "请输入 <minimum> 至 <maximum> 之间的值。"
+    world-changed: "世界配置已更改，请重新打开界面。"
+    registered-world: "<field>必须指定已注册的 Worlds 世界。"
+    blank: "<field>不能为空。"
+    warnings: "警告分钟数必须是以逗号分隔的正整数。"
+  world:
+    display-name: "显示名称"
+    scheduling: "启用计划"
+    schedule-type: "计划类型"
+    time: "时间"
+    time-description: "用于每日/每周/每月计划"
+    weekday: "星期"
+    month-day: "每月日期"
+    interval: "间隔分钟数"
+    warnings: "警告分钟数"
+    warnings-description: "重置前的完整分钟数"
+    warnings-example: "示例：30,10,5,1"
+    warnings-disable: "输入 none 以禁用"
+    seed-policy: "种子策略"
+    fixed-seed: "固定种子"
+    keep-config: "保留 Worlds 配置"
+    keep-gamerules: "保留游戏规则"
+    keep-border: "保留世界边界"
+    evacuate: "疏散玩家"
+    evacuation-destination: "疏散目的地"
+    failure-policy: "失败策略（全局）"
+    safe-retries: "安全重试：<count>"
+    retry-delay: "重试延迟：<seconds> 秒"
+    edit-global: "点击编辑全局策略"
+    reset-now: "立即重置"
+    blocked: "已阻止：<state>"
+    remove: "移除 RWR 配置"
+    remove-description: "不会删除 Worlds 世界"
+  global:
+    title: "RWR 5 - 全局设置"
+    timezone: "时区"
+    timezone-description: "使用 IANA ZoneId"
+    hub: "默认受保护中心"
+    hub-description: "不能设为 RWR 托管世界"
+    retries: "最大安全重试次数"
+    retry-delay: "重试延迟秒数"
+    broadcast: "广播完成消息"
+    auto-discovery: "自动发现传送目的地"
+    discovered-enabled: "默认启用发现的世界"
+    show-locked: "显示锁定的目的地"
+  teleport-admin:
+    title: "RWR 5 - 传送管理"
+    explicit: "显式覆盖"
+    discovery: "发现默认值"
+    auto-discover: "自动发现"
+    default-enabled: "默认启用"
+    show-locked: "显示锁定项"
+    world-title: "RWR 传送 - <world>"
+    destination-enabled: "启用目的地"
+    shared-name: "共享显示名称"
+    shared-name-description: "请在托管世界控制面板中编辑"
+    permission: "权限"
+    permission-clear: "输入 none 清除"
+    use-defaults: "使用发现默认值"
+    use-defaults-description: "仅移除此传送覆盖"
+    orphaned: "孤立覆盖"
+    orphaned-description: "世界未在 Worlds 中注册"
+    orphaned-action: "你可以编辑或移除此 RWR 条目"
+  history:
+    title: "RWR 5 - 重置历史"
+    completed: "完成时间：<time>"
+    result: "结果：<result>"
+    failure: "失败：<failure>"
+  confirm:
+    reset-title: "确认受保护重置"
+    remove-title: "确认移除 RWR 配置"
+    reset-description: "运行受保护重置流程"
+    reset-protected: "受保护世界无法进入此界面"
+    remove-description: "仅移除 RWR 配置"
+    remove-keeps-world: "Worlds 世界仍会保持注册"
+    remove-no-delete: "RWR 不会在此删除世界"
+    confirm-reset: "确认：立即重置"
+    confirm-remove: "确认：移除 RWR 配置"
+
+# -----------------------------------------------------------------------------
+# 控制台日志消息
+# -----------------------------------------------------------------------------
+log:
+  update-available: "[RWR] [INFO] 发现更新：<installed> -> <latest>。发布页：<url>"
+  update-failed: "[RWR] [WARN] 更新检查失败：<reason>"
+
+value:
+  none: "无"
+  idle: "空闲"
+  not-scheduled: "未计划"
+  unavailable: "不可用"
+  loaded: "已加载"
+  unloaded: "未加载"
+  unloaded-or-orphaned: "未加载/孤立"
+  available: "可用"
+  protected: "受保护"
+  already-configured: "已配置"
+  enabled: "已启用"
+  disabled: "已禁用"
+  successful: "成功"
+  now: "即将"
+  duration-hours: "<count> 小时"
+  duration-minutes: "<count> 分钟"
+  state:
+    managed: "托管中"
+    disabled: "已禁用"
+    protected: "受保护"
+    orphaned: "孤立"
+  schedule:
+    daily: "每日"
+    weekly: "每周"
+    monthly: "每月"
+    interval: "按间隔"
+  seed:
+    same: "保持相同种子"
+    random: "随机"
+    fixed: "固定"
+  weekday:
+    monday: "星期一"
+    tuesday: "星期二"
+    wednesday: "星期三"
+    thursday: "星期四"
+    friday: "星期五"
+    saturday: "星期六"
+    sunday: "星期日"
+  safety:
+    safe_to_retry: "可安全重试"
+    ambiguous_review_required: "需要检查"
+    not_retryable: "不可重试"
+  failure:
+    unknown_world_id: "未知世界 ID"
+    world_not_managed: "世界未托管"
+    world_busy: "世界忙碌"
+    global_reset_busy: "其他重置正在进行"
+    event_cancelled: "事件已取消"
+    world_not_registered: "世界未注册"
+    world_not_loaded: "世界未加载"
+    world_identity_changed: "世界标识已更改"
+    evacuation_disabled: "疏散已禁用"
+    evacuation_destination_unavailable: "疏散目的地不可用"
+    evacuation_failed: "疏散失败"
+    players_remaining: "仍有玩家留在世界中"
+    multiverse_rejected: "Worlds 拒绝重置"
+    multiverse_delete_failed: "Worlds 删除失败"
+    multiverse_create_failed: "Worlds 创建失败"
+    multiverse_api_exception: "Worlds API 错误"
+    verification_failed: "验证失败"
+    journal_unavailable: "安全日志不可用"
+    interrupted_operation: "操作已中断"
+  phase:
+    idle: "空闲"
+    precheck: "预检查"
+    evacuate: "疏散中"
+    regenerate: "重新生成中"
+    verify: "验证中"
+    complete: "完成"
+    failed: "失败"
+    interrupted: "已中断"

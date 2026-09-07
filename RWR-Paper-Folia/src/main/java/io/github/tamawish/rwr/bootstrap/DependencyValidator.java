@@ -3,51 +3,64 @@ package io.github.tamawish.rwr.bootstrap;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
+/** Validates that the required Worlds plugin is enabled and API-compatible. */
 public final class DependencyValidator {
-    public static final PluginVersion MINIMUM_WORLDS_VERSION = new PluginVersion(4, 4, 0);
-    public static final String DOWNLOAD_URL = "https://modrinth.com/plugin/worlds-1";
+  public static final PluginVersion MINIMUM_WORLDS_VERSION = new PluginVersion(4, 4, 0);
+  public static final String DOWNLOAD_URL = "https://modrinth.com/plugin/worlds-1";
 
-    private final PluginManager pluginManager;
+  private final PluginManager pluginManager;
 
-    public DependencyValidator(PluginManager pluginManager) {
-        this.pluginManager = pluginManager;
+  public DependencyValidator(PluginManager pluginManager) {
+    this.pluginManager = pluginManager;
+  }
+
+  /**
+   * Validates the installed Worlds plugin.
+   *
+   * @return compatibility result with the installed version when available
+   */
+  public ValidationResult validate() {
+    Plugin worlds = pluginManager.getPlugin("Worlds");
+    if (worlds == null || !worlds.isEnabled()) {
+      return ValidationResult.failure("Worlds (TheNextLvl) is required and must be enabled first.");
+    }
+    return validateVersion(pluginVersion(worlds));
+  }
+
+  static ValidationResult validateVersion(String version) {
+    PluginVersion installed;
+    try {
+      installed = PluginVersion.parse(version);
+    } catch (IllegalArgumentException exception) {
+      return ValidationResult.failure("Cannot parse the installed Worlds version: " + version);
+    }
+    if (installed.compareTo(MINIMUM_WORLDS_VERSION) < 0) {
+      return ValidationResult.failure(
+          "Worlds " + MINIMUM_WORLDS_VERSION + " or newer is required; found " + installed + '.');
+    }
+    return ValidationResult.success(installed);
+  }
+
+  @SuppressWarnings("deprecation")
+  private static String pluginVersion(Plugin plugin) {
+    return plugin.getDescription().getVersion();
+  }
+
+  /**
+   * Result of validating the Worlds dependency.
+   *
+   * @param compatible whether the installed plugin is supported
+   * @param installedVersion parsed installed version, or {@code null} when unavailable
+   * @param message diagnostic result message
+   */
+  public record ValidationResult(
+      boolean compatible, PluginVersion installedVersion, String message) {
+    static ValidationResult success(PluginVersion version) {
+      return new ValidationResult(true, version, "compatible");
     }
 
-    public ValidationResult validate() {
-        Plugin worlds = pluginManager.getPlugin("Worlds");
-        if (worlds == null || !worlds.isEnabled()) {
-            return ValidationResult.failure(
-                    "Worlds (TheNextLvl) is required and must be enabled first.");
-        }
-        return validateVersion(pluginVersion(worlds));
+    static ValidationResult failure(String message) {
+      return new ValidationResult(false, null, message);
     }
-
-    static ValidationResult validateVersion(String version) {
-        PluginVersion installed;
-        try {
-            installed = PluginVersion.parse(version);
-        } catch (IllegalArgumentException exception) {
-            return ValidationResult.failure("Cannot parse the installed Worlds version: " + version);
-        }
-        if (installed.compareTo(MINIMUM_WORLDS_VERSION) < 0) {
-            return ValidationResult.failure(
-                    "Worlds " + MINIMUM_WORLDS_VERSION + " or newer is required; found " + installed + '.');
-        }
-        return ValidationResult.success(installed);
-    }
-
-    @SuppressWarnings("deprecation")
-    private static String pluginVersion(Plugin plugin) {
-        return plugin.getDescription().getVersion();
-    }
-
-    public record ValidationResult(boolean compatible, PluginVersion installedVersion, String message) {
-        static ValidationResult success(PluginVersion version) {
-            return new ValidationResult(true, version, "compatible");
-        }
-
-        static ValidationResult failure(String message) {
-            return new ValidationResult(false, null, message);
-        }
-    }
+  }
 }

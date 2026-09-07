@@ -24,6 +24,7 @@ debug-*.log
 /docs/dev/
 /OPERATIONS_AND_MIGRATION.md
 **/ROADMAP*.md
+!/ROADMAP.md
 **/docs/ROADMAP*.md
 **/docs/ROLLBACK*.md
 **/docs/*TEST_MATRIX*.md

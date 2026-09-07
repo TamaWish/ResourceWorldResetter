@@ -1,77 +1,155 @@
 # Changelog
 
-Public **v5** release history for ResourceWorldResetter. All **5.x.x** versions stay in this file. When v6 begins, start `CHANGELOG_v6.md`.
+All notable changes to this project are documented in this file.
 
-Legacy v4 history: [CHANGELOG_v4.md](CHANGELOG_v4.md)
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 5.1.0 — Public API integration (2026-09-02)
+## [Unreleased]
 
-- Added the stable read-only integration contract and bundled API 5.1.2 warning-event addition.
-- Added immutable managed-world and reset-status snapshots through Bukkit's `ServicesManager`.
-- Unified scheduled-warning, pre-reset, and post-reset events across both platform JARs.
-- Added one public warning event alongside each configured player warning that passes scheduler safety checks.
-- Added provider-neutral failure mappings across both platform JARs.
-- Kept the API embedded unrelocated so server owners do not install a separate API JAR.
-- Scoped 5.1.0 to API integration and warning events. Commands, locale files, fallback rules, and
-  complete localization are planned for 5.2.0.
-
-## 5.0.0 — Split-platform release
+Pre-release packages currently build as `5.2.0-beta.1`.
 
 ### Added
 
-- Separate production artifacts:
-  - `RWR-Spigot-5.0.0.jar` for Spigot/CraftBukkit with Multiverse-Core 5.8.0+.
-  - `RWR-Paper-Folia-5.0.0.jar` for Paper/Purpur/Folia with Worlds by TheNextLvl 4.4.0+.
-- Shared `rwr-core` reset coordinator, packaged inside both platform artifacts.
-- Stable world IDs, unified display names, and explicit platform world-provider identities.
-- Daily, weekly, monthly, and interval schedules with timezone-aware next-run calculations.
-- Whole-minute warning configuration and configurable countdown broadcasts.
-- Reset phases for precheck, evacuation, regeneration, verification, completion, failure, and interrupted recovery.
-- Persistent reset history and active-operation journaling.
-- Admin dashboard, world configuration, global settings, teleport administration, history, and confirmation screens.
-- Player teleport GUI with pagination, permissions, player counts, locked visibility, and reset-phase protection.
-- Cancellable pre-reset and terminal post-reset API events.
-- MiniMessage messages and relocated bStats integration.
+- Added `/rwr version` under `rwr.admin` with a cached, asynchronous GitHub Releases check.
+- Added configurable update checks with startup, online-administrator, and administrator-join notifications; RWR never downloads or installs updates.
+- Added server-wide locale selection from `locales/<locale>.yml` with bundled English, Simplified Chinese, Japanese, and Korean translations covering commands, notifications, GUIs, teleport outcomes, history values, and failure labels.
+- Added English fallback, missing-key diagnostics, and retention of the previous valid locale when a locale reload fails.
+- Added locale-aware chat cancel keywords for GUI text input.
+- Added a locale key-parity test so bundled translations stay aligned with English.
 
 ### Changed
 
-- RWR delegates the authoritative lifecycle operation to the selected world plugin. It does not own a direct unload/delete/create pipeline.
-- Paper/Purpur/Folia now use Worlds by TheNextLvl and do not use Multiverse-Core.
-- Spigot/CraftBukkit continue to use Multiverse-Core through the dedicated Spigot artifact.
-- `display-name` is the single presentation name used by chat, logs, notifications, status, history, and GUIs.
-- Warning values are stored as `warning-minutes`; sub-minute legacy warnings are not supported.
+- Moved GUI-managed resource-world definitions and per-world teleport overrides from `config.yml` to `managed-worlds.yml`; existing combined v5 configurations are imported automatically.
+- Changed message customization from `messages.yml` to locale files under `locales/`; copy existing custom messages into the selected locale when upgrading.
+- Fresh installs extract only `locales/en_US.yml` by default; other bundled locales are written to disk when selected in `config.yml` and the plugin reloads or restarts.
+- Fresh Paper/Folia installs set `default-hub-world` to the server default world instead of always writing `world`.
+- `/rwr reload` and the administration GUI reload now refresh configuration, locale, and update-checker settings together.
+- Manual `/rwr reset` and GUI resets no longer duplicate the global completion or failure broadcasts already shown to the initiating operator.
+- Incoming RWR teleports are blocked from `PRECHECK` onward and admitted atomically against reset locks so teleports cannot race into an evacuating or regenerating world.
+- Reset-history GUI entries use newest-first order and the configured timezone.
+- Changed world protection, evacuation checks, duplicate detection, and teleport overrides to use canonical provider identities, including namespaced Worlds keys.
+- Changed automatic scheduling to preserve active resets and operator-review pauses across configuration reloads and server restarts.
+- Improved teleport-menu catalog construction while continuing to revalidate permissions, availability, and reset state when a player clicks.
 
 ### Fixed
 
-- Paper reset deadlock caused by waiting for asynchronous teleports on the primary/global scheduler.
-- Folia global-region watchdog stalls caused by blocking on entity-region teleport futures.
-- Folia evacuation is now fully asynchronous; regeneration begins only after teleport completion and a remaining-player check.
-- Paper/Folia player GUI, teleport, command-completion, and administrator notification callbacks now run on the owning entity scheduler.
-- Paper/Folia Worlds regeneration now applies same, fixed, and random seed policies and honors level-configuration, gamerule, and world-border preservation settings.
-- Safe automatic failures now use the configured retry delay and maximum retry count; ambiguous and interrupted outcomes remain unscheduled for operator review.
-- Schedule listeners now refresh after lifecycle reconciliation changes.
-- Teleport overrides whose world names contain dots now round-trip through YAML without being split into nested paths.
-- Paper/Folia startup now rejects missing, unparseable, or older-than-4.4.0 Worlds installations.
-- Paper/Folia history and status output no longer labels the Worlds provider as Multiverse.
-- Spigot command output, reset countdown broadcasts, and server-log messages now use native Bukkit delivery and remain visible.
-- Paper/Folia reset and teleport GUI paths no longer synchronously wait on platform futures.
+- Fixed world-management GUI saves removing `locale`, update-checker settings, comments, and future extension keys by isolating generated world settings from `config.yml`.
+- Fixed concurrent manual reset requests or reloads displacing an active per-world reset.
+- Fixed immediate asynchronous regeneration exceptions being classified as safe to retry after the provider may have started work.
+- Fixed synchronous third-party reset-event failures interfering with reset completion and lock release.
+- Fixed Folia reset-command scheduling, namespaced Worlds lookup, and world-deletion matching.
+- Fixed locale rendering racing with locale reloads and restored bundled English defaults when user locale files omit keys.
+- Fixed stale on-disk locale files omitting newer keys by merging bundled JAR defaults before applying user overrides.
+- Fixed hardcoded English remaining in teleport outcomes, admin/player GUI labels, warning durations, status phases, and history result labels.
 
-### Commands
+## [5.1.0] - 2026-09-02
 
-- `/rwr status [id]` is the single command for current phase and next-schedule information.
+### Added
 
-### Release validation
+- Added a stable read-only Bukkit service exposing immutable managed-world and reset-status snapshots to add-ons.
+- Added scheduled-warning, cancellable pre-reset, and terminal post-reset integration events across both platform builds.
+- Bundled the public API in each platform JAR so server owners do not install a separate API plugin.
 
-- `mvn clean verify` passed across the complete reactor with **83 tests**: 59 core, 18 Spigot, and 6 Paper/Folia.
-- Live-tested the release artifact on Folia 26.1.2 build 8, Java 25, and Worlds 4.4.0.
-- Live-tested the same artifact on Paper 26.2 build 119, Java 25, and Worlds 4.4.0.
-- Verified clean startup, status/history, admin GUI, teleport GUI, and entity-scheduled completion messages.
-- Completed a supervised Worlds regeneration of `worlds_two`; independent verification passed, the same seed and a test world border were preserved, and the daily schedule was restored.
-- Completed a supervised Paper regeneration of `worlds_rainforest` with a player initially inside; evacuation, the same seed, the default world border, independent verification, and schedule restoration all passed.
-- No RWR exception, Folia thread-access violation, watchdog stall, or reset warning appeared during the test.
-- No RWR error, warning, exception, or thread-access failure appeared during the Paper test.
-- Purpur shares the validated Paper API path and is expected to be compatible, but was not separately exercised.
+### Changed
 
-### Migration warning
+- Isolated third-party lifecycle and warning-listener failures so they no longer suppress player warnings or reset cleanup.
+- Hardened bounded configuration and state loading, interrupted-operation recovery, Folia callback handling, and plugin shutdown.
 
-v4 configuration is not loaded automatically by v5. Back up the server, install exactly one matching platform artifact, and migrate values into a fresh `config-version: 5` configuration. See [Operations & Migration](docs/public/OPERATIONS_AND_MIGRATION.md).
+### Fixed
+
+- Fixed exceptional reset completion retaining locks, losing terminal history, skipping listener notification, or leaving schedules unsettled.
+
+## [5.0.0] - 2026-08-28
+
+### Breaking
+
+- Replaced the single legacy JAR with separate Spigot/CraftBukkit and Paper/Purpur/Folia artifacts.
+- Stopped loading version 4 configuration automatically; migrate settings into a fresh `config-version: 5` file before enabling resets.
+
+### Added
+
+- Added `RWR-Spigot-5.0.0.jar` for Spigot/CraftBukkit with Multiverse-Core 5.8.0 or newer.
+- Added `RWR-Paper-Folia-5.0.0.jar` for Paper, Purpur, and Folia with Worlds by TheNextLvl 4.4.0 or newer.
+- Added daily, weekly, monthly, and interval schedules with time-zone-aware next-run calculations.
+- Added whole-minute warning broadcasts through `warning-minutes`.
+- Added guarded reset phases for precheck, evacuation, regeneration, verification, completion, failure, and interrupted recovery.
+- Added persistent reset history and active-operation journaling without automatically replaying ambiguous interrupted resets.
+- Added administration screens for worlds, schedules, global settings, teleport destinations, history, and reset confirmation.
+- Added a paginated player teleport menu with destination permissions, player counts, locked visibility, and reset-phase protection.
+- Added cancellable pre-reset and terminal post-reset API events.
+- Added MiniMessage-based message customization.
+- Added bStats usage metrics to both platform artifacts; opt out with `enabled: false` in `plugins/bStats/config.yml`.
+
+### Changed
+
+- Delegated authoritative world regeneration to Multiverse-Core on Spigot/CraftBukkit and Worlds on Paper/Purpur/Folia instead of owning a direct unload/delete/create pipeline.
+- Changed Paper, Purpur, and Folia integration from Multiverse-Core to Worlds by TheNextLvl.
+- Changed chat, logs, notifications, status, history, and GUIs to use one configured `display-name`.
+- Changed warning configuration to whole-minute `warning-minutes`; sub-minute legacy warnings are unsupported.
+- Changed safe automatic failures to use the configured retry delay and retry limit while leaving ambiguous and interrupted outcomes paused for operator review.
+
+### Removed
+
+- Removed automatic loading of version 4 configuration.
+- Removed support for running one shared platform JAR across both Multiverse-Core and Worlds providers.
+
+### Fixed
+
+- Fixed Paper reset deadlocks caused by waiting for asynchronous teleports on the primary scheduler.
+- Fixed Folia watchdog stalls caused by blocking the global region while waiting for entity-region teleport futures.
+- Fixed Folia evacuation so regeneration starts only after asynchronous teleports finish and remaining players are checked.
+- Fixed Paper/Folia GUI, teleport, command-completion, and administrator-notification callbacks to run on the owning entity scheduler.
+- Fixed Worlds regeneration to apply same, fixed, and random seed policies and preserve configured level settings, gamerules, and world borders.
+- Fixed schedule listeners not refreshing after lifecycle reconciliation.
+- Fixed teleport overrides containing dots being split into nested YAML paths.
+- Fixed Paper/Folia startup accepting missing, unparseable, or older-than-4.4.0 Worlds installations.
+- Fixed Paper/Folia status and history identifying the Worlds provider as Multiverse.
+- Fixed Spigot command output, countdown broadcasts, and server-log messages being hidden by incompatible message delivery.
+
+## [4.2.1]
+
+### Fixed
+
+- Fixed GUI and command configuration changes being lost after restart or `/rwr reload`.
+- Fixed configuration reads and writes using an inactive Bukkit/Paper configuration instance.
+
+## [4.2.0]
+
+### Changed
+
+- Added compatibility with the 26.2 server line while retaining the version 4 API, commands, and configuration format.
+
+## [4.1.1]
+
+### Fixed
+
+- Fixed Paper dimension-backed world-folder resolution used by disk preflight, reset deletion, and history snapshots.
+- Added safety checks for save roots containing multiple dimensions.
+
+## [4.1.0]
+
+### Added
+
+- Added configurable TPS, player-count, and disk-space preflight gates.
+- Added dry-run resets, reset history, expanded status output, and multiple warning intervals.
+- Added administration GUI controls, improved reset logging, and interrupted-reset recovery.
+
+## [4.0.0]
+
+### Breaking
+
+- Replaced the previous command layout with the unified `/rwr` command tree and removed legacy command aliases.
+
+### Added
+
+- Added the unified `/rwr` command tree.
+- Added phase-aware persisted reset state.
+
+### Removed
+
+- Removed legacy command aliases; use the corresponding `/rwr` subcommands.
+
+[Unreleased]: https://github.com/TamaWish/ResourceWorldResetter/compare/v5.1.0...HEAD
+[5.1.0]: https://github.com/TamaWish/ResourceWorldResetter/compare/v5.0.0...v5.1.0
+[5.0.0]: https://github.com/TamaWish/ResourceWorldResetter/releases/tag/v5.0.0

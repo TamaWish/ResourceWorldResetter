@@ -1,0 +1,352 @@
+# =============================================================================
+# ResourceWorldResetter 한국어 로케일 (Paper / Purpur / Folia)
+# =============================================================================
+# 기본 + 대체 로케일입니다. 이 파일을 복사하여 번역을 추가하세요.
+# MiniMessage를 지원합니다. 런타임 플레이스홀더는 <name> 형식을 사용합니다.
+# 태그 이름은 변경하지 마세요. 주변 텍스트와 색상은 번역할 수 있습니다.
+# 레거시 &-코드와 %placeholders%도 로드 시 변환됩니다.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 접두사
+# -----------------------------------------------------------------------------
+prefix: "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> "
+
+# -----------------------------------------------------------------------------
+# 명령어
+# -----------------------------------------------------------------------------
+command:
+  # 일반 명령 응답.
+  no-permission: "<prefix><red>권한이 없습니다: <permission>"
+  player-only: "<prefix><red><feature> 은(는) 플레이어만 사용할 수 있습니다."
+  unknown: "<prefix><red>알 수 없는 명령입니다. /rwr help 를 사용하세요."
+  no-worlds: "<prefix><gray>설정된 리셋 월드가 없습니다."
+
+  # 도움말 목록.
+  help-header: "<prefix><yellow>사용 가능한 명령:"
+  help-entry: "<gray><usage> <dark_gray>- <white><description>"
+
+  # 리로드 및 로케일 유지.
+  reload-success: "<prefix><green>설정과 로케일을 다시 불러왔습니다. 활성 월드: <count>."
+  reload-failed: "<prefix><red>리로드가 거부되었습니다. <retention>"
+  locale-reload-failed: "<prefix><red>로케일 리로드가 거부되었습니다. 이전에 유효한 로케일을 계속 사용합니다."
+  issue: "<red> - <issue>"
+
+  # 보호된 리셋.
+  reset-start: "<prefix><yellow><white><world> <dark_gray>(ID: <world_id>)<yellow> 의 보호된 리셋을 시작합니다."
+  reset-success: "<prefix><green>리셋 완료 [작업=<operation>]: <message>"
+  reset-failed: "<prefix><red>리셋 실패 [<failure>, 안전=<safety>, 작업=<operation>]: <message>"
+
+  # 리셋 기록.
+  history-count: "<prefix><red>기록 개수는 1부터 50 사이의 정수여야 합니다."
+  history-empty: "<prefix><gray>리셋 기록이 비어 있습니다."
+  history-header: "<prefix><gold>최근 리셋 기록 <dark_gray>(<gray><count>개<dark_gray>)"
+  history-entry: "<gold><world> <dark_gray>(<gray>ID: <world_id><dark_gray>) <white>— <phase>"
+  history-time: "  <gray>완료: <white><completed> <dark_gray>| <gray>작업: <white><operation>"
+  history-detail: "  <gray>결과: <white><result> <dark_gray>— <gray><message>"
+
+  # 상태 목록.
+  status-header: "<prefix><gold><world> <dark_gray>(<gray>ID: <world_id><dark_gray>)"
+  status-state: "  <gray>상태: <white><phase> <dark_gray>| <gray>제공자 월드: <white><world>"
+  status-schedule: "  <gray>다음 리셋: <white><next>"
+  status-operation: "  <gray>작업: <white><operation> <dark_gray>— <gray><message>"
+
+  # 도움말 설명. description 이후 키는 /rwr 하위 명령과 일치합니다.
+  description:
+    help: "이 도움말 표시"
+    status: "리셋 상태 표시"
+    gui: "관리 GUI 열기"
+    tp: "텔레포트 GUI 열기"
+    reset: "보호된 리셋 요청"
+    history: "리셋 기록 표시"
+    reload: "설정과 로케일 다시 불러오기"
+    version: "설치된 RWR 버전과 최신 버전 표시"
+    discord: "Discord 웹훅 애드온 관리"
+    placeholder: "PlaceholderAPI 애드온 관리"
+  feature:
+    admin-gui: "관리 GUI"
+    teleport-gui: "텔레포트 GUI"
+  retention:
+    previous: "이전의 유효한 설정을 계속 사용합니다."
+    none: "활성 설정이 없습니다."
+
+# -----------------------------------------------------------------------------
+# 업데이트 검사기
+# -----------------------------------------------------------------------------
+update:
+  # 플레이어 및 명령 응답.
+  checking: "<prefix><yellow>GitHub Releases에서 업데이트를 확인하는 중..."
+  current: "<prefix><green>RWR <installed> 은(는) 최신 버전입니다."
+  available: "<prefix><gold>업데이트가 있습니다: <installed> → <latest>. <aqua><url>"
+  failed: "<prefix><gray>현재 업데이트 확인을 사용할 수 없습니다. RWR은 정상적으로 계속 작동합니다."
+  disabled: "<prefix><gray>GitHub 업데이트 확인이 비활성화되어 있습니다."
+
+teleport:
+  not-configured: "해당 목적지가 비활성화되었거나 더 이상 설정되어 있지 않습니다."
+  no-permission: "해당 목적지로 이동할 권한이 없습니다."
+  unavailable: "해당 Worlds 월드가 현재 로드되어 있지 않습니다."
+  resetting: "해당 월드는 현재 리셋 중입니다."
+  safe-unavailable: "현재 사용할 수 있는 안전한 목적지가 없습니다."
+  reset-started: "월드 리셋이 시작되어 텔레포트를 취소했습니다."
+  failed: "텔레포트에 실패했습니다."
+  rejected: "서버가 텔레포트를 거부했습니다."
+  success: "<world>(으)로 텔레포트했습니다."
+
+# -----------------------------------------------------------------------------
+# 플레이어 알림
+# -----------------------------------------------------------------------------
+notification:
+  warning: "<prefix><yellow><world> 이(가) <remaining> 후에 리셋됩니다."
+  reset-complete: "<prefix><green><world> 리셋이 성공적으로 완료되었습니다."
+  reset-failed: "<prefix><red><world> 리셋 실패: <failure>."
+
+# -----------------------------------------------------------------------------
+# GUI
+# -----------------------------------------------------------------------------
+gui:
+  # 작업 결과 및 채팅 기반 GUI 입력.
+  success: "<prefix><green><message>"
+  failure: "<prefix><red><message>"
+  world-saved: "<prefix><green>월드 설정을 저장했습니다."
+  world-removed: "<prefix><green>월드 설정을 제거했습니다."
+  world-added: "<prefix><green>월드 설정을 추가했습니다."
+  timezone-saved: "<prefix><green>시간대를 갱신했습니다."
+  hub-saved: "<prefix><green>기본 허브를 갱신했습니다."
+  reset-policy-saved: "<prefix><green>리셋 정책을 갱신했습니다."
+  teleport-override-removed: "<prefix><green>텔레포트 재정의를 제거하고 검색 기본값을 적용했습니다."
+  edit-rejected: "<prefix><red>편집이 거부되어 이전의 유효한 설정을 유지합니다."
+  issue: "<red> - <issue>"
+  input-prompt: "<prefix><yellow>30초 안에 채팅으로 값을 입력하거나 취소를 입력하세요."
+  input-cancel-keyword: "취소"
+  input-timeout: "<prefix><red>입력 시간이 초과되었습니다."
+  input-cancelled: "<prefix><gray>입력이 취소되었습니다."
+  reload-success: "<prefix><green>설정을 다시 불러오고 GUI 값과 일정을 갱신했습니다."
+  reload-failed: "<prefix><red>다시 불러오기가 거부되어 이전의 유효한 설정을 유지합니다."
+  world-saved-plain: "월드 설정을 저장했습니다."
+  teleport-defaults-saved: "텔레포트 기본값을 저장했습니다."
+  teleport-destination-saved: "텔레포트 목적지를 저장했습니다."
+  common:
+    back: "뒤로"
+    cancel: "취소"
+    close: "닫기"
+    previous-page: "이전 페이지"
+    next-page: "다음 페이지"
+    page: "<page>페이지"
+    page-of: "<page>/<pages>페이지"
+    id: "ID: <id>"
+    world-key: "Worlds 키: <world>"
+    state: "상태: <state>"
+    status: "상태: <status>"
+    next: "다음: <next>"
+    requires-confirmation: "확인이 필요합니다"
+  teleport:
+    title: "RWR 월드 <page>/<pages>"
+    world: "월드: <world>"
+    players: "플레이어: <count>"
+    permission: "권한: <permission>"
+    state:
+      available: "사용 가능 — 클릭하여 텔레포트"
+      locked: "잠김 — 권한 필요"
+      unavailable: "사용 불가 — 월드가 로드되지 않음"
+      resetting: "사용 불가 — 리셋 진행 중"
+  admin:
+    dashboard-title: "RWR 5 관리 - 대시보드"
+    managed-worlds: "관리 월드"
+    configured-count: "설정된 월드 <count>개"
+    entries-order: "항목은 왼쪽부터 표시됩니다"
+    click-configure: "클릭하여 설정"
+    add-world: "관리 월드 추가"
+    add-world-description: "RWR 설정만 추가합니다."
+    global-settings: "전역 설정"
+    teleport-admin: "텔레포트 관리"
+    reset-history: "리셋 기록"
+    reload: "설정 다시 불러오기"
+    reload-description: "안전하게 다시 불러오고 일정을 갱신합니다."
+    add-title: "RWR 5 - Worlds 월드 추가"
+    rwr-status: "RWR: <status>"
+    click-add: "클릭하여 RWR 설정만 추가"
+    cannot-select: "선택할 수 없음"
+    world-title: "RWR 5 - <world>"
+  input:
+    display-name: "월드 표시 이름"
+    schedule-time: "일정 시간 (HH:mm)"
+    month-day: "월의 날짜 (1-31)"
+    interval: "간격(분)"
+    warnings: "경고 시점(분): 30,10,5,1"
+    fixed-seed: "고정 시드"
+    evacuation: "대피 Worlds 키"
+    timezone: "IANA 시간대"
+    hub: "기본 허브 Worlds 키"
+    retries: "안전 재시도 횟수"
+    retry-delay: "재시도 지연(초)"
+    permission: "권한(none으로 제거)"
+  field:
+    display-name: "표시 이름"
+    evacuation: "대피 목적지"
+    hub: "기본 허브"
+  error:
+    evacuation-self: "같은 월드로 대피할 수 없습니다."
+    timezone: "알 수 없는 IANA 시간대입니다."
+    world-missing: "해당 RWR 설정이 더 이상 존재하지 않습니다."
+    action-unavailable: "해당 작업은 더 이상 안전하지 않거나 사용할 수 없습니다."
+    reset-blocked: "저장된 월드가 보호됨, 비활성화됨 또는 사용 불가 상태라 리셋할 수 없습니다."
+    whole-number: "유효한 정수를 입력하세요."
+    time-format: "HH:mm 형식의 유효한 24시간 시간을 입력하세요."
+    range: "<minimum>에서 <maximum> 사이의 값을 입력하세요."
+    world-changed: "월드 설정이 변경되었습니다. GUI를 다시 여세요."
+    registered-world: "<field>에 등록된 Worlds 월드를 지정해야 합니다."
+    blank: "<field>은(는) 비워 둘 수 없습니다."
+    warnings: "경고 시점은 양의 정수를 쉼표로 구분하여 입력하세요."
+  world:
+    display-name: "표시 이름"
+    scheduling: "일정 활성화"
+    schedule-type: "일정 유형"
+    time: "시간"
+    time-description: "매일/매주/매월 일정에 사용"
+    weekday: "요일"
+    month-day: "월의 날짜"
+    interval: "간격(분)"
+    warnings: "경고 시점(분)"
+    warnings-description: "리셋 전 남은 전체 분"
+    warnings-example: "예: 30,10,5,1"
+    warnings-disable: "비활성화하려면 none 입력"
+    seed-policy: "시드 정책"
+    fixed-seed: "고정 시드"
+    keep-config: "Worlds 설정 유지"
+    keep-gamerules: "게임 규칙 유지"
+    keep-border: "월드 경계 유지"
+    evacuate: "플레이어 대피"
+    evacuation-destination: "대피 목적지"
+    failure-policy: "실패 정책(전역)"
+    safe-retries: "안전 재시도: <count>"
+    retry-delay: "재시도 지연: <seconds>초"
+    edit-global: "클릭하여 전역 정책 편집"
+    reset-now: "지금 리셋"
+    blocked: "차단됨: <state>"
+    remove: "RWR 설정 제거"
+    remove-description: "Worlds 월드는 삭제하지 않습니다"
+  global:
+    title: "RWR 5 - 전역 설정"
+    timezone: "시간대"
+    timezone-description: "IANA ZoneId 사용"
+    hub: "기본 보호 허브"
+    hub-description: "RWR 관리 월드로 설정할 수 없음"
+    retries: "최대 안전 재시도"
+    retry-delay: "재시도 지연(초)"
+    broadcast: "완료 알림 전체 전송"
+    auto-discovery: "텔레포트 자동 검색"
+    discovered-enabled: "검색된 월드 기본 활성화"
+    show-locked: "잠긴 목적지 표시"
+  teleport-admin:
+    title: "RWR 5 - 텔레포트 관리"
+    explicit: "개별 재정의"
+    discovery: "검색 기본값"
+    auto-discover: "자동 검색"
+    default-enabled: "기본 활성화"
+    show-locked: "잠김 표시"
+    world-title: "RWR 텔레포트 - <world>"
+    destination-enabled: "목적지 활성화"
+    shared-name: "공유 표시 이름"
+    shared-name-description: "관리 월드 대시보드에서 편집"
+    permission: "권한"
+    permission-clear: "none으로 제거"
+    use-defaults: "검색 기본값 사용"
+    use-defaults-description: "이 텔레포트 재정의만 제거"
+    orphaned: "고립된 재정의"
+    orphaned-description: "월드가 Worlds에 등록되어 있지 않음"
+    orphaned-action: "이 RWR 항목을 편집하거나 제거할 수 있음"
+  history:
+    title: "RWR 5 - 리셋 기록"
+    completed: "완료: <time>"
+    result: "결과: <result>"
+    failure: "실패: <failure>"
+  confirm:
+    reset-title: "보호된 리셋 확인"
+    remove-title: "RWR 제거 확인"
+    reset-description: "보호된 리셋 절차를 실행합니다"
+    reset-protected: "보호 월드는 이 화면에 접근할 수 없습니다"
+    remove-description: "RWR 설정만 제거합니다"
+    remove-keeps-world: "Worlds 월드는 계속 등록된 상태입니다"
+    remove-no-delete: "RWR은 여기서 월드를 삭제하지 않습니다"
+    confirm-reset: "확인: 지금 리셋"
+    confirm-remove: "확인: RWR 설정 제거"
+
+# -----------------------------------------------------------------------------
+# 콘솔 로그 메시지
+# -----------------------------------------------------------------------------
+log:
+  update-available: "[RWR] [INFO] 업데이트 있음: <installed> -> <latest>. 릴리스: <url>"
+  update-failed: "[RWR] [WARN] 업데이트 확인 실패: <reason>"
+
+value:
+  none: "없음"
+  idle: "대기 중"
+  not-scheduled: "예약되지 않음"
+  unavailable: "사용 불가"
+  loaded: "로드됨"
+  unloaded: "로드되지 않음"
+  unloaded-or-orphaned: "로드되지 않음/고립됨"
+  available: "사용 가능"
+  protected: "보호됨"
+  already-configured: "이미 설정됨"
+  enabled: "활성화"
+  disabled: "비활성화"
+  successful: "성공"
+  now: "곧"
+  duration-hours: "<count>시간"
+  duration-minutes: "<count>분"
+  state:
+    managed: "관리 중"
+    disabled: "비활성화"
+    protected: "보호됨"
+    orphaned: "고립됨"
+  schedule:
+    daily: "매일"
+    weekly: "매주"
+    monthly: "매월"
+    interval: "일정 간격"
+  seed:
+    same: "동일 시드"
+    random: "무작위"
+    fixed: "고정"
+  weekday:
+    monday: "월요일"
+    tuesday: "화요일"
+    wednesday: "수요일"
+    thursday: "목요일"
+    friday: "금요일"
+    saturday: "토요일"
+    sunday: "일요일"
+  safety:
+    safe_to_retry: "안전하게 재시도 가능"
+    ambiguous_review_required: "검토 필요"
+    not_retryable: "재시도 불가"
+  failure:
+    unknown_world_id: "알 수 없는 월드 ID"
+    world_not_managed: "관리되지 않는 월드"
+    world_busy: "월드 사용 중"
+    global_reset_busy: "다른 리셋 진행 중"
+    event_cancelled: "이벤트로 취소됨"
+    world_not_registered: "월드가 등록되지 않음"
+    world_not_loaded: "월드가 로드되지 않음"
+    world_identity_changed: "월드 식별 정보 변경됨"
+    evacuation_disabled: "대피 비활성화"
+    evacuation_destination_unavailable: "대피 목적지 사용 불가"
+    evacuation_failed: "대피 실패"
+    players_remaining: "플레이어가 남아 있음"
+    multiverse_rejected: "Worlds가 리셋을 거부함"
+    multiverse_delete_failed: "Worlds 삭제 실패"
+    multiverse_create_failed: "Worlds 생성 실패"
+    multiverse_api_exception: "Worlds API 오류"
+    verification_failed: "검증 실패"
+    journal_unavailable: "안전 저널 사용 불가"
+    interrupted_operation: "작업 중단됨"
+  phase:
+    idle: "대기 중"
+    precheck: "사전 확인"
+    evacuate: "대피 중"
+    regenerate: "재생성 중"
+    verify: "검증 중"
+    complete: "완료"
+    failed: "실패"
+    interrupted: "중단됨"

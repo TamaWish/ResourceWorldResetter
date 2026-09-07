@@ -8,59 +8,54 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
 
+/** Calculates the next schedule occurrence using calendar-aware rules. */
 public final class NextRunCalculator {
-    public ZonedDateTime nextRun(
-            ScheduleSettings schedule,
-            ZoneId zone,
-            ZonedDateTime afterExclusive) {
-        ZonedDateTime after = afterExclusive.withZoneSameInstant(zone);
-        return switch (schedule.type()) {
-            case DAILY -> nextDaily(schedule, zone, after);
-            case WEEKLY -> nextWeekly(schedule, zone, after);
-            case MONTHLY -> nextMonthly(schedule, zone, after);
-            case INTERVAL -> after.plusMinutes(schedule.intervalMinutes());
-        };
-    }
+  /**
+   * Finds the first occurrence strictly after a given instant.
+   *
+   * @param schedule validated schedule definition
+   * @param zone timezone used for calendar calculations
+   * @param afterExclusive lower bound excluded from the result
+   * @return the first scheduled occurrence after the lower bound
+   */
+  public ZonedDateTime nextRun(
+      ScheduleSettings schedule, ZoneId zone, ZonedDateTime afterExclusive) {
+    ZonedDateTime after = afterExclusive.withZoneSameInstant(zone);
+    return switch (schedule.type()) {
+      case DAILY -> nextDaily(schedule, zone, after);
+      case WEEKLY -> nextWeekly(schedule, zone, after);
+      case MONTHLY -> nextMonthly(schedule, zone, after);
+      case INTERVAL -> after.plusMinutes(schedule.intervalMinutes());
+    };
+  }
 
-    private static ZonedDateTime nextDaily(
-            ScheduleSettings schedule,
-            ZoneId zone,
-            ZonedDateTime after) {
-        LocalDate date = after.toLocalDate();
-        ZonedDateTime candidate = at(date, schedule, zone);
-        return candidate.isAfter(after) ? candidate : at(date.plusDays(1), schedule, zone);
-    }
+  private static ZonedDateTime nextDaily(
+      ScheduleSettings schedule, ZoneId zone, ZonedDateTime after) {
+    LocalDate date = after.toLocalDate();
+    ZonedDateTime candidate = at(date, schedule, zone);
+    return candidate.isAfter(after) ? candidate : at(date.plusDays(1), schedule, zone);
+  }
 
-    private static ZonedDateTime nextWeekly(
-            ScheduleSettings schedule,
-            ZoneId zone,
-            ZonedDateTime after) {
-        LocalDate date = after.toLocalDate().with(TemporalAdjusters.nextOrSame(schedule.dayOfWeek()));
-        ZonedDateTime candidate = at(date, schedule, zone);
-        return candidate.isAfter(after) ? candidate : at(date.plusWeeks(1), schedule, zone);
-    }
+  private static ZonedDateTime nextWeekly(
+      ScheduleSettings schedule, ZoneId zone, ZonedDateTime after) {
+    LocalDate date = after.toLocalDate().with(TemporalAdjusters.nextOrSame(schedule.dayOfWeek()));
+    ZonedDateTime candidate = at(date, schedule, zone);
+    return candidate.isAfter(after) ? candidate : at(date.plusWeeks(1), schedule, zone);
+  }
 
-    private static ZonedDateTime nextMonthly(
-            ScheduleSettings schedule,
-            ZoneId zone,
-            ZonedDateTime after) {
-        YearMonth month = YearMonth.from(after);
-        ZonedDateTime candidate = at(month, schedule, zone);
-        return candidate.isAfter(after) ? candidate : at(month.plusMonths(1), schedule, zone);
-    }
+  private static ZonedDateTime nextMonthly(
+      ScheduleSettings schedule, ZoneId zone, ZonedDateTime after) {
+    YearMonth month = YearMonth.from(after);
+    ZonedDateTime candidate = at(month, schedule, zone);
+    return candidate.isAfter(after) ? candidate : at(month.plusMonths(1), schedule, zone);
+  }
 
-    private static ZonedDateTime at(
-            YearMonth month,
-            ScheduleSettings schedule,
-            ZoneId zone) {
-        int day = Math.min(schedule.dayOfMonth(), month.lengthOfMonth());
-        return at(month.atDay(day), schedule, zone);
-    }
+  private static ZonedDateTime at(YearMonth month, ScheduleSettings schedule, ZoneId zone) {
+    int day = Math.min(schedule.dayOfMonth(), month.lengthOfMonth());
+    return at(month.atDay(day), schedule, zone);
+  }
 
-    private static ZonedDateTime at(
-            LocalDate date,
-            ScheduleSettings schedule,
-            ZoneId zone) {
-        return LocalDateTime.of(date, schedule.time()).atZone(zone);
-    }
+  private static ZonedDateTime at(LocalDate date, ScheduleSettings schedule, ZoneId zone) {
+    return LocalDateTime.of(date, schedule.time()).atZone(zone);
+  }
 }
