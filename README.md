@@ -231,3 +231,5 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a change. Bug reports 
 ## License
 
 ResourceWorldResetter is licensed under the [BSD 3-Clause License](LICENSE).
+
+ResourceWorldResetter is developed and maintained solely by TamaWish.

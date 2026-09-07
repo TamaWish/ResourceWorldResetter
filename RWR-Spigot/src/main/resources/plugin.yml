@@ -13,7 +13,7 @@ version: '${project.version}'
 main: io.github.tamawish.rwr.ResourceWorldResetterPlugin
 api-version: '1.21'
 load: POSTWORLD
-authors: [Lozaine]
+authors: [TamaWish]
 description: ResourceWorldResetter 5 for Spigot and CraftBukkit using Multiverse-Core
 softdepend: [Multiverse-Core]
 
