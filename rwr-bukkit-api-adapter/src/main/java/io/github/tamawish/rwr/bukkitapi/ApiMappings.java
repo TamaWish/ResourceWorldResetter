@@ -72,13 +72,12 @@ final class ApiMappings {
           io.github.tamawish.rwr.api.model.ResetFailureType.EVACUATION_DESTINATION_UNAVAILABLE;
       case EVACUATION_FAILED -> io.github.tamawish.rwr.api.model.ResetFailureType.EVACUATION_FAILED;
       case PLAYERS_REMAINING -> io.github.tamawish.rwr.api.model.ResetFailureType.PLAYERS_REMAINING;
-      case MULTIVERSE_REJECTED ->
-          io.github.tamawish.rwr.api.model.ResetFailureType.PROVIDER_REJECTED;
-      case MULTIVERSE_DELETE_FAILED ->
+      case PROVIDER_REJECTED -> io.github.tamawish.rwr.api.model.ResetFailureType.PROVIDER_REJECTED;
+      case PROVIDER_DELETE_FAILED ->
           io.github.tamawish.rwr.api.model.ResetFailureType.WORLD_DELETE_FAILED;
-      case MULTIVERSE_CREATE_FAILED ->
+      case PROVIDER_CREATE_FAILED ->
           io.github.tamawish.rwr.api.model.ResetFailureType.WORLD_CREATE_FAILED;
-      case MULTIVERSE_API_EXCEPTION ->
+      case PROVIDER_API_EXCEPTION ->
           io.github.tamawish.rwr.api.model.ResetFailureType.PROVIDER_API_EXCEPTION;
       case VERIFICATION_FAILED ->
           io.github.tamawish.rwr.api.model.ResetFailureType.VERIFICATION_FAILED;

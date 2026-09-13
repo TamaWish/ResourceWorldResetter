@@ -26,4 +26,13 @@ public interface PlayerEvacuationService {
   }
 
   OptionalInt remainingPlayers(String sourceWorld);
+
+  /** Reads the remaining player count on the platform-appropriate execution context. */
+  default CompletionStage<OptionalInt> remainingPlayersAsync(String sourceWorld) {
+    try {
+      return CompletableFuture.completedFuture(remainingPlayers(sourceWorld));
+    } catch (RuntimeException exception) {
+      return CompletableFuture.failedFuture(exception);
+    }
+  }
 }

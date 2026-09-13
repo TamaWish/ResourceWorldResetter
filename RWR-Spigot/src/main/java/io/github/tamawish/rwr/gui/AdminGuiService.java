@@ -1,5 +1,9 @@
 package io.github.tamawish.rwr.gui;
 
+import io.github.tamawish.rwr.bootstrap.UpdateService;
+import io.github.tamawish.rwr.bukkitapi.DestinationCatalog;
+import io.github.tamawish.rwr.config.EvacuationDestination;
+import io.github.tamawish.rwr.config.EvacuationDestinationType;
 import io.github.tamawish.rwr.config.EvacuationSettings;
 import io.github.tamawish.rwr.config.ManagedWorldSettings;
 import io.github.tamawish.rwr.config.PluginSettings;
@@ -64,6 +68,8 @@ public final class AdminGuiService implements Listener {
   private final GuiConfigurationEditor editor;
   private final GuiInputService input;
   private final MessageService messages;
+  private final UpdateService updates;
+  private final DestinationCatalog destinations;
 
   /**
    * Creates the administrative GUI router.
@@ -75,6 +81,7 @@ public final class AdminGuiService implements Listener {
    * @param schedules reset schedule manager
    * @param input text-input service
    * @param messages localized message service
+   * @param updates update-check settings service
    */
   public AdminGuiService(
       JavaPlugin plugin,
@@ -83,7 +90,9 @@ public final class AdminGuiService implements Listener {
       ResetCoordinator resets,
       ScheduleManager schedules,
       GuiInputService input,
-      MessageService messages) {
+      MessageService messages,
+      UpdateService updates,
+      DestinationCatalog destinations) {
     this.plugin = plugin;
     this.configs = configs;
     this.gateway = gateway;
@@ -92,6 +101,8 @@ public final class AdminGuiService implements Listener {
     this.editor = new GuiConfigurationEditor(configs, gateway);
     this.input = input;
     this.messages = messages;
+    this.updates = updates;
+    this.destinations = destinations;
   }
 
   /**
@@ -122,7 +133,37 @@ public final class AdminGuiService implements Listener {
     }
     GuiAction action = holder.action(event.getRawSlot());
     if (action != null) {
-      route(player, action);
+      Runnable click =
+          () -> {
+            if (!player.isOnline()
+                || !player.hasPermission("rwr.admin")
+                || player.getOpenInventory().getTopInventory().getHolder() != holder) return;
+            if (holder instanceof EvacuationListHolder list
+                && action.type() == ActionType.EVACUATION_SELECT
+                && list.type != EvacuationDestinationType.LOCAL_WORLD) {
+              String target = action.value().split("\n", 3)[2];
+              boolean available =
+                  destinations
+                      .entries(
+                          configs.current(),
+                          list.type,
+                          evacuationSettings(list.id).typedDestination())
+                      .stream()
+                      .anyMatch(entry -> entry.name().equals(target) && entry.available());
+              if (!available) {
+                renderEvacuationList(
+                    player,
+                    list.selection,
+                    list.page,
+                    list.requestId,
+                    list.discovering,
+                    list.discoveryFailed);
+                return;
+              }
+            }
+            route(player, action);
+          };
+      plugin.getServer().getScheduler().runTask(plugin, click);
     }
   }
 
@@ -369,30 +410,44 @@ public final class AdminGuiService implements Listener {
                       null,
                       null,
                       null,
-                      new EvacuationSettings(
-                          !old.evacuation().enabled(), old.evacuation().destination())));
-      case EDIT_EVACUATION ->
+                      old.evacuation().withEnabled(!old.evacuation().enabled())));
+      case EDIT_EVACUATION -> openEvacuation(player, action.value());
+      case EVACUATION_LIST -> openEvacuationList(player, action.value(), action.number());
+      case EVACUATION_SELECT -> {
+        String[] parts = action.value().split("\n", 3);
+        setEvacuation(
+            player,
+            parts[0],
+            new EvacuationDestination(
+                EvacuationDestinationType.parse(parts[1]), parts.length > 2 ? parts[2] : ""));
+      }
+      case EVACUATION_MANUAL -> {
+        String[] parts = action.value().split("\n", 2);
+        text(
+            player,
+            messages.plain("evacuation-ui.manual"),
+            "",
+            value ->
+                setEvacuation(
+                    player,
+                    parts[0],
+                    new EvacuationDestination(EvacuationDestinationType.parse(parts[1]), value)));
+      }
+      case EVACUATION_DISABLE ->
+          saveEvacuation(
+              player, action.value(), evacuationSettings(action.value()).withEnabled(false));
+      case EVACUATION_TIMEOUT ->
           text(
               player,
-              "Evacuation Multiverse world",
-              printable(world(action.value()).evacuation().destination()),
+              messages.plain("evacuation-ui.timeout"),
+              Integer.toString(evacuationSettings(action.value()).timeoutSeconds()),
               value -> {
-                requireRegistered(value, "Evacuation destination");
-                if (value.equalsIgnoreCase(world(action.value()).multiverseWorld())) {
-                  throw new IllegalArgumentException("A world cannot evacuate into itself.");
-                }
-                editWorld(
+                EvacuationSettings old = evacuationSettings(action.value());
+                saveEvacuation(
                     player,
                     action.value(),
-                    old ->
-                        GuiConfigurationEditor.copyWorld(
-                            old,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            new EvacuationSettings(old.evacuation().enabled(), value)));
+                    new EvacuationSettings(
+                        old.enabled(), old.typedDestination(), Integer.parseInt(value)));
               });
       case CONFIRM_RESET -> openConfirmation(player, ConfirmKind.RESET, action.value());
       case CONFIRM_REMOVE -> openConfirmation(player, ConfirmKind.REMOVE_CONFIG, action.value());
@@ -593,6 +648,200 @@ public final class AdminGuiService implements Listener {
     player.openInventory(inventory);
   }
 
+  private EvacuationSettings evacuationSettings(String id) {
+    return id.isEmpty() ? configs.current().defaultEvacuation() : world(id).evacuation();
+  }
+
+  private void saveEvacuation(Player player, String id, EvacuationSettings value) {
+    if (id.isEmpty())
+      localizedResult(
+          player,
+          editor.setDefaultEvacuation(value),
+          "evacuation-ui.saved",
+          () -> openGlobal(player));
+    else
+      editWorld(
+          player,
+          id,
+          old -> GuiConfigurationEditor.copyWorld(old, null, null, null, null, null, value));
+  }
+
+  private void setEvacuation(Player player, String id, EvacuationDestination destination) {
+    saveEvacuation(
+        player,
+        id,
+        new EvacuationSettings(true, destination, evacuationSettings(id).timeoutSeconds()));
+  }
+
+  private void openEvacuation(Player player, String id) {
+    WorldHolder holder = new WorldHolder(id);
+    Inventory inv = inventory(holder, 27, messages.component("evacuation-ui.title"));
+    int slot = 10;
+    for (EvacuationDestinationType type : EvacuationDestinationType.values()) {
+      String value = id + "\n" + type.configKey();
+      holder.add(
+          slot++,
+          item(Material.ENDER_PEARL, "&e" + messages.plain("evacuation-ui." + type.configKey())),
+          action(
+              type == EvacuationDestinationType.DEFAULT_WORLD
+                  ? ActionType.EVACUATION_SELECT
+                  : ActionType.EVACUATION_LIST,
+              value));
+    }
+    holder.add(
+        15,
+        item(Material.BARRIER, "&c" + messages.plain("evacuation-ui.disable")),
+        action(ActionType.EVACUATION_DISABLE, id));
+    holder.add(
+        16,
+        item(
+            Material.CLOCK,
+            "&e" + messages.plain("evacuation-ui.timeout"),
+            Integer.toString(evacuationSettings(id).timeoutSeconds())),
+        action(ActionType.EVACUATION_TIMEOUT, id));
+    holder.add(
+        22,
+        item(Material.ARROW, messages.plain("evacuation-ui.back")),
+        action(id.isEmpty() ? ActionType.GLOBAL : ActionType.WORLD, id));
+    player.openInventory(inv);
+  }
+
+  private void openEvacuationList(Player player, String selection, int requestedPage) {
+    EvacuationListHolder previous =
+        player.getOpenInventory().getTopInventory().getHolder()
+                    instanceof EvacuationListHolder value
+                && value.selection.equals(selection)
+            ? value
+            : null;
+    java.util.UUID requestId = previous == null ? java.util.UUID.randomUUID() : previous.requestId;
+    boolean discovering =
+        previous == null ? selection.endsWith("proxy-server") : previous.discovering;
+    renderEvacuationList(
+        player,
+        selection,
+        requestedPage,
+        requestId,
+        discovering,
+        previous != null && previous.discoveryFailed);
+    if (previous == null && discovering) {
+      destinations
+          .discover(player)
+          .thenAccept(success -> refreshEvacuationList(player, requestId, success));
+    }
+  }
+
+  private void refreshEvacuationList(Player player, java.util.UUID requestId, boolean success) {
+    if (!plugin.isEnabled()) return;
+    Runnable refresh =
+        () -> {
+          if (!player.isOnline() || !plugin.isEnabled()) return;
+          if (player.getOpenInventory().getTopInventory().getHolder()
+                  instanceof EvacuationListHolder holder
+              && holder.requestId.equals(requestId)) {
+            if (!holder.id.isEmpty() && configs.current().world(holder.id).isEmpty()) return;
+            renderEvacuationList(player, holder.selection, holder.page, requestId, false, !success);
+          }
+        };
+    plugin.getServer().getScheduler().runTask(plugin, refresh);
+  }
+
+  private void renderEvacuationList(
+      Player player,
+      String selection,
+      int requestedPage,
+      java.util.UUID requestId,
+      boolean discovering,
+      boolean discoveryFailed) {
+    String[] parts = selection.split("\n", 2);
+    String id = parts[0];
+    EvacuationDestinationType type = EvacuationDestinationType.parse(parts[1]);
+    EvacuationDestination current = evacuationSettings(id).typedDestination();
+    Set<String> names = new LinkedHashSet<>();
+    if (current.type() == type && !current.target().isBlank()) names.add(current.target());
+    java.util.Map<String, DestinationCatalog.Entry> catalog = new java.util.LinkedHashMap<>();
+    if (type == EvacuationDestinationType.LOCAL_WORLD) {
+      gateway.registeredWorlds().forEach(world -> names.add(world.name()));
+      plugin
+          .getServer()
+          .getWorlds()
+          .forEach(
+              world -> {
+                if (names.stream().noneMatch(name -> gateway.sameWorld(name, world.getName())))
+                  names.add(world.getName());
+              });
+    } else {
+      destinations
+          .entries(configs.current(), type, current)
+          .forEach(
+              entry -> {
+                names.add(entry.name());
+                catalog.put(entry.name(), entry);
+              });
+    }
+    List<String> all = List.copyOf(names);
+    int page = boundedPage(requestedPage, all.size());
+    EvacuationListHolder holder =
+        new EvacuationListHolder(
+            id, selection, type, page, requestId, discovering, discoveryFailed);
+    Inventory inv = inventory(holder, 54, messages.component("evacuation-ui." + type.configKey()));
+    List<String> visible = page(all, page);
+    for (int index = 0; index < visible.size(); index++) {
+      String name = visible.get(index);
+      boolean allowed =
+          type != EvacuationDestinationType.LOCAL_WORLD
+              ? catalog.get(name).available()
+              : ((id.isEmpty() || !gateway.sameWorld(name, world(id).multiverseWorld()))
+                  && plugin.getServer().getWorlds().stream()
+                      .anyMatch(
+                          world ->
+                              gateway.sameWorld(name, world.getName())
+                                  || world.getKey().toString().equals(name)));
+      holder.add(
+          CONTENT_SLOTS[index],
+          item(
+              allowed ? Material.ENDER_PEARL : Material.BARRIER,
+              name,
+              messages.plain(
+                  allowed
+                      ? "evacuation-ui.available"
+                      : type == EvacuationDestinationType.PROXY_SERVER
+                              && !catalog.get(name).verified()
+                          ? "evacuation-ui.unverified"
+                          : "evacuation-ui.unavailable"),
+              current.type() == type && current.target().equals(name)
+                  ? messages.plain("evacuation-ui.current")
+                  : messages.plain(allowed ? "evacuation-ui.select" : "evacuation-ui.disabled")),
+          allowed ? action(ActionType.EVACUATION_SELECT, selection + "\n" + name) : null);
+    }
+    holder.add(
+        45,
+        item(Material.NAME_TAG, messages.plain("evacuation-ui.manual")),
+        action(ActionType.EVACUATION_MANUAL, selection));
+    holder.add(
+        49,
+        item(Material.ARROW, messages.plain("evacuation-ui.back")),
+        action(ActionType.EDIT_EVACUATION, id));
+    if (page > 0)
+      holder.add(
+          52,
+          item(Material.ARROW, messages.plain("evacuation-ui.previous")),
+          new GuiAction(ActionType.EVACUATION_LIST, selection, page - 1));
+    if ((page + 1) * PAGE_SIZE < all.size())
+      holder.add(
+          53,
+          item(Material.ARROW, messages.plain("evacuation-ui.next")),
+          new GuiAction(ActionType.EVACUATION_LIST, selection, page + 1));
+    if (type == EvacuationDestinationType.PROXY_SERVER && (discovering || discoveryFailed))
+      holder.add(
+          47,
+          item(
+              Material.CLOCK,
+              messages.plain(
+                  discovering ? "evacuation-ui.discovering" : "evacuation-ui.discovery-failed")),
+          null);
+    player.openInventory(inv);
+  }
+
   private void openWorld(Player player, String id) {
     ManagedWorldSettings world = configs.current().world(id).orElse(null);
     if (world == null) {
@@ -683,7 +932,7 @@ public final class AdminGuiService implements Listener {
         item(
             Material.COMPASS,
             "&eEvacuation destination",
-            printable(world.evacuation().destination())),
+            world.evacuation().typedDestination().toString()),
         value(ActionType.EDIT_EVACUATION, id));
     ResetPolicySettings policy = configs.current().resetPolicy();
     holder.add(
@@ -718,6 +967,13 @@ public final class AdminGuiService implements Listener {
     PluginSettings settings = configs.current();
     GlobalHolder holder = new GlobalHolder();
     final Inventory inv = inventory(holder, 27, Component.text("RWR 5 - Global Settings"));
+    holder.add(
+        2,
+        item(
+            Material.ENDER_PEARL,
+            "&e" + messages.plain("evacuation-ui.defaults"),
+            settings.defaultEvacuation().typedDestination().toString()),
+        action(ActionType.EDIT_EVACUATION, ""));
     holder.add(
         0,
         item(Material.CLOCK, "&eTimezone", settings.timezone().getId(), "Use an IANA ZoneId"),
@@ -947,9 +1203,14 @@ public final class AdminGuiService implements Listener {
   private void reload(Player player) {
     var result = configs.reload();
     if (result.accepted()) {
-      message(player, true, "Configuration reloaded; all GUI values and schedules were refreshed.");
+      updates.reloadSettings();
+      if (messages.reload()) {
+        messages.send(player, "gui.reload-success");
+      } else {
+        messages.send(player, "command.locale-reload-failed");
+      }
     } else {
-      message(player, false, "Reload rejected; the previous valid configuration remains active.");
+      messages.send(player, "gui.reload-failed");
       result.issues().forEach(issue -> messages.send(player, "gui.issue", "issue", issue));
     }
     openDashboard(player, 0);
@@ -1170,6 +1431,10 @@ public final class AdminGuiService implements Listener {
     return Math.max(1, (size + PAGE_SIZE - 1) / PAGE_SIZE);
   }
 
+  private static GuiAction action(ActionType type, String value) {
+    return new GuiAction(type, value, 0);
+  }
+
   private static GuiAction action(ActionType type) {
     return new GuiAction(type, "", 0);
   }
@@ -1234,6 +1499,11 @@ public final class AdminGuiService implements Listener {
     TOGGLE_KEEP_BORDER,
     TOGGLE_EVACUATION,
     EDIT_EVACUATION,
+    EVACUATION_LIST,
+    EVACUATION_SELECT,
+    EVACUATION_MANUAL,
+    EVACUATION_DISABLE,
+    EVACUATION_TIMEOUT,
     CONFIRM_RESET,
     CONFIRM_REMOVE,
     EXECUTE_RESET,
@@ -1288,6 +1558,33 @@ public final class AdminGuiService implements Listener {
 
   private static final class AddWorldHolder extends AdminHolder {
     AddWorldHolder(int page) {}
+  }
+
+  private static final class EvacuationListHolder extends AdminHolder {
+    private final String id;
+    private final String selection;
+    private final EvacuationDestinationType type;
+    private final int page;
+    private final java.util.UUID requestId;
+    private final boolean discovering;
+    private final boolean discoveryFailed;
+
+    EvacuationListHolder(
+        String id,
+        String selection,
+        EvacuationDestinationType type,
+        int page,
+        java.util.UUID requestId,
+        boolean discovering,
+        boolean discoveryFailed) {
+      this.id = id;
+      this.selection = selection;
+      this.type = type;
+      this.page = page;
+      this.requestId = requestId;
+      this.discovering = discovering;
+      this.discoveryFailed = discoveryFailed;
+    }
   }
 
   private static final class WorldHolder extends AdminHolder {

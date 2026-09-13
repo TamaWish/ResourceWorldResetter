@@ -8,6 +8,10 @@ public interface WorldCatalogView {
 
   String defaultWorldName();
 
+  default boolean isEvacuationWorld(String name) {
+    return registeredWorldNames().stream().anyMatch(value -> sameWorld(value, name));
+  }
+
   default String canonicalWorldName(String name) {
     return name;
   }

@@ -19,8 +19,8 @@ import io.github.tamawish.rwr.history.ResetJournal;
 import io.github.tamawish.rwr.message.MessageService;
 import io.github.tamawish.rwr.multiverse.MultiverseApiGateway;
 import io.github.tamawish.rwr.multiverse.MultiverseLifecycleListener;
-import io.github.tamawish.rwr.reset.BukkitPlayerEvacuationService;
 import io.github.tamawish.rwr.reset.ResetCoordinator;
+import io.github.tamawish.rwr.reset.TypedPlayerEvacuationService;
 import io.github.tamawish.rwr.scheduler.BukkitOneShotTaskScheduler;
 import io.github.tamawish.rwr.scheduler.BukkitResetNotifier;
 import io.github.tamawish.rwr.scheduler.BukkitWarningNotifier;
@@ -45,6 +45,7 @@ public final class PluginBootstrap {
   private ScheduleManager scheduleManager;
   private ListenerRegistration configListener;
   private AdminGuiService adminGui;
+  private io.github.tamawish.rwr.bukkitapi.DestinationCatalog destinations;
   private GuiInputService guiInput;
   private PlayerTeleportGui playerTeleportGui;
   private MessageService messages;
@@ -114,11 +115,12 @@ public final class PluginBootstrap {
       return false;
     }
     messages = new MessageService(plugin);
+    destinations = new io.github.tamawish.rwr.bukkitapi.DestinationCatalog(plugin);
     ResetCoordinator coordinator =
         new ResetCoordinator(
             configService::current,
             gateway,
-            new BukkitPlayerEvacuationService(plugin.getServer(), gateway),
+            new TypedPlayerEvacuationService(plugin, gateway),
             journal,
             Clock.systemUTC(),
             plugin.getLogger(),
@@ -156,10 +158,19 @@ public final class PluginBootstrap {
     configListener = configService.addChangeListener(scheduleManager::replaceSchedules);
     scheduleManager.replaceSchedules(configService.current());
 
+    updates = new UpdateService(plugin, messages, configFile);
     guiInput = new GuiInputService(plugin, messages);
     adminGui =
         new AdminGuiService(
-            plugin, configService, gateway, coordinator, scheduleManager, guiInput, messages);
+            plugin,
+            configService,
+            gateway,
+            coordinator,
+            scheduleManager,
+            guiInput,
+            messages,
+            updates,
+            destinations);
     plugin.getServer().getPluginManager().registerEvents(guiInput, plugin);
     plugin.getServer().getPluginManager().registerEvents(adminGui, plugin);
 
@@ -172,7 +183,6 @@ public final class PluginBootstrap {
     playerTeleportGui = new PlayerTeleportGui(teleportService, messages);
     plugin.getServer().getPluginManager().registerEvents(playerTeleportGui, plugin);
 
-    updates = new UpdateService(plugin, messages, configFile);
     RwrCommand executor =
         new RwrCommand(
             configService,
@@ -221,6 +231,10 @@ public final class PluginBootstrap {
 
   /** Stops registered services and releases platform resources. */
   public void disable() {
+    if (destinations != null) {
+      destinations.close();
+      destinations = null;
+    }
     if (updates != null) {
       updates.close();
       updates = null;

@@ -1,5 +1,7 @@
 package io.github.tamawish.rwr.reset;
 
+import com.google.gson.annotations.SerializedName;
+
 /** Normalized failure categories produced by the reset workflow. */
 public enum ResetFailureType {
   UNKNOWN_WORLD_ID,
@@ -14,10 +16,14 @@ public enum ResetFailureType {
   EVACUATION_DESTINATION_UNAVAILABLE,
   EVACUATION_FAILED,
   PLAYERS_REMAINING,
-  MULTIVERSE_REJECTED,
-  MULTIVERSE_DELETE_FAILED,
-  MULTIVERSE_CREATE_FAILED,
-  MULTIVERSE_API_EXCEPTION,
+  @SerializedName(value = "PROVIDER_REJECTED", alternate = "MULTIVERSE_REJECTED")
+  PROVIDER_REJECTED,
+  @SerializedName(value = "PROVIDER_DELETE_FAILED", alternate = "MULTIVERSE_DELETE_FAILED")
+  PROVIDER_DELETE_FAILED,
+  @SerializedName(value = "PROVIDER_CREATE_FAILED", alternate = "MULTIVERSE_CREATE_FAILED")
+  PROVIDER_CREATE_FAILED,
+  @SerializedName(value = "PROVIDER_API_EXCEPTION", alternate = "MULTIVERSE_API_EXCEPTION")
+  PROVIDER_API_EXCEPTION,
   VERIFICATION_FAILED,
   JOURNAL_UNAVAILABLE,
   INTERRUPTED_OPERATION

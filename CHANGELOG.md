@@ -5,11 +5,16 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-Pre-release packages currently build as `5.2.0-beta.1`.
+## [5.2.0] - Unreleased
 
 ### Added
+
+- Discover proxy destinations using `GetServers`; retain saved manual targets, show current/available/unavailable status, reject duplicate providers, and refresh only the matching open selector on the platform scheduler. Discovery remains runtime-only; schema 5 and version 5.2.0 are unchanged.
+
+- Added typed evacuation destinations: default overworld, loaded local worlds, Velocity/BungeeCord proxy servers, and third-party registered providers.
+- Added paginated destination selectors on both platforms, with configured proxy names, registered provider IDs, manual entry, disable, and transfer-timeout controls in all four locales.
+- Added global evacuation defaults and per-world structured destinations with automatic legacy scalar loading and structured serialization on save.
+- Added public API 5.2.0 `EvacuationProvider` registration and asynchronous completion; provider removal, duplicate IDs, exceptions, and timeouts abort evacuation safely.
 
 - Added `/rwr version` under `rwr.admin` with a cached, asynchronous GitHub Releases check.
 - Added configurable update checks with startup, online-administrator, and administrator-join notifications; RWR never downloads or installs updates.
@@ -20,6 +25,10 @@ Pre-release packages currently build as `5.2.0-beta.1`.
 
 ### Changed
 
+- Evacuation uses bounded asynchronous transfer/departure checks on both platforms. Sending a proxy `Connect` message is only a request; regeneration waits until every transfer has succeeded and the source world is empty.
+- Paper/Folia local evacuation now uses `teleportAsync` without blocking a scheduler; Spigot teleports and proxy messages remain on its primary thread. Successful local teleports retain fall-distance clearing.
+
+- Reset evacuation now clears a successfully teleported player's accumulated fall distance, preventing mid-air evacuations from causing delayed fall damage at the fallback destination on Spigot, Paper, and Folia.
 - Moved GUI-managed resource-world definitions and per-world teleport overrides from `config.yml` to `managed-worlds.yml`; existing combined v5 configurations are imported automatically.
 - Changed message customization from `messages.yml` to locale files under `locales/`; copy existing custom messages into the selected locale when upgrading.
 - Fresh installs extract only `locales/en_US.yml` by default; other bundled locales are written to disk when selected in `config.yml` and the plugin reloads or restarts.
@@ -34,11 +43,19 @@ Pre-release packages currently build as `5.2.0-beta.1`.
 
 ### Fixed
 
+- Fixed Spigot component delivery to use the bundled, relocated `adventure-platform-bukkit` audience bridge instead of flattening MiniMessage components to legacy strings; Paper/Folia continues to use native Adventure.
+- Fixed Worlds post-regeneration gamerule and world-border restoration to run on Folia's global region; evacuation and player checks remain on world regions. Restoration failures still require operator review and do not trigger automatic retries.
+- Renamed shared reset failures from `MULTIVERSE_*` to `PROVIDER_*`, including Paper/Folia locale keys, while retaining compatibility with existing reset-history entries.
+
 - Fixed world-management GUI saves removing `locale`, update-checker settings, comments, and future extension keys by isolating generated world settings from `config.yml`.
 - Fixed concurrent manual reset requests or reloads displacing an active per-world reset.
 - Fixed immediate asynchronous regeneration exceptions being classified as safe to retry after the provider may have started work.
 - Fixed synchronous third-party reset-event failures interfering with reset completion and lock release.
 - Fixed Folia reset-command scheduling, namespaced Worlds lookup, and world-deletion matching.
+- Fixed Folia evacuation, remaining-player checks, regeneration admission checks, and teleport destination resolution to execute on world-region schedulers.
+- Fixed Spigot teleport admission to hold the reset permit until the synchronous teleport finishes.
+- Fixed Paper reset failure output to render the detailed outcome message and added a Bukkit fallback when Multiverse has no configured default world.
+- Fixed failed Worlds regeneration callbacks attempting to schedule completion against a source world that may already be deleted.
 - Fixed locale rendering racing with locale reloads and restored bundled English defaults when user locale files omit keys.
 - Fixed stale on-disk locale files omitting newer keys by merging bundled JAR defaults before applying user overrides.
 - Fixed hardcoded English remaining in teleport outcomes, admin/player GUI labels, warning durations, status phases, and history result labels.
@@ -150,6 +167,6 @@ Pre-release packages currently build as `5.2.0-beta.1`.
 
 - Removed legacy command aliases; use the corresponding `/rwr` subcommands.
 
-[Unreleased]: https://github.com/TamaWish/ResourceWorldResetter/compare/v5.1.0...HEAD
+[5.2.0]: https://github.com/TamaWish/ResourceWorldResetter/compare/v5.1.0...v5.2.0
 [5.1.0]: https://github.com/TamaWish/ResourceWorldResetter/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/TamaWish/ResourceWorldResetter/releases/tag/v5.0.0

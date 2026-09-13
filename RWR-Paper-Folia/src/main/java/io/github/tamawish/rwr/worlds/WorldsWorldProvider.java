@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import net.kyori.adventure.key.Key;
 import net.thenextlvl.worlds.WorldsAccess;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
@@ -50,9 +51,13 @@ public final class WorldsWorldProvider implements WorldProvider {
    * @throws IllegalStateException if Worlds access cannot be established
    */
   public WorldsWorldProvider(Plugin plugin) {
+    this(plugin, WorldsAccess.access());
+  }
+
+  WorldsWorldProvider(Plugin plugin, WorldsAccess access) {
     this.plugin = plugin;
     this.logger = plugin.getLogger();
-    this.access = WorldsAccess.access();
+    this.access = access;
     if (this.access == null) {
       throw new IllegalStateException(
           "WorldsAccess.access() returned null – is Worlds installed and enabled?");
@@ -67,6 +72,16 @@ public final class WorldsWorldProvider implements WorldProvider {
 
   public WorldsAccess access() {
     return access;
+  }
+
+  @Override
+  public boolean isEvacuationWorld(String name) {
+    return org.bukkit.Bukkit.getWorlds().stream()
+            .anyMatch(
+                world ->
+                    world.getName().equalsIgnoreCase(name)
+                        || world.getKey().toString().equals(name))
+        || registeredWorldNames().stream().anyMatch(value -> sameWorld(value, name));
   }
 
   @Override
@@ -181,6 +196,26 @@ public final class WorldsWorldProvider implements WorldProvider {
   }
 
   @Override
+  public CompletionStage<DestinationResult> resolveSafeDestinationAsync(String name) {
+    Optional<World> loaded = keys.getWorld(name);
+    if (loaded.isEmpty()) {
+      return CompletableFuture.completedFuture(resolveSafeDestination(name));
+    }
+    CompletableFuture<DestinationResult> result = new CompletableFuture<>();
+    runOnWorldRegion(
+        loaded.get(),
+        () -> {
+          try {
+            result.complete(resolveSafeDestination(name));
+          } catch (RuntimeException error) {
+            result.completeExceptionally(error);
+          }
+        },
+        result);
+    return result;
+  }
+
+  @Override
   public RegenerationOutcome regenerate(RegenerationRequest request) {
     return new RegenerationOutcome.Failed(
         RegenerationFailureReason.API_EXCEPTION,
@@ -206,22 +241,42 @@ public final class WorldsWorldProvider implements WorldProvider {
     }
 
     World world = loaded.get();
+    CompletableFuture<RegenerationOutcome> result = new CompletableFuture<>();
+    runOnWorldRegion(world, () -> startRegeneration(request, world, result), result);
+    return result.orTimeout(REGENERATE_TIMEOUT_SECONDS + 5L, TimeUnit.SECONDS);
+  }
+
+  private void startRegeneration(
+      RegenerationRequest request, World world, CompletableFuture<RegenerationOutcome> result) {
     if (world.equals(Bukkit.getWorlds().getFirst())) {
-      return CompletableFuture.completedFuture(
+      result.complete(
           new RegenerationOutcome.Rejected(
               RegenerationRejectionReason.PROTECTED_DEFAULT_WORLD,
               "The server default world is protected."));
+      return;
     }
     if (world.getPlayers().stream().findAny().isPresent()) {
-      return CompletableFuture.completedFuture(
+      result.complete(
           new RegenerationOutcome.Rejected(
               RegenerationRejectionReason.PLAYERS_PRESENT, "The world still contains players."));
+      return;
     }
 
     String identity = keys.resolveKey(world).asString();
     WorldsRegenerationPlan plan = WorldsRegenerationPlan.from(request, world.getSeed());
     PreservedWorldState preserved = PreservedWorldState.capture(world, request);
-    CompletableFuture<RegenerationOutcome> result = new CompletableFuture<>();
+    // Worlds owns the unload/regenerate/create scheduler transitions. Do not call its entry point
+    // from a Folia TickThread: Worlds 4.4.0 treats any TickThread as an already-valid global
+    // context and may consequently run its blocking level-file cleanup inline on a world region.
+    runAsync(() -> invokeRegeneration(world, identity, plan, preserved, result), result);
+  }
+
+  private void invokeRegeneration(
+      World world,
+      String identity,
+      WorldsRegenerationPlan plan,
+      PreservedWorldState preserved,
+      CompletableFuture<RegenerationOutcome> result) {
     try {
       access
           .regenerate(
@@ -235,23 +290,67 @@ public final class WorldsWorldProvider implements WorldProvider {
           .orTimeout(REGENERATE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
           .whenComplete(
               (regenerated, error) -> {
-                try {
-                  plugin
-                      .getServer()
-                      .getGlobalRegionScheduler()
-                      .run(
-                          plugin,
-                          ignored ->
-                              result.complete(
-                                  regenerationOutcome(identity, regenerated, error, preserved)));
-                } catch (RuntimeException schedulingError) {
-                  result.completeExceptionally(schedulingError);
+                if (error != null || regenerated == null) {
+                  result.complete(regenerationOutcome(identity, regenerated, error, preserved));
+                  return;
                 }
+                restoreOnGlobalRegion(identity, regenerated, preserved, result);
               });
     } catch (RuntimeException exception) {
       result.complete(regenerationOutcome(identity, null, exception, preserved));
     }
-    return result.orTimeout(REGENERATE_TIMEOUT_SECONDS + 5L, TimeUnit.SECONDS);
+  }
+
+  private <T> void runAsync(Runnable task, CompletableFuture<T> result) {
+    try {
+      plugin
+          .getServer()
+          .getAsyncScheduler()
+          .runNow(
+              plugin,
+              ignored -> {
+                try {
+                  task.run();
+                } catch (RuntimeException error) {
+                  result.completeExceptionally(error);
+                }
+              });
+    } catch (RuntimeException error) {
+      result.completeExceptionally(error);
+    }
+  }
+
+  // Folia server settings (including gamerules) belong to the global region.
+  // Player checks and evacuation must remain on their world/entity regions.
+  void restoreOnGlobalRegion(
+      String identity,
+      World regenerated,
+      PreservedWorldState preserved,
+      CompletableFuture<RegenerationOutcome> result) {
+    try {
+      plugin
+          .getServer()
+          .getGlobalRegionScheduler()
+          .run(
+              plugin,
+              ignored -> {
+                try {
+                  result.complete(regenerationOutcome(identity, regenerated, null, preserved));
+                } catch (RuntimeException error) {
+                  result.completeExceptionally(error);
+                }
+              });
+    } catch (RuntimeException error) {
+      result.completeExceptionally(error);
+    }
+  }
+
+  private <T> void runOnWorldRegion(World world, Runnable task, CompletableFuture<T> result) {
+    try {
+      plugin.getServer().getRegionScheduler().run(plugin, world, 0, 0, ignored -> task.run());
+    } catch (RuntimeException error) {
+      result.completeExceptionally(error);
+    }
   }
 
   private RegenerationOutcome regenerationOutcome(
@@ -290,14 +389,17 @@ public final class WorldsWorldProvider implements WorldProvider {
     return new RegenerationOutcome.Success(snapshot(regenerated));
   }
 
-  private record PreservedWorldState(Map<String, String> gameRules, BorderState border) {
+  record PreservedWorldState(Map<GameRule<?>, Object> gameRules, BorderState border) {
     private static PreservedWorldState capture(World world, RegenerationRequest request) {
-      Map<String, String> gameRules = new LinkedHashMap<>();
+      Map<GameRule<?>, Object> gameRules = new LinkedHashMap<>();
       if (request.keepGameRules()) {
-        for (String rule : world.getGameRules()) {
-          String value = world.getGameRuleValue(rule);
-          if (value != null) {
-            gameRules.put(rule, value);
+        for (String ruleName : world.getGameRules()) {
+          GameRule<?> rule = GameRule.getByName(ruleName);
+          if (rule != null) {
+            Object value = world.getGameRuleValue(rule);
+            if (value != null) {
+              gameRules.put(rule, value);
+            }
           }
         }
       }
@@ -306,15 +408,22 @@ public final class WorldsWorldProvider implements WorldProvider {
       return new PreservedWorldState(Map.copyOf(gameRules), border);
     }
 
+    @SuppressWarnings("unchecked")
+    private static <T> void setTypedGameRule(World world, GameRule<T> rule, Object value) {
+      if (rule.getType().isInstance(value)) {
+        world.setGameRule(rule, (T) value);
+      }
+    }
+
     private void restore(World world) {
-      gameRules.forEach(world::setGameRuleValue);
+      gameRules.forEach((rule, value) -> setTypedGameRule(world, rule, value));
       if (border != null) {
         border.restore(world.getWorldBorder());
       }
     }
   }
 
-  private record BorderState(
+  record BorderState(
       double centerX,
       double centerZ,
       double size,

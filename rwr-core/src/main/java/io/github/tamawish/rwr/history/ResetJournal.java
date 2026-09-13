@@ -136,8 +136,8 @@ public final class ResetJournal {
   }
 
   private void trimHistory() {
-    while (history.size() > historyLimit) {
-      history.removeFirst();
+    if (history.size() > historyLimit) {
+      history.subList(0, history.size() - historyLimit).clear();
     }
   }
 

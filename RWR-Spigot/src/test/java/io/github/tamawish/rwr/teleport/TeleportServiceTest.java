@@ -8,6 +8,7 @@ import io.github.tamawish.rwr.multiverse.DestinationResult;
 import io.github.tamawish.rwr.multiverse.RegenerationOutcome;
 import io.github.tamawish.rwr.multiverse.RegenerationRequest;
 import io.github.tamawish.rwr.multiverse.WorldSnapshot;
+import io.github.tamawish.rwr.reset.ResetAccessPolicy;
 import io.github.tamawish.rwr.world.SafeLocation;
 import io.github.tamawish.rwr.world.WorldProvider;
 import java.lang.reflect.Proxy;
@@ -68,18 +69,65 @@ class TeleportServiceTest {
     assertThat(teleportCalls).hasValue(0);
   }
 
+  @Test
+  void admissionPermitCoversResolutionAndTeleportAndIsReleasedAfterward() {
+    AtomicBoolean resetting = new AtomicBoolean();
+    AtomicBoolean permitHeld = new AtomicBoolean();
+    AtomicInteger permitReleases = new AtomicInteger();
+    AtomicInteger teleportCalls = new AtomicInteger();
+    ResetAccessPolicy access =
+        new ResetAccessPolicy() {
+          @Override
+          public boolean blocksIncomingRwrTeleport(String world) {
+            return false;
+          }
+
+          @Override
+          public Optional<TeleportPermit> tryAcquireIncomingRwrTeleport(String world) {
+            permitHeld.set(true);
+            return Optional.of(
+                () -> {
+                  permitHeld.set(false);
+                  permitReleases.incrementAndGet();
+                });
+          }
+        };
+    FakeGateway gateway = new FakeGateway(resetting, false);
+    gateway.permitHeld = permitHeld;
+    TeleportService service = service(gateway, access, null);
+
+    TeleportAttempt result =
+        service.teleport(player(Set.of(), teleportCalls, permitHeld), "resource");
+
+    assertThat(result.successful()).isTrue();
+    assertThat(permitHeld).isFalse();
+    assertThat(permitReleases).hasValue(1);
+    assertThat(gateway.resolveObservedPermit).isTrue();
+    assertThat(teleportCalls).hasValue(1);
+  }
+
   private static TeleportService service(
       FakeGateway gateway, AtomicBoolean resetting, String permission) {
+    return service(gateway, world -> resetting.get(), permission);
+  }
+
+  private static TeleportService service(
+      FakeGateway gateway, ResetAccessPolicy resetAccess, String permission) {
     TeleportSettings settings =
         new TeleportSettings(
             false,
             false,
             true,
             Map.of("resource", new TeleportDestinationSettings(true, permission)));
-    return new TeleportService(() -> settings, gateway, world -> resetting.get());
+    return new TeleportService(() -> settings, gateway, resetAccess);
   }
 
   private static Player player(Set<String> permissions, AtomicInteger teleportCalls) {
+    return player(permissions, teleportCalls, null);
+  }
+
+  private static Player player(
+      Set<String> permissions, AtomicInteger teleportCalls, AtomicBoolean requiredPermit) {
     World world =
         (World)
             Proxy.newProxyInstance(
@@ -121,6 +169,9 @@ class TeleportServiceTest {
               if (method.getName().equals("teleport")
                   && arguments != null
                   && arguments.length == 2) {
+                if (requiredPermit != null && !requiredPermit.get()) {
+                  throw new AssertionError("teleport ran without its admission permit");
+                }
                 teleportCalls.incrementAndGet();
                 return true;
               }
@@ -159,6 +210,8 @@ class TeleportServiceTest {
             true,
             "resource 0 64 0");
     private int resolveCalls;
+    private AtomicBoolean permitHeld;
+    private boolean resolveObservedPermit;
 
     private FakeGateway(AtomicBoolean resetting, boolean startResetDuringResolve) {
       this.resetting = resetting;
@@ -183,6 +236,7 @@ class TeleportServiceTest {
     @Override
     public DestinationResult resolveSafeDestination(String name) {
       resolveCalls++;
+      resolveObservedPermit = permitHeld != null && permitHeld.get();
       if (startResetDuringResolve) {
         resetting.set(true);
       }

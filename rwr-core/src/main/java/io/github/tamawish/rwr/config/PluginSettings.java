@@ -15,6 +15,8 @@ import java.util.Optional;
  * @param resetPolicy global retry and completion policy
  * @param worlds managed worlds keyed by stable identifier
  * @param teleport player teleport-menu policy
+ * @param defaultEvacuation defaults for newly configured worlds
+ * @param proxyServers configured proxy server menu entries
  */
 public record PluginSettings(
     int configVersion,
@@ -22,8 +24,29 @@ public record PluginSettings(
     String defaultHubWorld,
     ResetPolicySettings resetPolicy,
     Map<String, ManagedWorldSettings> worlds,
-    TeleportSettings teleport) {
+    TeleportSettings teleport,
+    EvacuationSettings defaultEvacuation,
+    java.util.List<String> proxyServers) {
+  public PluginSettings(
+      int version,
+      ZoneId zone,
+      String hub,
+      ResetPolicySettings policy,
+      Map<String, ManagedWorldSettings> worlds,
+      TeleportSettings teleport) {
+    this(
+        version,
+        zone,
+        hub,
+        policy,
+        worlds,
+        teleport,
+        new EvacuationSettings(true, hub),
+        java.util.List.of());
+  }
+
   public PluginSettings {
+    proxyServers = java.util.List.copyOf(proxyServers);
     worlds = Collections.unmodifiableMap(new LinkedHashMap<>(worlds));
   }
 

@@ -17,8 +17,8 @@ import io.github.tamawish.rwr.gui.GuiInputService;
 import io.github.tamawish.rwr.gui.PlayerTeleportGui;
 import io.github.tamawish.rwr.history.ResetJournal;
 import io.github.tamawish.rwr.message.MessageService;
-import io.github.tamawish.rwr.reset.FoliaPlayerEvacuationService;
 import io.github.tamawish.rwr.reset.ResetCoordinator;
+import io.github.tamawish.rwr.reset.TypedPlayerEvacuationService;
 import io.github.tamawish.rwr.scheduler.FoliaOneShotTaskScheduler;
 import io.github.tamawish.rwr.scheduler.NextRunCalculator;
 import io.github.tamawish.rwr.scheduler.PaperResetNotifier;
@@ -49,6 +49,7 @@ public final class PluginBootstrap {
   private ScheduleManager scheduleManager;
   private ListenerRegistration configListener;
   private AdminGuiService adminGui;
+  private io.github.tamawish.rwr.bukkitapi.DestinationCatalog destinations;
   private GuiInputService guiInput;
   private PlayerTeleportGui playerTeleportGui;
   private MessageService messages;
@@ -87,6 +88,7 @@ public final class PluginBootstrap {
       plugin.saveResource("config.yml", false);
       YamlConfiguration freshConfig = YamlConfiguration.loadConfiguration(configFile.toFile());
       freshConfig.set("default-hub-world", gateway.defaultWorldName());
+      freshConfig.set("evacuation.destination.target", gateway.defaultWorldName());
       try {
         freshConfig.save(configFile.toFile());
       } catch (IOException exception) {
@@ -139,11 +141,12 @@ public final class PluginBootstrap {
     }
 
     messages = new MessageService(plugin);
+    destinations = new io.github.tamawish.rwr.bukkitapi.DestinationCatalog(plugin);
     ResetCoordinator coordinator =
         new ResetCoordinator(
             configService::current,
             gateway,
-            new FoliaPlayerEvacuationService(plugin, gateway, gateway.keys()),
+            new TypedPlayerEvacuationService(plugin, gateway),
             journal,
             Clock.systemUTC(),
             plugin.getLogger(),
@@ -192,7 +195,8 @@ public final class PluginBootstrap {
             scheduleManager,
             guiInput,
             messages,
-            updates);
+            updates,
+            destinations);
     plugin.getServer().getPluginManager().registerEvents(guiInput, plugin);
     plugin.getServer().getPluginManager().registerEvents(adminGui, plugin);
 
@@ -257,6 +261,10 @@ public final class PluginBootstrap {
 
   /** Stops registered services and releases platform resources. */
   public void disable() {
+    if (destinations != null) {
+      destinations.close();
+      destinations = null;
+    }
     if (updates != null) {
       updates.close();
       updates = null;

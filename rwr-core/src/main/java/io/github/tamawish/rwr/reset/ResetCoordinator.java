@@ -255,7 +255,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
                 return unjournaledFailure(
                     world,
                     operationId,
-                    ResetFailureType.MULTIVERSE_API_EXCEPTION,
+                    ResetFailureType.PROVIDER_API_EXCEPTION,
                     FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
                     "Asynchronous reset execution failed: "
                         + cause.getClass().getSimpleName()
@@ -300,15 +300,15 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
   @Override
   public boolean blocksIncomingRwrTeleport(String multiverseWorld) {
     return settings.get().worlds().values().stream()
-        .filter(world -> gateway.sameWorld(world.multiverseWorld(), multiverseWorld))
-        .anyMatch(
+        .filter(
             world -> {
               String key = normalize(world.id());
               AtomicBoolean lock = worldLocks.get(key);
               ResetStatus status = statuses.get(key);
               return (lock != null && lock.get())
                   || (status != null && status.phase().blocksIncomingRwrTeleports());
-            });
+            })
+        .anyMatch(world -> gateway.sameWorld(world.multiverseWorld(), multiverseWorld));
   }
 
   @Override
@@ -391,7 +391,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
       return terminalFailure(
           configured,
           marker,
-          ResetFailureType.MULTIVERSE_API_EXCEPTION,
+          ResetFailureType.PROVIDER_API_EXCEPTION,
           FailureSafety.SAFE_TO_RETRY,
           provider()
               + " preflight lookup failed before regeneration: "
@@ -471,7 +471,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
         return terminalFailure(
             configured,
             marker,
-            ResetFailureType.MULTIVERSE_REJECTED,
+            ResetFailureType.PROVIDER_REJECTED,
             FailureSafety.SAFE_TO_RETRY,
             rejected.reason() + ": " + rejected.message());
       }
@@ -514,7 +514,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
               : FailureSafety.SAFE_TO_RETRY;
       ResetFailureType failure =
           lifecycleMayHaveStarted
-              ? ResetFailureType.MULTIVERSE_API_EXCEPTION
+              ? ResetFailureType.PROVIDER_API_EXCEPTION
               : marker.phase() == ResetPhase.EVACUATE
                   ? ResetFailureType.EVACUATION_FAILED
                   : ResetFailureType.VERIFICATION_FAILED;
@@ -563,7 +563,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
           terminalFailure(
               configured,
               marker,
-              ResetFailureType.MULTIVERSE_API_EXCEPTION,
+              ResetFailureType.PROVIDER_API_EXCEPTION,
               FailureSafety.SAFE_TO_RETRY,
               provider()
                   + " preflight lookup failed before regeneration: "
@@ -657,9 +657,29 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
               configured, marker, failed.reason(), FailureSafety.SAFE_TO_RETRY, failed.message()));
     }
 
+    return evacuation
+        .remainingPlayersAsync(configured.multiverseWorld())
+        .handle(
+            (remaining, error) -> {
+              if (error == null) {
+                return remaining;
+              }
+              throw new java.util.concurrent.CompletionException(rootCause(error));
+            })
+        .thenCompose(
+            remaining ->
+                continueAfterRemainingPlayerCheck(
+                    configured, marker, expectedWorldIdentity, remaining));
+  }
+
+  private CompletionStage<ResetOutcome> continueAfterRemainingPlayerCheck(
+      ManagedWorldSettings configured,
+      InterruptedOperationMarker marker,
+      String expectedWorldIdentity,
+      OptionalInt remainingPlayers) {
+
     boolean lifecycleMayHaveStarted = false;
     try {
-      OptionalInt remainingPlayers = evacuation.remainingPlayers(configured.multiverseWorld());
       if (remainingPlayers.isEmpty()) {
         return completed(
             terminalFailure(
@@ -699,7 +719,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
               return terminalFailure(
                   configured,
                   regenerationMarker,
-                  ResetFailureType.MULTIVERSE_API_EXCEPTION,
+                  ResetFailureType.PROVIDER_API_EXCEPTION,
                   FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
                   cause.getClass().getSimpleName() + ": " + cause.getMessage());
             }
@@ -721,7 +741,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
               configured,
               marker,
               lifecycleMayHaveStarted
-                  ? ResetFailureType.MULTIVERSE_API_EXCEPTION
+                  ? ResetFailureType.PROVIDER_API_EXCEPTION
                   : ResetFailureType.EVACUATION_FAILED,
               lifecycleMayHaveStarted
                   ? FailureSafety.AMBIGUOUS_REVIEW_REQUIRED
@@ -740,7 +760,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
         return terminalFailure(
             configured,
             marker,
-            ResetFailureType.MULTIVERSE_REJECTED,
+            ResetFailureType.PROVIDER_REJECTED,
             FailureSafety.SAFE_TO_RETRY,
             rejected.reason() + ": " + rejected.message());
       }
@@ -773,7 +793,7 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
       return terminalFailure(
           configured,
           marker,
-          ResetFailureType.MULTIVERSE_API_EXCEPTION,
+          ResetFailureType.PROVIDER_API_EXCEPTION,
           FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
           exception.getClass().getSimpleName() + ": " + exception.getMessage());
     }
@@ -952,9 +972,9 @@ public final class ResetCoordinator implements ResetExecutor, ResetAccessPolicy 
 
   private static ResetFailureType mapFailure(RegenerationFailureReason reason) {
     return switch (reason) {
-      case DELETE_FAILED -> ResetFailureType.MULTIVERSE_DELETE_FAILED;
-      case CREATE_FAILED -> ResetFailureType.MULTIVERSE_CREATE_FAILED;
-      case API_EXCEPTION -> ResetFailureType.MULTIVERSE_API_EXCEPTION;
+      case DELETE_FAILED -> ResetFailureType.PROVIDER_DELETE_FAILED;
+      case CREATE_FAILED -> ResetFailureType.PROVIDER_CREATE_FAILED;
+      case API_EXCEPTION -> ResetFailureType.PROVIDER_API_EXCEPTION;
     };
   }
 

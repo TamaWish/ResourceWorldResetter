@@ -21,9 +21,9 @@
 | Server | World provider | Runtime Java | Status |
 | --- | --- | --- | --- |
 | Spigot 1.21.11 | Multiverse-Core 5.8.0+ | 21+ or the server's higher requirement | Pending |
-| Spigot 26.2 | Multiverse-Core 5.8.0+ | Server-required Java version | Pending |
-| Paper 26.2 | Worlds 4.4.0+ | 25+ or the server's higher requirement | Pending |
-| Folia 26.1.2 | Worlds 4.4.0+ | 25+ or the server's higher requirement | Pending |
+| Spigot 26.2 | Multiverse-Core 5.8.0+ | Server-required Java version | Compatible; reset produced a 5.4-second server-thread stall |
+| Paper 26.2 | Worlds 4.4.0+ | 25+ or the server's higher requirement | Console smoke test passed |
+| Folia 26.2 | Worlds 4.4.0+ | 25+ or the server's higher requirement | Console smoke test passed; no region-thread/watchdog error |
 
 Record exact server/provider builds, Java versions, candidate JAR hashes, and logs. Test commands and GUI input, evacuation with players present, reset cancellation/failure, reload during reset, recovery after restart, and locale/update behavior. Treat these versions as the intended test matrix until results exist.
 

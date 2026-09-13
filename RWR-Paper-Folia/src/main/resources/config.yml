@@ -1,5 +1,5 @@
 # =============================================================================
-# ResourceWorldResetter v5.2.0-beta.1 - Paper / Purpur / Folia
+# ResourceWorldResetter v5.2.0 - Paper / Purpur / Folia
 # Author: TamaWish
 # =============================================================================
 # Requires Java 25+, Minecraft 26.1.2+, and Worlds by TheNextLvl 4.4.0+.
@@ -20,7 +20,7 @@ locale: en_US
 # Examples: Asia/Kuala_Lumpur, Europe/London, America/New_York
 timezone: Asia/Kuala_Lumpur
 
-# Safe destination used when a managed world has no evacuation override.
+# Protected local hub and legacy fallback when evacuation defaults are absent.
 default-hub-world: world
 
 # -----------------------------------------------------------------------------
@@ -57,3 +57,16 @@ teleport:
   # Show permission-locked entries in the player GUI instead of hiding them.
   show-locked: true
   # Per-world overrides are stored in managed-worlds.yml.
+
+# Typed defaults for newly added worlds and worlds without an evacuation section.
+# Existing scalar destinations remain supported as local-world destinations.
+evacuation:
+  enabled: true
+  timeout-seconds: 30 # Accepted range: 1-120 seconds.
+  destination:
+    type: local-world # default-world, local-world, proxy-server, registered-provider
+    target: world # Ignored for default-world; provider ID for registered-provider.
+
+# Named proxy destinations shown in /rwr gui. Manual entry is also available.
+# Velocity requires bungee-plugin-message-channel=true. BungeeCord uses Connect.
+proxy-servers: [] # Example: [hub, lobby, survival]

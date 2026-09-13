@@ -56,6 +56,7 @@ public final class MessageService {
 
   private final MiniMessage miniMessage = MiniMessage.miniMessage();
   private final Map<String, String> templates = new LinkedHashMap<>();
+  private final Map<String, Component> staticComponents = new LinkedHashMap<>();
   private final Set<String> reportedMissingKeys = new HashSet<>();
   private final JavaPlugin plugin;
   private String prefixTemplate = "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> ";
@@ -139,12 +140,18 @@ public final class MessageService {
               candidate.getOrDefault("prefix", "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> "));
       candidate.replaceAll((key, value) -> normalizeTemplate(value));
       candidate.put("prefix", candidatePrefix);
+      Map<String, Component> candidateComponents = new LinkedHashMap<>();
       candidate.forEach(
           (key, value) ->
-              miniMessage.deserialize(
-                  prepareForDeserialize(value), Placeholder.parsed("prefix", candidatePrefix)));
+              candidateComponents.put(
+                  key,
+                  miniMessage.deserialize(
+                      prepareForDeserialize(value),
+                      Placeholder.parsed("prefix", candidatePrefix))));
       templates.clear();
       templates.putAll(candidate);
+      staticComponents.clear();
+      staticComponents.putAll(candidateComponents);
       prefixTemplate = candidatePrefix;
       reportedMissingKeys.clear();
       return true;
@@ -188,6 +195,12 @@ public final class MessageService {
    * @return rendered component
    */
   public synchronized Component component(String key, Object... placeholders) {
+    if (placeholders.length == 0) {
+      Component cached = staticComponents.get(key);
+      if (cached != null) {
+        return cached;
+      }
+    }
     String template = templates.get(key);
     if (template == null) {
       if (reportedMissingKeys.add(key)) {

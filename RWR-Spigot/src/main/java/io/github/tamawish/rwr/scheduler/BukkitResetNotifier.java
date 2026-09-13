@@ -3,6 +3,7 @@ package io.github.tamawish.rwr.scheduler;
 import io.github.tamawish.rwr.config.ManagedWorldSettings;
 import io.github.tamawish.rwr.message.MessageService;
 import io.github.tamawish.rwr.reset.ResetOutcome;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Server;
 
 /** Broadcasts terminal reset outcomes through the Spigot Adventure bridge. */
@@ -24,16 +25,16 @@ public final class BukkitResetNotifier implements ResetNotifier {
       }
       return;
     }
+    Component failureMessage =
+        messages.component(
+            "notification.reset-failed",
+            "world",
+            world.displayName(),
+            "failure",
+            messages.plain(
+                "value.failure." + outcome.failure().name().toLowerCase(java.util.Locale.ROOT)));
     server.getOnlinePlayers().stream()
         .filter(player -> player.hasPermission("rwr.admin"))
-        .forEach(
-            player ->
-                messages.send(
-                    player,
-                    "notification.reset-failed",
-                    "world",
-                    world.displayName(),
-                    "failure",
-                    outcome.failure()));
+        .forEach(player -> messages.send(player, failureMessage));
   }
 }

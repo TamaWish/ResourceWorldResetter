@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -53,8 +54,10 @@ public final class MessageService {
 
   private final MiniMessage miniMessage = MiniMessage.miniMessage();
   private final Map<String, String> templates = new LinkedHashMap<>();
+  private final Map<String, Component> staticComponents = new LinkedHashMap<>();
   private final Set<String> reportedMissingKeys = new HashSet<>();
   private final JavaPlugin plugin;
+  private final BukkitAudiences audiences;
   private String prefixTemplate = "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> ";
 
   /**
@@ -65,13 +68,15 @@ public final class MessageService {
    */
   public MessageService(JavaPlugin plugin) {
     this.plugin = plugin;
+    this.audiences = BukkitAudiences.create(plugin);
     if (!reload()) {
+      audiences.close();
       throw new IllegalStateException("Bundled en_US locale could not be loaded");
     }
   }
 
   public void close() {
-    // No platform audience bridge is retained.
+    audiences.close();
   }
 
   private static void flatten(String path, ConfigurationSection section, Map<String, String> out) {
@@ -90,7 +95,12 @@ public final class MessageService {
   }
 
   public void send(CommandSender target, String key, Object... placeholders) {
-    target.sendMessage(text(key, placeholders));
+    send(target, component(key, placeholders));
+  }
+
+  /** Sends an already-rendered component through adventure-platform-bukkit. */
+  public void send(CommandSender target, Component component) {
+    audiences.sender(target).sendMessage(component);
   }
 
   /**
@@ -118,8 +128,7 @@ public final class MessageService {
       }
     }
     try {
-      YamlConfiguration fallback = new YamlConfiguration();
-      fallback.load(englishFile);
+      Map<String, String> candidate = new LinkedHashMap<>();
       try (InputStream stream = plugin.getResource("locales/en_US.yml")) {
         if (stream == null) {
           throw new IOException("Bundled en_US locale is missing");
@@ -127,36 +136,47 @@ public final class MessageService {
         try (InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
           YamlConfiguration bundled = new YamlConfiguration();
           bundled.load(reader);
-          fallback.setDefaults(bundled);
+          flatten("", bundled, candidate);
         }
       }
-      YamlConfiguration selected = fallback;
+      YamlConfiguration english = new YamlConfiguration();
+      english.load(englishFile);
+      flatten("", english, candidate);
       if (!locale.equals("en_US")) {
+        try (InputStream stream = plugin.getResource(localeResource)) {
+          if (stream != null) {
+            try (InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+              YamlConfiguration bundledSelected = new YamlConfiguration();
+              bundledSelected.load(reader);
+              flatten("", bundledSelected, candidate);
+            }
+          }
+        }
         if (!localeFile.exists()) {
           plugin.getLogger().warning("Locale " + locale + " was not found; using en_US.");
         } else {
-          selected = new YamlConfiguration();
+          YamlConfiguration selected = new YamlConfiguration();
           selected.load(localeFile);
-          selected.setDefaults(fallback);
+          flatten("", selected, candidate);
         }
       }
-      Map<String, String> candidate = new LinkedHashMap<>();
-      ConfigurationSection defaults = selected.getDefaults();
-      if (defaults != null) {
-        flatten("", defaults, candidate);
-      }
-      flatten("", selected, candidate);
       String candidatePrefix =
           normalizeTemplate(
               candidate.getOrDefault("prefix", "<gradient:#00C9FF:#92FE9D>[RWR]</gradient> "));
       candidate.replaceAll((key, value) -> normalizeTemplate(value));
       candidate.put("prefix", candidatePrefix);
+      Map<String, Component> candidateComponents = new LinkedHashMap<>();
       candidate.forEach(
           (key, value) ->
-              miniMessage.deserialize(
-                  prepareForDeserialize(value), Placeholder.parsed("prefix", candidatePrefix)));
+              candidateComponents.put(
+                  key,
+                  miniMessage.deserialize(
+                      prepareForDeserialize(value),
+                      Placeholder.parsed("prefix", candidatePrefix))));
       templates.clear();
       templates.putAll(candidate);
+      staticComponents.clear();
+      staticComponents.putAll(candidateComponents);
       prefixTemplate = candidatePrefix;
       reportedMissingKeys.clear();
       return true;
@@ -177,9 +197,9 @@ public final class MessageService {
    * @param placeholders alternating placeholder names and values
    */
   public void broadcast(Server server, String key, Object... placeholders) {
-    String rendered = text(key, placeholders);
-    server.getOnlinePlayers().forEach(player -> player.sendMessage(rendered));
-    server.getConsoleSender().sendMessage(rendered);
+    Component rendered = component(key, placeholders);
+    server.getOnlinePlayers().forEach(player -> audiences.player(player).sendMessage(rendered));
+    audiences.console().sendMessage(rendered);
   }
 
   /**
@@ -190,6 +210,12 @@ public final class MessageService {
    * @return rendered component
    */
   public synchronized Component component(String key, Object... placeholders) {
+    if (placeholders.length == 0) {
+      Component cached = staticComponents.get(key);
+      if (cached != null) {
+        return cached;
+      }
+    }
     String template = templates.get(key);
     if (template == null) {
       if (reportedMissingKeys.add(key)) {

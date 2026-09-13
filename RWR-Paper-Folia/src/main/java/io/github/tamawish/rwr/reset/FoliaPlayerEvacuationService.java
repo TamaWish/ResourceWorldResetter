@@ -73,6 +73,9 @@ public final class FoliaPlayerEvacuationService implements PlayerEvacuationServi
   @Override
   public CompletionStage<EvacuationResult> evacuateAsync(
       String sourceWorld, EvacuationSettings settings) {
+    if (FOLIA) {
+      return evacuateStagedOnFolia(sourceWorld, settings);
+    }
     Preparation preparation;
     try {
       preparation = prepare(sourceWorld, settings);
@@ -83,11 +86,89 @@ public final class FoliaPlayerEvacuationService implements PlayerEvacuationServi
       return CompletableFuture.completedFuture(complete.result());
     }
     Ready ready = (Ready) preparation;
-    if (!FOLIA) {
+    return CompletableFuture.completedFuture(
+        evacuateOnPaper(ready.source(), ready.players(), ready.target()));
+  }
+
+  private CompletionStage<EvacuationResult> evacuateStagedOnFolia(
+      String sourceWorld, EvacuationSettings settings) {
+    World source = resolveLoaded(sourceWorld);
+    if (source == null) {
       return CompletableFuture.completedFuture(
-          evacuateOnPaper(ready.source(), ready.players(), ready.target()));
+          new EvacuationResult.Failed(
+              ResetFailureType.WORLD_NOT_LOADED,
+              0,
+              "The source world is no longer loaded in Bukkit."));
     }
-    return evacuateOnFolia(ready.source(), ready.players(), ready.target());
+    CompletableFuture<EvacuationResult> result = new CompletableFuture<>();
+    runOnWorldRegion(
+        source,
+        result,
+        () -> {
+          List<Player> stagedPlayers = List.copyOf(source.getPlayers());
+          if (stagedPlayers.isEmpty()) {
+            result.complete(new EvacuationResult.Success(0));
+            return;
+          }
+          if (!settings.enabled()) {
+            result.complete(
+                new EvacuationResult.Failed(
+                    ResetFailureType.EVACUATION_DISABLED,
+                    stagedPlayers.size(),
+                    "Evacuation is disabled while the world contains players."));
+            return;
+          }
+          gateway
+              .resolveSafeDestinationAsync(settings.destination())
+              .whenComplete(
+                  (destination, error) -> {
+                    if (error != null) {
+                      result.completeExceptionally(error);
+                      return;
+                    }
+                    if (destination instanceof DestinationResult.Unavailable unavailable) {
+                      result.complete(
+                          new EvacuationResult.Failed(
+                              ResetFailureType.EVACUATION_DESTINATION_UNAVAILABLE,
+                              stagedPlayers.size(),
+                              unavailable.reason() + ": " + unavailable.message()));
+                      return;
+                    }
+                    SafeLocation safe = ((DestinationResult.Available) destination).location();
+                    Location target = resolveTargetLocation(safe, settings.destination());
+                    if (target == null) {
+                      result.complete(
+                          new EvacuationResult.Failed(
+                              ResetFailureType.EVACUATION_DESTINATION_UNAVAILABLE,
+                              stagedPlayers.size(),
+                              "Evacuation destination world is not loaded."));
+                      return;
+                    }
+                    runOnWorldRegion(
+                        source,
+                        result,
+                        () ->
+                            evacuateOnFolia(source, List.copyOf(source.getPlayers()), target)
+                                .whenComplete(
+                                    (evacuation, evacuationError) -> {
+                                      if (evacuationError == null) {
+                                        result.complete(evacuation);
+                                      } else {
+                                        result.completeExceptionally(evacuationError);
+                                      }
+                                    }));
+                  });
+        });
+    return result;
+  }
+
+  private Location resolveTargetLocation(SafeLocation safe, String destination) {
+    Location target = BukkitLocations.toBukkit(safe, server);
+    if (target != null) {
+      return target;
+    }
+    World byKey = resolveLoaded(destination);
+    return byKey != null ? byKey.getSpawnLocation() : null;
   }
 
   private Preparation prepare(String sourceWorld, EvacuationSettings settings) {
@@ -120,13 +201,7 @@ public final class FoliaPlayerEvacuationService implements PlayerEvacuationServi
               unavailable.reason() + ": " + unavailable.message()));
     }
     SafeLocation safe = ((DestinationResult.Available) destination).location();
-    Location target = BukkitLocations.toBukkit(safe, server);
-    if (target == null) {
-      World byKey = resolveLoaded(settings.destination());
-      if (byKey != null) {
-        target = byKey.getSpawnLocation();
-      }
-    }
+    Location target = resolveTargetLocation(safe, settings.destination());
     if (target == null) {
       return new Complete(
           new EvacuationResult.Failed(
@@ -143,6 +218,8 @@ public final class FoliaPlayerEvacuationService implements PlayerEvacuationServi
       try {
         if (!player.teleport(target.clone(), TeleportCause.PLUGIN)) {
           failedTeleports++;
+        } else {
+          clearFallDistance(player);
         }
       } catch (RuntimeException exception) {
         server.getLogger().log(Level.WARNING, "Teleport failed for " + player.getName(), exception);
@@ -169,6 +246,11 @@ public final class FoliaPlayerEvacuationService implements PlayerEvacuationServi
         futures.add(
             player
                 .teleportAsync(clone, TeleportCause.PLUGIN)
+                .thenCompose(
+                    teleported ->
+                        Boolean.TRUE.equals(teleported)
+                            ? clearFallDistanceAsync(player)
+                            : CompletableFuture.completedFuture(false))
                 .exceptionally(
                     error -> {
                       server
@@ -189,7 +271,8 @@ public final class FoliaPlayerEvacuationService implements PlayerEvacuationServi
         .orTimeout(TELEPORT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .whenComplete(
             (ignored, error) ->
-                completeOnGlobalRegion(
+                completeOnWorldRegion(
+                    source,
                     result,
                     () -> {
                       int remaining = source.getPlayers().size();
@@ -231,17 +314,51 @@ public final class FoliaPlayerEvacuationService implements PlayerEvacuationServi
     return world == null ? OptionalInt.empty() : OptionalInt.of(world.getPlayers().size());
   }
 
+  @Override
+  public CompletionStage<OptionalInt> remainingPlayersAsync(String sourceWorld) {
+    World world = resolveLoaded(sourceWorld);
+    if (world == null) {
+      return CompletableFuture.completedFuture(OptionalInt.empty());
+    }
+    CompletableFuture<OptionalInt> result = new CompletableFuture<>();
+    runOnWorldRegion(
+        world, result, () -> result.complete(OptionalInt.of(world.getPlayers().size())));
+    return result;
+  }
+
   private World resolveLoaded(String configured) {
     return keys.getWorld(configured).orElseGet(() -> server.getWorld(configured));
   }
 
-  private void completeOnGlobalRegion(
-      CompletableFuture<EvacuationResult> result, Runnable completion) {
+  private void completeOnWorldRegion(
+      World world, CompletableFuture<EvacuationResult> result, Runnable completion) {
+    runOnWorldRegion(world, result, completion);
+  }
+
+  private <T> void runOnWorldRegion(World world, CompletableFuture<T> result, Runnable task) {
     try {
-      server.getGlobalRegionScheduler().run(plugin, ignored -> completion.run());
+      server.getRegionScheduler().run(plugin, world, 0, 0, ignored -> task.run());
     } catch (RuntimeException error) {
       result.completeExceptionally(error);
     }
+  }
+
+  private void clearFallDistance(Player player) {
+    player.setFallDistance(0.0F);
+  }
+
+  private CompletableFuture<Boolean> clearFallDistanceAsync(Player player) {
+    CompletableFuture<Boolean> protectedTeleport = new CompletableFuture<>();
+    player
+        .getScheduler()
+        .run(
+            plugin,
+            ignored -> {
+              clearFallDistance(player);
+              protectedTeleport.complete(true);
+            },
+            () -> protectedTeleport.complete(false));
+    return protectedTeleport;
   }
 
   private static boolean isFolia() {

@@ -40,6 +40,7 @@ public final class ConfigValidator {
       issues.add(new ConfigIssue("reset-policy.retry-delay-seconds", "must be zero or greater"));
     }
 
+    validateEvacuation("defaults", settings.defaultEvacuation(), null, catalog, issues);
     Set<String> multiverseNames = new HashSet<>();
     for (var entry : settings.worlds().entrySet()) {
       ManagedWorldSettings world = entry.getValue();
@@ -79,7 +80,7 @@ public final class ConfigValidator {
       validateSchedule(path, world.schedule(), issues);
       validateWarnings(path, world.warnings(), issues);
       validateRegeneration(path, world.regeneration(), issues);
-      validateEvacuation(path, world, catalog, issues);
+      validateEvacuation(path, world.evacuation(), world.multiverseWorld(), catalog, issues);
     }
     validateTeleport(settings.teleport(), catalog, issues);
     return List.copyOf(issues);
@@ -162,13 +163,34 @@ public final class ConfigValidator {
   }
 
   private static void validateEvacuation(
-      String path, ManagedWorldSettings world, WorldCatalogView catalog, List<ConfigIssue> issues) {
-    EvacuationSettings evacuation = world.evacuation();
+      String path,
+      EvacuationSettings evacuation,
+      String sourceWorld,
+      WorldCatalogView catalog,
+      List<ConfigIssue> issues) {
     if (evacuation == null) {
       issues.add(new ConfigIssue(path + ".evacuation", "is required"));
       return;
     }
+    if (evacuation.timeoutSeconds() < 1 || evacuation.timeoutSeconds() > 120) {
+      issues.add(
+          new ConfigIssue(path + ".evacuation.timeout-seconds", "must be between 1 and 120"));
+    }
     if (!evacuation.enabled()) {
+      return;
+    }
+    if (evacuation.typedDestination().type() == EvacuationDestinationType.DEFAULT_WORLD) {
+      if (sourceWorld != null && catalog.sameWorld(catalog.defaultWorldName(), sourceWorld)) {
+        issues.add(new ConfigIssue(path + ".evacuation.destination", "must be a different world"));
+      }
+      return;
+    }
+    if (evacuation.typedDestination().type() != EvacuationDestinationType.LOCAL_WORLD) {
+      if (evacuation.destination().isBlank() || evacuation.destination().length() > 128) {
+        issues.add(
+            new ConfigIssue(
+                path + ".evacuation.destination.target", "must contain 1-128 characters"));
+      }
       return;
     }
     if (evacuation.destination().isBlank()) {
@@ -181,9 +203,9 @@ public final class ConfigValidator {
           new ConfigIssue(
               path + ".evacuation.destination",
               "must be a plain Multiverse world name without ':'"));
-    } else if (catalog.sameWorld(evacuation.destination(), world.multiverseWorld())) {
+    } else if (sourceWorld != null && catalog.sameWorld(evacuation.destination(), sourceWorld)) {
       issues.add(new ConfigIssue(path + ".evacuation.destination", "must be a different world"));
-    } else if (!containsIgnoreCase(catalog.registeredWorldNames(), evacuation.destination())) {
+    } else if (!catalog.isEvacuationWorld(evacuation.destination())) {
       issues.add(new ConfigIssue(path + ".evacuation.destination", notRegisteredMessage(catalog)));
     }
   }

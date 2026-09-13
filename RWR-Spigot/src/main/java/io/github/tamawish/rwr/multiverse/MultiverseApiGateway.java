@@ -45,6 +45,16 @@ public final class MultiverseApiGateway implements WorldProvider {
   }
 
   @Override
+  public boolean isEvacuationWorld(String name) {
+    return org.bukkit.Bukkit.getWorlds().stream()
+            .anyMatch(
+                world ->
+                    world.getName().equalsIgnoreCase(name)
+                        || world.getKey().toString().equals(name))
+        || registeredWorldNames().stream().anyMatch(value -> sameWorld(value, name));
+  }
+
+  @Override
   public String providerName() {
     return "Multiverse";
   }
@@ -80,7 +90,15 @@ public final class MultiverseApiGateway implements WorldProvider {
 
   @Override
   public String defaultWorldName() {
-    return worldManager.getDefaultWorld().map(MultiverseWorld::getName).get();
+    return worldManager
+        .getDefaultWorld()
+        .map(MultiverseWorld::getName)
+        .toJavaOptional()
+        .orElseGet(
+            () -> {
+              List<World> worlds = Bukkit.getWorlds();
+              return worlds.isEmpty() ? "world" : worlds.getFirst().getName();
+            });
   }
 
   @Override

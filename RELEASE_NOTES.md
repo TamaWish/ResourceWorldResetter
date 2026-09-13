@@ -2,11 +2,21 @@
 
 This file highlights user-facing updates for recent ResourceWorldResetter releases. Full technical history lives in [CHANGELOG.md](CHANGELOG.md).
 
-## Version 5.2.0-beta.1 — pre-release
+## Version 5.2.0 — Unreleased
 
-Current JARs ship as `5.2.0-beta.1` until live validation is complete. The public release will remain `5.2.0` once it is ready.
+**Headline:** Typed world/network evacuation, configuration isolation, localization, and safer asynchronous resets.
+
+Version 5.2.0 moves GUI-managed resource-world definitions into `managed-worlds.yml`, adds full localization across four bundled languages with multi-layer fallback, unifies administrative reload and update checks across platforms, and hardens asynchronous Folia player evacuation and Paper GameRule restoration.
 
 ### Highlights
+
+- Discover proxy destinations using `GetServers`; retain saved manual targets, show current/available/unavailable status, reject duplicate providers, and refresh only the matching open selector on the platform scheduler. Discovery remains runtime-only; schema 5 and version 5.2.0 are unchanged.
+
+- Evacuate to the default overworld, another loaded local world, a named Velocity/BungeeCord server, or a destination registered by an add-on through API 5.2.0.
+- Select destinations in `/rwr gui`, including paginated world/provider/proxy lists, manual values, and configurable transfer timeouts (30 seconds by default).
+- Old `destination: world` settings still load. GUI saves write `destination.type` and `destination.target`. Global defaults use the same structure.
+- RWR waits for actual departure before regeneration. Failed, missing, removed, or stalled providers and players who remain in the source world cause a safe abort.
+- Velocity requires `bungee-plugin-message-channel = true`; use configured backend server names. See [Evacuation setup](docs/public/EVACUATION.md).
 
 - GUI-managed resource-world definitions and per-world teleport overrides move from `config.yml` to `managed-worlds.yml`. Existing combined v5 configurations are imported automatically on startup.
 - Server owners can select a server-wide message language with `locale` in `config.yml`. Bundled choices are `en_US`, `zh_CN`, `ja_JP`, and `ko_KR`; custom translations can be added under `locales/`.
@@ -16,6 +26,23 @@ Current JARs ship as `5.2.0-beta.1` until live validation is complete. The publi
 - Fresh Paper/Folia installs set `default-hub-world` to the server default world.
 - Manual resets no longer send duplicate completion or failure messages to the operator who started them.
 - Incoming teleports are blocked earlier in the reset lifecycle and cannot race into an evacuating or regenerating world.
+
+### Improvements
+
+- **Spigot Admin GUI and Reload Parity**: The administrative GUI reload on Spigot now refreshes `UpdateService` settings and `MessageService` catalogs with localized feedback (`gui.reload-success` and `gui.reload-failed`).
+- **Platform-correct Adventure delivery**: Spigot/CraftBukkit bundles a relocated `adventure-platform-bukkit` audience bridge and preserves MiniMessage components during delivery. Paper/Purpur/Folia uses its native Adventure implementation without bundling the bridge.
+- **Four-Layer Message Loading Fallback**: Spigot's `MessageService` now mirrors Paper/Folia's robust fallback hierarchy (`bundled en_US` → `disk en_US` → `bundled selected locale` → `disk selected locale`).
+- **Modern Typed GameRule API on Paper/Folia**: Preserved world gamerules now use Bukkit's typed `GameRule<?>` and `World.setGameRule()` API on Paper and Folia.
+- **Local destinations**: Loaded Bukkit worlds can be used directly; registered worlds use their provider destination. Unloaded and self destinations are rejected.
+- **Fall Distance Clearance**: Reset evacuation clears a teleported player's accumulated fall distance to prevent delayed fall damage at the destination.
+
+### Fixes
+
+- Fixed Worlds post-regeneration gamerule and world-border restoration to run on Folia's global region.
+- Fixed failed Worlds regeneration callbacks attempting to schedule completion against a source world that may already be deleted.
+- Fixed Spigot teleport admission to hold the reset permit until the synchronous teleport finishes.
+- Fixed Paper reset failure output to render detailed outcome messages.
+- Fixed race conditions during concurrent locale reload and rendering.
 
 ### Before replacing the JAR
 
@@ -27,6 +54,13 @@ Before upgrading, stop the server and make a restorable backup of the entire RWR
 - Or, after confirming the backup is usable, remove the RWR plugin data folder and start the server once so the new JAR can generate fresh files. Manually copy only the settings and message text you still need from the backup.
 
 Do not delete the data folder without a verified backup. If upgrading from `messages.yml`, copy customized text into the selected `locales/<locale>.yml`; the old message file is no longer loaded. After selecting a non-English locale, run `/rwr reload` once so that language file is written under `locales/` if it is not already present.
+
+### Links
+
+- [Changelog entry](CHANGELOG.md#520---2026-09-10)
+- [Operations and migration guide](docs/public/OPERATIONS_AND_MIGRATION.md)
+- [Downloads](https://github.com/TamaWish/ResourceWorldResetter/releases)
+- [GitHub release](https://github.com/TamaWish/ResourceWorldResetter/releases/tag/v5.2.0)
 
 ## Version 5.1.0 — 2026-09-02
 

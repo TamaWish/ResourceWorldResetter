@@ -105,7 +105,9 @@ public final class ConfigService {
               settings.defaultHubWorld(),
               settings.resetPolicy(),
               reconciled,
-              settings.teleport());
+              settings.teleport(),
+              settings.defaultEvacuation(),
+              settings.proxyServers());
       if (active.compareAndSet(settings, updated)) {
         notifyListeners(updated);
         return new ReconciliationResult(changed);

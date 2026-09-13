@@ -42,9 +42,9 @@ class ApiMappingsTest {
             .collect(Collectors.toSet());
     assertThat(mapped)
         .containsExactlyInAnyOrder(io.github.tamawish.rwr.api.model.ResetFailureType.values());
-    assertThat(ApiMappings.failure(ResetFailureType.MULTIVERSE_REJECTED))
+    assertThat(ApiMappings.failure(ResetFailureType.PROVIDER_REJECTED))
         .isEqualTo(io.github.tamawish.rwr.api.model.ResetFailureType.PROVIDER_REJECTED);
-    assertThat(ApiMappings.failure(ResetFailureType.MULTIVERSE_API_EXCEPTION))
+    assertThat(ApiMappings.failure(ResetFailureType.PROVIDER_API_EXCEPTION))
         .isEqualTo(io.github.tamawish.rwr.api.model.ResetFailureType.PROVIDER_API_EXCEPTION);
   }
 
@@ -56,7 +56,7 @@ class ApiMappingsTest {
             "resource",
             "resource_world",
             ResetPhase.FAILED,
-            ResetFailureType.MULTIVERSE_CREATE_FAILED,
+            ResetFailureType.PROVIDER_CREATE_FAILED,
             FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
             "Provider failed");
     var event = ApiMappings.postEvent(outcome);

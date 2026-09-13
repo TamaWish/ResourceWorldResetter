@@ -332,7 +332,7 @@ public final class ScheduleManager implements AutoCloseable {
     return ResetOutcome.rejected(
         worldId,
         worldName,
-        ResetFailureType.MULTIVERSE_API_EXCEPTION,
+        ResetFailureType.PROVIDER_API_EXCEPTION,
         FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
         "Reset executor failed exceptionally: " + detail);
   }

@@ -148,6 +148,8 @@ public final class ConfigRepository {
     return left.configVersion() == right.configVersion()
         && left.timezone().equals(right.timezone())
         && left.defaultHubWorld().equals(right.defaultHubWorld())
+        && left.defaultEvacuation().equals(right.defaultEvacuation())
+        && left.proxyServers().equals(right.proxyServers())
         && left.resetPolicy().equals(right.resetPolicy())
         && left.teleport().autoDiscover() == right.teleport().autoDiscover()
         && left.teleport().defaultEnabled() == right.teleport().defaultEnabled()
@@ -266,10 +268,23 @@ public final class ConfigRepository {
     ZoneId timezone = parseZone(yaml, issues);
     String hub = requiredString(yaml, "default-hub-world", issues);
     ResetPolicySettings resetPolicy = parseResetPolicy(yaml, issues);
+    EvacuationSettings defaults =
+        yaml.contains("evacuation")
+            ? parseEvacuation(yaml, "defaults", issues)
+            : new EvacuationSettings(true, hub);
+    java.util.List<String> proxies = new java.util.ArrayList<>();
+    if (yaml.contains("proxy-servers") && !yaml.isList("proxy-servers")) {
+      issues.add(new ConfigIssue("proxy-servers", "must be a list"));
+    }
+    for (Object value : yaml.getList("proxy-servers", java.util.List.of())) {
+      if (value instanceof String name && !name.isBlank()) proxies.add(name);
+      else issues.add(new ConfigIssue("proxy-servers", "must contain nonblank server names"));
+    }
     Map<String, ManagedWorldSettings> worlds =
-        parseWorlds(managed == null ? yaml : managed, hub, issues);
+        parseWorlds(managed == null ? yaml : managed, hub, defaults, issues);
     TeleportSettings teleport = parseTeleport(yaml, managed, issues);
-    return new PluginSettings(CONFIG_VERSION, timezone, hub, resetPolicy, worlds, teleport);
+    return new PluginSettings(
+        CONFIG_VERSION, timezone, hub, resetPolicy, worlds, teleport, defaults, proxies);
   }
 
   private static ZoneId parseZone(YamlNode yaml, List<ConfigIssue> issues) {
@@ -298,7 +313,7 @@ public final class ConfigRepository {
   }
 
   private Map<String, ManagedWorldSettings> parseWorlds(
-      YamlNode yaml, String hub, List<ConfigIssue> issues) {
+      YamlNode yaml, String hub, EvacuationSettings defaults, List<ConfigIssue> issues) {
     YamlNode section = requiredSection(yaml, "worlds", issues);
     Map<String, ManagedWorldSettings> worlds = new LinkedHashMap<>();
     if (section == null) {
@@ -322,7 +337,8 @@ public final class ConfigRepository {
       ScheduleSettings schedule = parseSchedule(world, path, issues);
       List<Integer> warnings = parseWarningMinutes(world, path, issues);
       RegenerationSettings regeneration = parseRegeneration(world, path, issues);
-      EvacuationSettings evacuation = parseEvacuation(world, path, issues);
+      EvacuationSettings evacuation =
+          world.contains("evacuation") ? parseEvacuation(world, path, issues) : defaults;
       WorldOperationalState state =
           WorldStateResolver.resolve(multiverseWorld, enabled, managed, hub, catalog);
       worlds.put(
@@ -459,9 +475,35 @@ public final class ConfigRepository {
     if (section == null) {
       return null;
     }
+    EvacuationDestination destination;
+    YamlNode typed = section.section("destination");
+    if (typed == null) {
+      destination =
+          EvacuationDestination.local(
+              optionalString(section, "destination", path + ".evacuation.destination", issues));
+    } else {
+      EvacuationDestinationType type = EvacuationDestinationType.LOCAL_WORLD;
+      try {
+        type =
+            EvacuationDestinationType.parse(
+                requiredString(typed, "type", path + ".evacuation.destination.type", issues));
+      } catch (IllegalArgumentException error) {
+        issues.add(
+            new ConfigIssue(path + ".evacuation.destination.type", "unknown destination type"));
+      }
+      destination =
+          new EvacuationDestination(
+              type,
+              optionalString(typed, "target", path + ".evacuation.destination.target", issues));
+    }
+    int timeout =
+        section.contains("timeout-seconds")
+            ? requiredInt(section, "timeout-seconds", path + ".evacuation.timeout-seconds", issues)
+            : 30;
     return new EvacuationSettings(
         requiredBoolean(section, "enabled", path + ".evacuation.enabled", issues),
-        optionalString(section, "destination", path + ".evacuation.destination", issues));
+        destination,
+        timeout);
   }
 
   private static TeleportSettings parseTeleport(
@@ -500,6 +542,8 @@ public final class ConfigRepository {
     yaml.set("config-version", settings.configVersion());
     yaml.set("timezone", settings.timezone().getId());
     yaml.set("default-hub-world", settings.defaultHubWorld());
+    writeEvacuation(yaml, "evacuation", settings.defaultEvacuation());
+    yaml.set("proxy-servers", settings.proxyServers());
     yaml.set("reset-policy.max-safe-retries", settings.resetPolicy().maxSafeRetries());
     yaml.set("reset-policy.retry-delay-seconds", settings.resetPolicy().retryDelaySeconds());
     yaml.set("reset-policy.broadcast-completion", settings.resetPolicy().broadcastCompletion());
@@ -522,8 +566,7 @@ public final class ConfigRepository {
       writeSchedule(yaml, path, world.schedule());
       yaml.set(path + ".warning-minutes", YamlNode.copyList(world.warnings()));
       writeRegeneration(yaml, path, world.regeneration());
-      yaml.set(path + ".evacuation.enabled", world.evacuation().enabled());
-      yaml.set(path + ".evacuation.destination", world.evacuation().destination());
+      writeEvacuation(yaml, path + ".evacuation", world.evacuation());
     }
     yaml.set("teleport-worlds", new LinkedHashMap<String, Object>());
     YamlNode teleportWorlds = yaml.section("teleport-worlds");
@@ -538,6 +581,13 @@ public final class ConfigRepository {
               destinationNode.setLiteral("permission", destination.permission());
             });
     return yaml.raw();
+  }
+
+  private static void writeEvacuation(YamlNode yaml, String path, EvacuationSettings settings) {
+    yaml.set(path + ".enabled", settings.enabled());
+    yaml.set(path + ".timeout-seconds", settings.timeoutSeconds());
+    yaml.set(path + ".destination.type", settings.typedDestination().type().configKey());
+    yaml.set(path + ".destination.target", settings.destination());
   }
 
   private static void writeSchedule(YamlNode yaml, String path, ScheduleSettings schedule) {

@@ -271,7 +271,7 @@ public final class RwrCommand implements CommandExecutor, TabCompleter {
           "operation",
           outcome.operationId(),
           "message",
-          localizedFailure(outcome.failure()));
+          outcome.message());
     }
   }
 

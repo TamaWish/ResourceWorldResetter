@@ -3,6 +3,7 @@ package io.github.tamawish.rwr.scheduler;
 import io.github.tamawish.rwr.config.ManagedWorldSettings;
 import io.github.tamawish.rwr.message.MessageService;
 import io.github.tamawish.rwr.reset.ResetOutcome;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
 
@@ -34,27 +35,20 @@ public final class PaperResetNotifier implements ResetNotifier {
       }
       return;
     }
+    Component failureMessage =
+        messages.component(
+            "notification.reset-failed",
+            "world",
+            world.displayName(),
+            "failure",
+            messages.plain(
+                "value.failure." + outcome.failure().name().toLowerCase(java.util.Locale.ROOT)));
     server.getOnlinePlayers().stream()
         .filter(player -> player.hasPermission("rwr.admin"))
         .forEach(
             player ->
                 player
                     .getScheduler()
-                    .run(
-                        plugin,
-                        ignored ->
-                            messages.send(
-                                player,
-                                "notification.reset-failed",
-                                "world",
-                                world.displayName(),
-                                "failure",
-                                messages.plain(
-                                    "value.failure."
-                                        + outcome
-                                            .failure()
-                                            .name()
-                                            .toLowerCase(java.util.Locale.ROOT))),
-                        null));
+                    .run(plugin, ignored -> player.sendMessage(failureMessage), null));
   }
 }

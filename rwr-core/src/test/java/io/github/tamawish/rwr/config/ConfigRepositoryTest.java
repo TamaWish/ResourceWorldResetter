@@ -377,6 +377,92 @@ class ConfigRepositoryTest {
     assertThat(saved).contains("permission: rwr.teleport.resource");
   }
 
+  @Test
+  void legacyEvacuationSavesStructuredDestination() throws Exception {
+    Path file = write(validConfig("resource", true, true));
+    ConfigRepository repository = new ConfigRepository(file, CATALOG);
+    PluginSettings settings = repository.load().settings();
+    assertThat(settings.world("mining-id").orElseThrow().evacuation().typedDestination())
+        .isEqualTo(EvacuationDestination.local("world"));
+    repository.save(settings);
+    assertThat(Files.readString(file.resolveSibling("managed-worlds.yml")))
+        .contains("type: local-world", "target: world", "timeout-seconds: 30");
+    assertThat(repository.load().settings()).isEqualTo(settings);
+  }
+
+  @Test
+  void allTypedDestinationsRoundTrip() throws Exception {
+    for (EvacuationDestinationType type : EvacuationDestinationType.values()) {
+      Files.deleteIfExists(temporaryDirectory.resolve("managed-worlds.yml"));
+      String yaml =
+          validConfig("resource", true, true)
+              .replace(
+                  "destination: world",
+                  "timeout-seconds: 17\n      destination:\n        type: "
+                      + type.configKey()
+                      + "\n        target: world");
+      Path file = write(yaml);
+      ConfigRepository repository = new ConfigRepository(file, CATALOG);
+      ConfigLoadResult loaded = repository.load();
+      assertThat(loaded.valid()).describedAs(loaded.issues().toString()).isTrue();
+      assertThat(loaded.settings().world("mining-id").orElseThrow().evacuation().timeoutSeconds())
+          .isEqualTo(17);
+      repository.save(loaded.settings());
+      assertThat(repository.load().settings()).isEqualTo(loaded.settings());
+    }
+  }
+
+  @Test
+  void typedLocalSelfDestinationIsRejected() throws Exception {
+    ConfigLoadResult result =
+        load(
+            validConfig("resource", true, true)
+                .replace(
+                    "destination: world",
+                    "destination:\n        type: local-world\n        target: resource"));
+    assertThat(result.valid()).isFalse();
+    assertThat(result.issues()).anyMatch(issue -> issue.message().contains("different world"));
+  }
+
+  @Test
+  void unknownDestinationTypeAndInvalidTimeoutAreRejected() throws Exception {
+    ConfigLoadResult result =
+        load(
+            validConfig("resource", true, true)
+                .replace(
+                    "destination: world",
+                    "timeout-seconds: 0\n      destination:\n        type: console-command\n        target: hub"));
+    assertThat(result.valid()).isFalse();
+    assertThat(result.issues()).anyMatch(issue -> issue.path().endsWith("destination.type"));
+    assertThat(result.issues()).anyMatch(issue -> issue.path().endsWith("timeout-seconds"));
+  }
+
+  @Test
+  void globalTypedDefaultsAreInheritedWithoutWorldOverride() throws Exception {
+    String yaml =
+        validConfig("resource", true, true)
+                .replace("    evacuation:\n      enabled: true\n      destination: world\n", "")
+            + "evacuation:\n  enabled: true\n  timeout-seconds: 15\n  destination:\n    type: proxy-server\n    target: hub\nproxy-servers: [hub, lobby]\n";
+    ConfigLoadResult result = load(yaml);
+    assertThat(result.valid()).describedAs(result.issues().toString()).isTrue();
+    assertThat(result.settings().world("mining-id").orElseThrow().evacuation())
+        .isEqualTo(result.settings().defaultEvacuation());
+    assertThat(result.settings().defaultEvacuation().typedDestination().type())
+        .isEqualTo(EvacuationDestinationType.PROXY_SERVER);
+    assertThat(result.settings().proxyServers()).containsExactly("hub", "lobby");
+  }
+
+  @Test
+  void worldOverrideTakesPrecedenceOverGlobalDestination() throws Exception {
+    ConfigLoadResult result =
+        load(
+            validConfig("resource", true, true)
+                + "evacuation:\n  enabled: true\n  destination:\n    type: proxy-server\n    target: hub\n");
+    assertThat(result.valid()).isTrue();
+    assertThat(result.settings().world("mining-id").orElseThrow().evacuation().typedDestination())
+        .isEqualTo(EvacuationDestination.local("world"));
+  }
+
   private ConfigLoadResult load(String content) throws Exception {
     return new ConfigRepository(write(content), CATALOG).load();
   }

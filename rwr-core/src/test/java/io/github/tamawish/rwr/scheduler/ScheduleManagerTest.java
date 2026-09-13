@@ -244,7 +244,7 @@ class ScheduleManagerTest {
             ResetOutcome.rejected(
                 worldId,
                 "resource",
-                ResetFailureType.MULTIVERSE_API_EXCEPTION,
+                ResetFailureType.PROVIDER_API_EXCEPTION,
                 FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
                 "upstream result is unknown");
     ScheduleManager manager =
@@ -390,7 +390,7 @@ class ScheduleManagerTest {
         ResetOutcome.rejected(
             "resource_id",
             "resource",
-            ResetFailureType.MULTIVERSE_API_EXCEPTION,
+            ResetFailureType.PROVIDER_API_EXCEPTION,
             FailureSafety.AMBIGUOUS_REVIEW_REQUIRED,
             "unknown upstream state"));
     manager.replaceSchedules(config);

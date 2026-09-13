@@ -98,31 +98,34 @@ public final class TeleportService {
     }
     TeleportPermit permit = admitted.get();
     try {
-      DestinationResult resolved = gateway.resolveSafeDestination(destination.worldName());
-      if (resolved instanceof DestinationResult.Unavailable) {
-        permit.close();
-        return completed(TeleportAttempt.failure(message("teleport.safe-unavailable")));
-      }
-      SafeLocation safe = ((DestinationResult.Available) resolved).location();
-      Location target = BukkitLocations.toBukkit(safe, player.getServer());
-      if (target == null) {
-        permit.close();
-        return completed(TeleportAttempt.failure(message("teleport.unavailable")));
-      }
-      return player
-          .teleportAsync(target, TeleportCause.PLUGIN)
-          .orTimeout(TELEPORT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-          .handle(
-              (ok, error) -> {
-                if (error != null) {
-                  return TeleportAttempt.failure(message("teleport.failed"));
+      return gateway
+          .resolveSafeDestinationAsync(destination.worldName())
+          .thenCompose(
+              resolved -> {
+                if (resolved instanceof DestinationResult.Unavailable) {
+                  return completed(TeleportAttempt.failure(message("teleport.safe-unavailable")));
                 }
-                if (!Boolean.TRUE.equals(ok)) {
-                  return TeleportAttempt.failure(message("teleport.rejected"));
+                SafeLocation safe = ((DestinationResult.Available) resolved).location();
+                Location target = BukkitLocations.toBukkit(safe, player.getServer());
+                if (target == null) {
+                  return completed(TeleportAttempt.failure(message("teleport.unavailable")));
                 }
-                return TeleportAttempt.success(
-                    message("teleport.success", "world", destination.displayName()));
+                return player
+                    .teleportAsync(target, TeleportCause.PLUGIN)
+                    .orTimeout(TELEPORT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .handle(
+                        (ok, error) -> {
+                          if (error != null) {
+                            return TeleportAttempt.failure(message("teleport.failed"));
+                          }
+                          if (!Boolean.TRUE.equals(ok)) {
+                            return TeleportAttempt.failure(message("teleport.rejected"));
+                          }
+                          return TeleportAttempt.success(
+                              message("teleport.success", "world", destination.displayName()));
+                        });
               })
+          .exceptionally(error -> TeleportAttempt.failure(message("teleport.failed")))
           .whenComplete((attempt, error) -> permit.close());
     } catch (RuntimeException exception) {
       permit.close();

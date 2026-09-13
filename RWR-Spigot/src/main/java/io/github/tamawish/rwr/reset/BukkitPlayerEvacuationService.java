@@ -60,6 +60,10 @@ public final class BukkitPlayerEvacuationService implements PlayerEvacuationServ
     for (Player player : players) {
       if (!player.teleport(target.clone(), TeleportCause.PLUGIN)) {
         failedTeleports++;
+      } else {
+        // Bukkit retains accumulated fall distance across teleports. Clear it after a successful
+        // evacuation so landing at the fallback cannot apply a fall that began in the reset world.
+        player.setFallDistance(0.0F);
       }
     }
 

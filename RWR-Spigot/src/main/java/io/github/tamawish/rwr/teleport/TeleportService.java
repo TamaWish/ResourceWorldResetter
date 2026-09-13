@@ -3,6 +3,7 @@ package io.github.tamawish.rwr.teleport;
 import io.github.tamawish.rwr.config.TeleportSettings;
 import io.github.tamawish.rwr.multiverse.DestinationResult;
 import io.github.tamawish.rwr.reset.ResetAccessPolicy;
+import io.github.tamawish.rwr.reset.ResetAccessPolicy.TeleportPermit;
 import io.github.tamawish.rwr.world.BukkitLocations;
 import io.github.tamawish.rwr.world.SafeLocation;
 import io.github.tamawish.rwr.world.WorldProvider;
@@ -85,18 +86,26 @@ public final class TeleportService {
       default -> throw new AssertionError("Unhandled destination state: " + destination.state());
     }
 
-    DestinationResult resolved = gateway.resolveSafeDestination(destination.worldName());
-    if (resolved instanceof DestinationResult.Unavailable unavailable) {
-      return TeleportAttempt.failure("Safe destination unavailable: " + unavailable.message());
-    }
-    if (resetAccess.blocksIncomingRwrTeleport(destination.worldName())) {
+    Optional<TeleportPermit> admitted =
+        resetAccess.tryAcquireIncomingRwrTeleport(destination.worldName());
+    if (admitted.isEmpty()) {
       return TeleportAttempt.failure("That world started resetting; teleport cancelled.");
     }
-    SafeLocation safe = ((DestinationResult.Available) resolved).location();
-    Location target = BukkitLocations.toBukkit(safe, player.getServer());
-    if (target == null || !player.teleport(target, TeleportCause.PLUGIN)) {
-      return TeleportAttempt.failure("The server rejected the teleport.");
+    try (TeleportPermit ignored = admitted.get()) {
+      DestinationResult resolved = gateway.resolveSafeDestination(destination.worldName());
+      if (resolved instanceof DestinationResult.Unavailable unavailable) {
+        return TeleportAttempt.failure("Safe destination unavailable: " + unavailable.message());
+      }
+      // Preserve compatibility with access policies that inherit the legacy no-op permit.
+      if (resetAccess.blocksIncomingRwrTeleport(destination.worldName())) {
+        return TeleportAttempt.failure("That world started resetting; teleport cancelled.");
+      }
+      SafeLocation safe = ((DestinationResult.Available) resolved).location();
+      Location target = BukkitLocations.toBukkit(safe, player.getServer());
+      if (target == null || !player.teleport(target, TeleportCause.PLUGIN)) {
+        return TeleportAttempt.failure("The server rejected the teleport.");
+      }
+      return TeleportAttempt.success("Teleported to " + destination.displayName() + '.');
     }
-    return TeleportAttempt.success("Teleported to " + destination.displayName() + '.');
   }
 }

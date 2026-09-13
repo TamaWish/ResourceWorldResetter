@@ -39,7 +39,7 @@ Safe, scheduled resource-world regeneration for Spigot, CraftBukkit, Paper, Purp
 ## Features
 
 - Daily, weekly, monthly, and interval reset schedules with IANA time zones.
-- Guarded evacuation, provider regeneration, result verification, and per-world locking.
+- Guarded evacuation to local worlds, the default overworld, Velocity/BungeeCord servers, or registered plugin destinations, with departure verification and per-world locking.
 - Configurable countdown warnings and completion broadcasts.
 - Persistent reset history and conservative interrupted-operation recovery.
 - Administration and player teleport GUIs.
@@ -68,7 +68,7 @@ The Spigot build uses the Bukkit API version `1.21`. Worlds 4.4.0 targets Paper/
 6. Configure worlds with `/rwr gui`; generated world definitions are stored in `managed-worlds.yml`.
 7. Run one supervised `/rwr reset <id>` before enabling unattended resets.
 
-Use `RWR-Spigot-5.2.0-beta.1.jar` for Spigot/CraftBukkit or `RWR-Paper-Folia-5.2.0-beta.1.jar` for Paper/Purpur/Folia. Do not install both. The shared core and API adapter are bundled and are not separate server plugins. Current builds are pre-release until 5.2.0 is validated for public release.
+Use `RWR-Spigot-5.2.0.jar` for Spigot/CraftBukkit or `RWR-Paper-Folia-5.2.0.jar` for Paper/Purpur/Folia. Do not install both. The shared core and API adapter are bundled and are not separate server plugins.
 
 > [!IMPORTANT]
 > RWR 5 requires `config-version: 5`. Version 4 configuration is not migrated automatically. Follow [Operations and Migration](docs/public/OPERATIONS_AND_MIGRATION.md).
@@ -103,7 +103,7 @@ The generated configuration is stored in:
 | `config-version` | Yes | `5` | Configuration schema version. |
 | `locale` | No | `en_US` | Locale filename without `.yml`. |
 | `timezone` | No | `Asia/Kuala_Lumpur` | IANA time zone used by schedules. |
-| `default-hub-world` | Yes | server default world on first install | Default evacuation destination. |
+| `default-hub-world` | Yes | server default world on first install | Protected local hub and legacy evacuation fallback. |
 | `updates.enabled` | No | `true` | Check GitHub Releases at startup. |
 | `reset-policy.max-safe-retries` | No | `2` | Automatic retries after a safe failure. |
 | `managed-worlds.yml: worlds.<id>.managed` | Yes for resets | No implicit default | Must be `true` before RWR regenerates a world. |
@@ -131,10 +131,81 @@ worlds:
       keep-world-border: true
     evacuation:
       enabled: true
-      destination: world
+      timeout-seconds: 30
+      destination:
+        type: local-world
+        target: world
 ```
 
 On Paper/Folia, `multiverse-world` stores a Worlds key such as `worlds:resource`. See the bundled platform `config.yml` files and the [operator configuration guide](website/src/content/docs/operator/configuration.md) for the complete schema.
+
+### Evacuation destinations (5.2.0)
+
+Use `/rwr gui` → world → evacuation destination to select **Default overworld**, **Local world**, **Proxy server**, or **Plugin destination**. Local lists mark the reset world and unloaded worlds unavailable. Each list also offers manual input. Global settings provide defaults for new world configurations; existing overrides remain explicit.
+
+Set `destination.type` to `default-world`, `local-world`, `proxy-server`, or `registered-provider`. `destination.target` is the world name/key, proxy backend name (for example `hub`), or registered provider ID. Add proxy menu choices with `proxy-servers: [hub, lobby]` in `config.yml`. The global `evacuation` section uses the same fields as per-world settings.
+
+Transfers have a configurable 1–120 second timeout (default 30). RWR checks that players have left before regenerating; sending a proxy message alone is insufficient. Velocity needs `bungee-plugin-message-channel = true`. Legacy scalar `destination: world` values remain accepted and save in the structured format. No separate proxy plugin or arbitrary command destination is required.
+
+#### First-time Velocity network setup
+
+A proxy destination such as `lobby` is a separate running Paper/Folia backend server, not a world created by Worlds or Multiverse. A minimal network therefore needs three processes with different ports:
+
+| Process | Example address | Purpose |
+| --- | --- | --- |
+| Velocity | `0.0.0.0:25565` | Public entry point used by players. |
+| Resource backend | `127.0.0.1:25566` | Paper/Folia server running RWR and its world provider. |
+| Lobby backend | `127.0.0.1:25567` | Separate Paper/Folia server that receives evacuated players. |
+
+Configure Velocity's `velocity.toml`:
+
+```toml
+bind = "0.0.0.0:25565"
+online-mode = true
+player-info-forwarding-mode = "modern"
+forwarding-secret-file = "forwarding.secret"
+
+[servers]
+resource = "127.0.0.1:25566"
+lobby = "127.0.0.1:25567"
+try = ["resource", "lobby"]
+
+[advanced]
+bungee-plugin-message-channel = true
+```
+
+On **every backend**, set `online-mode=false` in `server.properties`, use a unique `server-port`, and keep `settings.bungeecord: false` in `spigot.yml`. Then configure `config/paper-global.yml` on both the resource and lobby backends:
+
+```yaml
+proxies:
+  velocity:
+    enabled: true
+    online-mode: true
+    secret: "COPY_THE_EXACT_CONTENTS_OF_VELOCITY_FORWARDING.SECRET"
+```
+
+The `enabled: true` setting and matching secret are required on **every destination backend**, including a newly created lobby. If either is missing, Velocity reports that the server did not send a forwarding request. Start the lobby, start the resource backend, then start Velocity; wait for each backend to report `Done` before connecting to `localhost:25565`. Do not connect players directly to backend ports or expose those ports publicly when all processes share one machine.
+
+Finally, make the RWR target exactly match the key under Velocity's `[servers]` table:
+
+```yaml
+evacuation:
+  enabled: true
+  timeout-seconds: 30
+  destination:
+    type: proxy-server
+    target: lobby
+
+proxy-servers: [lobby]
+```
+
+See the [complete evacuation and network guide](docs/public/EVACUATION.md) for security, provider integrations, and troubleshooting.
+
+### Destination discovery
+
+Opening the proxy evacuation selector requests `GetServers` through the connected administrator and immediately shows cached, configured, and saved targets. The matching open selector refreshes after a response while keeping its page and context. Current selections appear first. Missing or duplicate plugin providers are disabled; proxy targets absent from the latest response are unavailable (unverified before the first response). Custom/manual entry remains available, and saved global or managed-world targets remain visible on reopening.
+
+Discovery is an in-memory cache for the plugin lifetime and never rewrites `config.yml`; `proxy-servers` supplies stable menu entries. If discovery times out, existing entries remain visible. It requires a connected player, a responding compatible proxy, and on Velocity `bungee-plugin-message-channel = true`. A listed backend proves proxy registration, not reachability: stopping a backend alone does not remove it from `GetServers`. Removing it from proxy registration and reopening the selector marks a saved target unavailable. Evacuation still waits for actual departure before regeneration. Configuration schema stays at 5 and the public API signatures are unchanged.
 
 ## Commands and permissions
 
@@ -161,7 +232,7 @@ locale: ja_JP
 
 On a fresh install with the default `locale: en_US`, only `locales/en_US.yml` is written to the plugin data folder. Other bundled languages stay inside the JAR until you select them: set `locale` to `zh_CN`, `ja_JP`, or `ko_KR`, then restart or run `/rwr reload` to extract that file under `locales/`.
 
-Messages use MiniMessage. Keep placeholders such as `<world>`, `<latest>`, and `<permission>` unchanged. Legacy ampersand color codes and `%placeholder%` syntax are accepted. Missing keys fall back to bundled English from the JAR (including keys omitted from older on-disk locale files). An invalid locale reload keeps the previous valid locale active. Both `/rwr reload` and the administration GUI reload refresh configuration, locale, and update-checker settings together.
+Messages use MiniMessage. The Spigot/CraftBukkit artifact bundles and isolates `adventure-platform-bukkit` for component delivery; Paper/Purpur/Folia uses the server's native Adventure API. Keep placeholders such as `<world>`, `<latest>`, and `<permission>` unchanged. Legacy ampersand color codes and `%placeholder%` syntax are accepted. Missing keys fall back to bundled English from the JAR (including keys omitted from older on-disk locale files). An invalid locale reload keeps the previous valid locale active. Both `/rwr reload` and the administration GUI reload refresh configuration, locale, and update-checker settings together.
 
 ## Metrics
 
@@ -174,7 +245,7 @@ RWR uses [bStats](https://bstats.org/) for anonymous server usage statistics. Th
 - [RWR-Prometheus](https://github.com/TamaWish/RWR-Prometheus) exports reset lifecycle metrics.
 - [RWR API](https://github.com/TamaWish/RWR-API) provides read-only snapshots and reset lifecycle events.
 
-Integration authors can compile against `io.github.tamawish:rwr-api:5.1.2` with `provided` scope. See [Integration Development](docs/public/DEVELOPMENT.md).
+Integration authors can compile against `io.github.tamawish:rwr-api:5.2.0` with `provided` scope. See [Integration Development](docs/public/DEVELOPMENT.md) and [Evacuation setup](docs/public/EVACUATION.md).
 
 ## Project structure
 
@@ -187,6 +258,8 @@ Integration authors can compile against `io.github.tamawish:rwr-api:5.1.2` with 
 | `website/` | Astro/Starlight documentation site. |
 
 ## Development
+
+For this unreleased 5.2.0, first build the matching sibling API checkout with `mvn -f ../RWR-API/pom.xml install`. API 5.2.0 must be published before a runtime-only build can resolve it from Maven Central.
 
 The full Maven reactor requires JDK 25 and Maven 3.9+.
 

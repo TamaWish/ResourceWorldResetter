@@ -1,6 +1,6 @@
 # Integrating with RWR 5.2.0
 
-The runtime bundles public API **5.1.2**, unchanged for 5.2.0. It exposes immutable snapshots and warning/reset events. It does not provide reset execution or configuration mutation.
+The runtime bundles public API **5.2.0**, adding asynchronous evacuation-provider registration alongside existing immutable snapshots and warning/reset events. It does not expose reset execution or configuration mutation. The new provider interface requires runtime 5.2.0; existing 5.1.2 integrations remain supported.
 
 ## Dependency and discovery
 
@@ -8,7 +8,7 @@ The runtime bundles public API **5.1.2**, unchanged for 5.2.0. It exposes immuta
 <dependency>
   <groupId>io.github.tamawish</groupId>
   <artifactId>rwr-api</artifactId>
-  <version>5.1.2</version>
+  <version>5.2.0</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -45,3 +45,11 @@ Use the event/snapshot fields rather than parsing translated chat text. Keep cal
 In 5.2.0, active resets survive schedule reloads, and namespaced references are compared by world identity. Ambiguous outcomes pause automation; a timeout does not establish that upstream work stopped. These behaviors do not add mutating methods to the API.
 
 See the [API repository](https://github.com/TamaWish/RWR-API) for full signatures and contract examples. To change the main plugin, start with [Contributing](../../CONTRIBUTING.md).
+
+## Registering an evacuation destination
+
+Implement `io.github.tamawish.rwr.api.EvacuationProvider`, returning a unique `destinationId()` (for example `myplugin:lobby`) and `CompletionStage<Boolean> evacuate(UUID playerId)`. Call `provider.register(this)` from your plugin to expose the destination; `provider.unregister(this)` removes it. Bukkit also unregisters services on plugin disable. Keep the instance to unregister that exact registration.
+
+RWR invokes the transfer on the player's scheduler. Return promptly; do not wait for a future or network response. Complete `true` when your operation succeeds, `false` or exceptionally when it fails, and schedule all later Bukkit access appropriately. RWR independently waits for the source world to empty and aborts if the provider disappears or times out. A returned `true` alone never authorizes regeneration. Duplicate IDs are rejected at transfer time. See [Evacuation setup](EVACUATION.md).
+
+API 5.2.0 is unreleased. For local development, install the matching `RWR-API` source checkout with `mvn install` before building the runtime or add-on. Publish the API artifact before the public runtime release and runtime-only CI build.

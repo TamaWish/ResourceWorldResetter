@@ -11,6 +11,7 @@ target/
 Thumbs.db
 
 # Local runtime and test data
+.runtime-tests/
 plugins/
 /world/
 /world_nether/

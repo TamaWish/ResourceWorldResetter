@@ -37,6 +37,15 @@ public interface WorldProvider extends WorldCatalogView {
 
   DestinationResult resolveSafeDestination(String name);
 
+  /** Resolves a safe destination on the platform-appropriate execution context. */
+  default CompletionStage<DestinationResult> resolveSafeDestinationAsync(String name) {
+    try {
+      return CompletableFuture.completedFuture(resolveSafeDestination(name));
+    } catch (RuntimeException exception) {
+      return CompletableFuture.failedFuture(exception);
+    }
+  }
+
   RegenerationOutcome regenerate(RegenerationRequest request);
 
   /**

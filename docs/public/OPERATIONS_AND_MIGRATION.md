@@ -6,12 +6,12 @@ This is the global public runbook for both ResourceWorldResetter 5 platform arti
 
 | Server | RWR artifact | Required world plugin | Data folder |
 |---|---|---|---|
-| Spigot / CraftBukkit | `RWR-Spigot-5.2.0-beta.1.jar` | Multiverse-Core 5.8.0+ | `plugins/ResourceWorldResetter/` |
-| Paper / Purpur / Folia | `RWR-Paper-Folia-5.2.0-beta.1.jar` | Worlds by TheNextLvl 4.4.0+ | `plugins/ResourceWorldResetter-Paper-Folia/` |
+| Spigot / CraftBukkit | `RWR-Spigot-5.2.0.jar` | Multiverse-Core 5.8.0+ | `plugins/ResourceWorldResetter/` |
+| Paper / Purpur / Folia | `RWR-Paper-Folia-5.2.0.jar` | Worlds by TheNextLvl 4.4.0+ | `plugins/ResourceWorldResetter-Paper-Folia/` |
 
 Install exactly one RWR artifact. Do not install `rwr-core` separately. Paper/Folia does not use Multiverse-Core. Worlds 4.4.0 supports Minecraft 26.1.2 and 26.2, so it cannot be used on Paper/Folia 1.21.4.
 
-Spigot/CraftBukkit requires Java 21+. Paper/Purpur/Folia requires Java 25+ and Minecraft 26.1.2+ because of Worlds 4.4.0. Current packages are `5.2.0-beta.1` pre-release builds.
+Spigot/CraftBukkit requires Java 21+. Paper/Purpur/Folia requires Java 25+ and Minecraft 26.1.2+ because of Worlds 4.4.0.
 
 ## Installation
 
@@ -37,7 +37,7 @@ On a clean data folder with the default `locale: en_US`, only `locales/en_US.yml
 - Use `/rwr status [id]` to verify the calculated schedule.
 - Use `/rwr history 10` to inspect recent terminal and interrupted operations.
 - Use `/rwr reload` after manual YAML edits. Reload refreshes configuration, locale, and update-checker settings together. Invalid configuration leaves the previous active configuration and schedules in place; an invalid locale keeps the previous valid messages active.
-- Before a manual reset, ensure the evacuation destination is loaded, safe, and registered with the platform's world plugin.
+- Before a manual reset, verify the selected evacuation destination: local worlds must be loaded and different from the reset world; proxy servers must exist in the proxy configuration; plugin destinations must have a registered provider. See [Evacuation setup](EVACUATION.md).
 - Use `/rwr reset <world-id>` or the dashboard confirmation screen to start a reset.
 
 RWR evacuates players, delegates regeneration to the authoritative world plugin, then independently verifies registration, loaded state, identity, and safe spawn. Incoming RWR teleports are blocked from precheck through verification so players cannot teleport into an unsafe reset window.

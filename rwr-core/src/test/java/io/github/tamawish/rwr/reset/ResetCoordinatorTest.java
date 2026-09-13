@@ -51,6 +51,19 @@ class ResetCoordinatorTest {
   @TempDir Path temporaryDirectory;
 
   @Test
+  void idleTeleportChecksDoNotQueryWorldProvider() throws Exception {
+    FakeGateway gateway = new FakeGateway();
+    ResetCoordinator coordinator = coordinator(settings("resource"), gateway, new FakeEvacuation());
+    int initialQueries = gateway.worldQueries.get();
+
+    for (int index = 0; index < 1000; index++) {
+      assertThat(coordinator.blocksIncomingRwrTeleport("resource")).isFalse();
+    }
+
+    assertThat(gateway.worldQueries).hasValue(initialQueries);
+  }
+
+  @Test
   void cancellablePreEventStopsBeforeJournalEvacuationAndMultiverse() throws Exception {
     FakeGateway gateway = new FakeGateway();
     FakeEvacuation evacuation = new FakeEvacuation();
@@ -208,6 +221,27 @@ class ResetCoordinatorTest {
   }
 
   @Test
+  void asynchronousResetWaitsForPlatformRemainingPlayerCheck() throws Exception {
+    FakeGateway gateway = new FakeGateway();
+    FakeEvacuation evacuation = new FakeEvacuation();
+    evacuation.asyncRemaining = new CompletableFuture<>();
+    ResetCoordinator coordinator = coordinator(settings("resource"), gateway, evacuation);
+
+    CompletionStage<ResetOutcome> reset = coordinator.resetAsync("resource_id");
+
+    assertThat(reset.toCompletableFuture()).isNotDone();
+    assertThat(gateway.regenerationCalls).hasValue(0);
+    assertThat(evacuation.synchronousRemainingCalls).hasValue(0);
+
+    evacuation.asyncRemaining.complete(OptionalInt.of(0));
+    ResetOutcome outcome = reset.toCompletableFuture().get(5, TimeUnit.SECONDS);
+
+    assertThat(outcome.successful()).isTrue();
+    assertThat(gateway.regenerationCalls).hasValue(1);
+    assertThat(evacuation.synchronousRemainingCalls).hasValue(0);
+  }
+
+  @Test
   void exceptionalAsyncRegenerationBecomesTerminalAndReleasesLocks() throws Exception {
     FakeGateway gateway = new FakeGateway();
     gateway.asyncOutcome = new CompletableFuture<>();
@@ -274,14 +308,37 @@ class ResetCoordinatorTest {
 
     ResetOutcome outcome = coordinator.reset("resource_id");
 
-    assertThat(outcome.failure()).isEqualTo(ResetFailureType.MULTIVERSE_CREATE_FAILED);
+    assertThat(outcome.failure()).isEqualTo(ResetFailureType.PROVIDER_CREATE_FAILED);
     assertThat(outcome.safety()).isEqualTo(FailureSafety.AMBIGUOUS_REVIEW_REQUIRED);
     assertThat(coordinator.status("resource_id").phase()).isEqualTo(ResetPhase.FAILED);
     assertThat(coordinator.recentHistory(1))
         .singleElement()
         .satisfies(
             entry -> {
-              assertThat(entry.failure()).isEqualTo(ResetFailureType.MULTIVERSE_CREATE_FAILED);
+              assertThat(entry.failure()).isEqualTo(ResetFailureType.PROVIDER_CREATE_FAILED);
+              assertThat(entry.safety()).isEqualTo(FailureSafety.AMBIGUOUS_REVIEW_REQUIRED);
+            });
+  }
+
+  @Test
+  void worldsStateRestoreFailureIsProviderNeutralAndRequiresReview() throws Exception {
+    FakeGateway gateway = new FakeGateway();
+    gateway.outcome =
+        new RegenerationOutcome.Failed(
+            RegenerationFailureReason.API_EXCEPTION,
+            "STATE_RESTORE_FAILED",
+            "Settings restoration failed");
+    ResetCoordinator coordinator = coordinator(settings("resource"), gateway, new FakeEvacuation());
+
+    ResetOutcome outcome = coordinator.resetAsync("resource_id").toCompletableFuture().get();
+
+    assertThat(outcome.failure()).isEqualTo(ResetFailureType.PROVIDER_API_EXCEPTION);
+    assertThat(outcome.safety()).isEqualTo(FailureSafety.AMBIGUOUS_REVIEW_REQUIRED);
+    assertThat(coordinator.recentHistory(1))
+        .singleElement()
+        .satisfies(
+            entry -> {
+              assertThat(entry.failure()).isEqualTo(ResetFailureType.PROVIDER_API_EXCEPTION);
               assertThat(entry.safety()).isEqualTo(FailureSafety.AMBIGUOUS_REVIEW_REQUIRED);
             });
   }
@@ -341,7 +398,7 @@ class ResetCoordinatorTest {
 
     ResetOutcome outcome = coordinator.resetAsync("resource_id").toCompletableFuture().get();
 
-    assertThat(outcome.failure()).isEqualTo(ResetFailureType.MULTIVERSE_API_EXCEPTION);
+    assertThat(outcome.failure()).isEqualTo(ResetFailureType.PROVIDER_API_EXCEPTION);
     assertThat(outcome.safety()).isEqualTo(FailureSafety.AMBIGUOUS_REVIEW_REQUIRED);
     assertThat(coordinator.recentHistory(1))
         .singleElement()
@@ -434,6 +491,8 @@ class ResetCoordinatorTest {
     private EvacuationResult result = new EvacuationResult.Success(0);
     private OptionalInt remaining = OptionalInt.of(0);
     private CompletableFuture<EvacuationResult> asyncResult;
+    private CompletableFuture<OptionalInt> asyncRemaining;
+    private final AtomicInteger synchronousRemainingCalls = new AtomicInteger();
 
     @Override
     public EvacuationResult evacuate(String sourceWorld, EvacuationSettings settings) {
@@ -450,7 +509,15 @@ class ResetCoordinatorTest {
 
     @Override
     public OptionalInt remainingPlayers(String sourceWorld) {
+      synchronousRemainingCalls.incrementAndGet();
       return remaining;
+    }
+
+    @Override
+    public CompletionStage<OptionalInt> remainingPlayersAsync(String sourceWorld) {
+      return asyncRemaining == null
+          ? PlayerEvacuationService.super.remainingPlayersAsync(sourceWorld)
+          : asyncRemaining;
     }
   }
 
@@ -477,6 +544,7 @@ class ResetCoordinatorTest {
     private final Map<String, WorldSnapshot> worlds =
         new java.util.concurrent.ConcurrentHashMap<>();
     private final AtomicInteger regenerationCalls = new AtomicInteger();
+    private final AtomicInteger worldQueries = new AtomicInteger();
     private final CountDownLatch regenerationEntered = new CountDownLatch(1);
     private final CountDownLatch releaseRegeneration = new CountDownLatch(1);
     private volatile boolean pauseRegeneration;
@@ -501,6 +569,7 @@ class ResetCoordinatorTest {
 
     @Override
     public Optional<WorldSnapshot> world(String name) {
+      worldQueries.incrementAndGet();
       return Optional.ofNullable(worlds.get(name));
     }
 

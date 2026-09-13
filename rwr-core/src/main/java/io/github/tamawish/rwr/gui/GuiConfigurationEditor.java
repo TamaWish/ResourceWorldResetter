@@ -66,7 +66,7 @@ public final class GuiConfigurationEditor {
             new ScheduleSettings(ScheduleType.DAILY, LocalTime.of(3, 0), null, 0, 0),
             List.of(30, 10, 5, 1),
             new RegenerationSettings(SeedPolicy.SAME, null, true, true, true),
-            new EvacuationSettings(true, current.defaultHubWorld()),
+            current.defaultEvacuation(),
             WorldOperationalState.DISABLED);
     return apply(
         settings -> {
@@ -144,6 +144,21 @@ public final class GuiConfigurationEditor {
    * @param value new scheduling timezone
    * @return the edit outcome
    */
+  public GuiEditResult setDefaultEvacuation(EvacuationSettings value) {
+    return apply(
+        settings ->
+            new PluginSettings(
+                settings.configVersion(),
+                settings.timezone(),
+                settings.defaultHubWorld(),
+                settings.resetPolicy(),
+                settings.worlds(),
+                settings.teleport(),
+                value,
+                settings.proxyServers()),
+        "Default evacuation updated.");
+  }
+
   public GuiEditResult setTimezone(ZoneId value) {
     return apply(
         settings ->
@@ -304,7 +319,15 @@ public final class GuiConfigurationEditor {
       TeleportSettings teleport,
       ZoneId zone,
       String hub) {
-    return new PluginSettings(source.configVersion(), zone, hub, policy, worlds, teleport);
+    return new PluginSettings(
+        source.configVersion(),
+        zone,
+        hub,
+        policy,
+        worlds,
+        teleport,
+        source.defaultEvacuation(),
+        source.proxyServers());
   }
 
   /**
